@@ -405,7 +405,6 @@
                         clearTimeout(speechTimeout);
                     }
                     
-                    // MODIFIED: Wait 0.6 seconds after user stops speaking for faster processing
                     speechTimeout = setTimeout(() => {
                         if (currentTranscript.trim().length > 0 && !isSpeaking && canListen) {
                             handleUserSpeech(currentTranscript.trim());
@@ -680,6 +679,15 @@
         }
         
         async function startNexus() {
+            // MODIFIED: Synchronously "prime" the speech synthesis engine on user tap.
+            if ('speechSynthesis' in window) {
+                console.log("Priming Speech Synthesis for mobile...");
+                const primingUtterance = new SpeechSynthesisUtterance('');
+                primingUtterance.volume = 0;
+                speechSynthesis.speak(primingUtterance);
+                speechSynthesis.cancel();
+            }
+
             startOverlay.style.opacity = '0';
             setTimeout(() => {
                 startOverlay.style.display = 'none';
