@@ -705,7 +705,7 @@ function setupSpeechRecognition() {
         if (isFinal && transcript.trim()) {
             console.log("Final result received, processing with 1-second delay.");
             stopListening();
-            // Wait exactly 1 second after user finishes speaking
+            // Start processing immediately but delay the response by 1 second
             setTimeout(() => {
                 handleUserSpeech(transcript);
             }, 1000);
@@ -803,18 +803,12 @@ function setupSpeechRecognition() {
                 updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
                 updateRobotState('thinking');
                 
-                try {
-                    const responseText = await getAIResponse("Are you done?", null);
-                    await speakNovaResponse(responseText);
-                } catch (error) {
-                    console.error('Error in silence handling:', error);
-                    await speakNovaResponse("Are you done?");
-                }
+                // Pre-generate "Are you done?" without API call for instant response
+                await speakNovaResponse("Are you done?");
                 return;
             }
             
             if (isSpeaking || !trimmedTranscript) {
-                // If user was silent, just go back to listening
                 if (!isSpeaking) {
                     setTimeout(() => {
                         canListen = true;
@@ -829,6 +823,8 @@ function setupSpeechRecognition() {
             
             canListen = false;
             stopListening();
+            
+            // Show thinking state immediately
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
             updateRobotState('thinking');
@@ -840,11 +836,31 @@ function setupSpeechRecognition() {
 
             try {
                 const imageData = cameraActive ? captureImage() : null;
-                const responseText = await getAIResponse(trimmedTranscript, imageData);
+                
+                // Start both AI response and Nova speech generation in parallel
+                const [responseText] = await Promise.all([
+                    getAIResponse(trimmedTranscript, imageData),
+                    // Pre-warm Nova API connection
+                    preWarmNovaAPI()
+                ]);
+                
                 await speakNovaResponse(responseText);
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
                 await speakNovaResponse("I encountered an error. Please try again.");
+            }
+        }
+        
+        async function preWarmNovaAPI() {
+            try {
+                // Send a tiny silent audio request to warm up the Nova API connection
+                fetch('/api/nova-speech', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: " " })
+                }).catch(() => {}); // Ignore errors, this is just for warming up
+            } catch (error) {
+                // Ignore warming errors
             }
         }
         
