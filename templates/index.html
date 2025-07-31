@@ -495,16 +495,26 @@
         async function initializeCamera() {
             try {
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 640, height: 480 }, 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    }, 
                     audio: false 
                 });
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
                 
-                // Wait for video to load
+                // Wait for video metadata to load
                 await new Promise((resolve) => {
-                    videoElement.onloadedmetadata = resolve;
+                    videoElement.onloadedmetadata = () => {
+                        videoElement.play();
+                        resolve();
+                    };
                 });
+                
+                // Additional wait for camera to adjust exposure and focus
+                await new Promise(resolve => setTimeout(resolve, 3000));
                 
                 cameraActive = true;
                 console.log("Camera initialized successfully");
@@ -540,6 +550,7 @@
         window.addEventListener('load', async () => {
             console.log("Initializing NEXUS 3000...");
             
+            // Initialize camera first
             await initializeCamera();
             setupSpeechRecognition();
             
@@ -551,14 +562,24 @@
                 speechSynthesis.getVoices();
             }
 
+            // Wait longer for camera to fully initialize and adjust to lighting
             setTimeout(async () => {
-                if (!hasGreeted) {
+                if (!hasGreeted && cameraActive) {
                     hasGreeted = true;
+                    
+                    // Wait a bit more for camera auto-exposure to adjust
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
                     const initialPrompt = "I've just awakened. Greet the user warmly and describe what you can see through the camera. Be natural and conversational.";
                     const greeting = await getAIResponse(initialPrompt, captureImage());
                     await speakResponse(greeting);
+                } else if (!hasGreeted && !cameraActive) {
+                    // Fallback greeting without camera
+                    hasGreeted = true;
+                    const greeting = await getAIResponse("I've just awakened. Greet the user warmly. Note that I don't have camera access right now.", null);
+                    await speakResponse(greeting);
                 }
-            }, 2000);
+            }, 3000);
         });
     </script>
 </body>
