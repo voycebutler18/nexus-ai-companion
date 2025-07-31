@@ -24,6 +24,789 @@
             position: relative;
         }
 
+        /* Enhanced Futuristic Space Background */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                /* Deep space layers */
+                radial-gradient(ellipse at 20% 30%, #1a0033 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, #0d1421 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 80%, #2d1b69 0%, transparent 60%),
+                
+                /* Galaxy spiral arms */
+                radial-gradient(ellipse 1200px 400px at 30% 20%, rgba(0, 212, 255, 0.3) 0%, transparent 40%),
+                radial-gradient(ellipse 800px 300px at 70% 60%, rgba(255, 0, 110, 0.25) 0%, transparent 35%),
+                radial-gradient(ellipse 1000px 200px at 50% 90%, rgba(131, 56, 236, 0.2) 0%, transparent 45%),
+                
+                /* Nebula formations */
+                radial-gradient(ellipse at 10% 60%, rgba(255, 27, 141, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 40%, rgba(0, 245, 255, 0.3) 0%, transparent 45%),
+                radial-gradient(ellipse at 60% 10%, rgba(138, 43, 226, 0.35) 0%, transparent 40%),
+                
+                /* Central galactic core */
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.05) 0%, rgba(131, 56, 236, 0.2) 30%, transparent 70%),
+                
+                /* Base gradient */
+                linear-gradient(125deg, #000011 0%, #0a0a0f 30%, #1a0033 60%, #000022 100%);
+            animation: galaxyRotation 200s linear infinite;
+            z-index: -3;
+        }
+
+        /* Animated Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: 
+                /* Large bright stars */
+                radial-gradient(3px 3px at 120px 80px, #ffffff, transparent),
+                radial-gradient(2px 2px at 350px 200px, #00f5ff, transparent),
+                radial-gradient(4px 4px at 580px 120px, #ffffff, transparent),
+                radial-gradient(2px 2px at 750px 300px, #ff1b8d, transparent),
+                radial-gradient(3px 3px at 200px 400px, #8338ec, transparent),
+                radial-gradient(2px 2px at 900px 150px, #00d4ff, transparent),
+                
+                /* Medium stars */
+                radial-gradient(2px 2px at 180px 180px, #ffffff, transparent),
+                radial-gradient(1px 1px at 420px 350px, #00d4ff, transparent),
+                radial-gradient(2px 2px at 680px 250px, #ffffff, transparent),
+                radial-gradient(1px 1px at 820px 400px, #ff006e, transparent),
+                radial-gradient(2px 2px at 50px 300px, #ffffff, transparent),
+                
+                /* Distant twinkling stars */
+                radial-gradient(1px 1px at 300px 100px, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(1px 1px at 500px 380px, rgba(0, 245, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 150px 250px, rgba(255, 255, 255, 0.9), transparent),
+                radial-gradient(1px 1px at 700px 80px, rgba(255, 27, 141, 0.7), transparent),
+                radial-gradient(1px 1px at 80px 450px, rgba(255, 255, 255, 0.8), transparent);
+            background-size: 1000px 500px;
+            animation: starfield 300s linear infinite, starTwinkle 4s ease-in-out infinite alternate;
+        }
+
+        /* Moving cosmic dust */
+        .cosmic-dust {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image:
+                radial-gradient(ellipse 600px 100px at 20% 40%, rgba(0, 212, 255, 0.1) 0%, transparent 70%),
+                radial-gradient(ellipse 800px 80px at 80% 70%, rgba(255, 0, 110, 0.08) 0%, transparent 80%),
+                radial-gradient(ellipse 500px 120px at 60% 20%, rgba(131, 56, 236, 0.06) 0%, transparent 75%);
+            animation: cosmicDrift 180s ease-in-out infinite;
+        }
+
+        @keyframes galaxyRotation {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(360deg) scale(1.02); }
+        }
+
+        @keyframes starfield {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-500px) translateX(-200px); }
+        }
+
+        @keyframes starTwinkle {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes cosmicDrift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-100px, 50px) rotate(90deg); }
+            50% { transform: translate(100px, -50px) rotate(180deg); }
+            75% { transform: translate(-50px, -100px) rotate(270deg); }
+        }
+
+        .title {
+            font-size: 4em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            letter-spacing: 8px;
+            animation: glow 3s ease-in-out infinite alternate;
+            text-align: center;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 30px rgba(0, 255, 255, 0.8); }
+            100% { text-shadow: 0 0 60px rgba(0, 255, 255, 1), 0 0 90px rgba(255, 0, 255, 0.5); }
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #00ffff;
+            letter-spacing: 4px;
+            margin-bottom: 50px;
+            animation: pulse 2s infinite;
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Enhanced Wave Visualizer */
+        .wave-container {
+            width: 600px;
+            height: 120px;
+            position: relative;
+            margin: 30px 0;
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .wave-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #333;
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+
+        .wave-active {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #00ffff;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            transition: all 0.1s ease;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .wave-active.listening {
+            background: #00ffff;
+            animation: listeningWave 0.5s infinite;
+        }
+
+        .wave-active.user-speaking {
+            background: #00f5ff;
+            animation: userWave 0.2s infinite;
+            height: 6px;
+        }
+
+        .wave-active.ai-speaking {
+            background: #ff69b4;
+            animation: aiWave 0.15s infinite;
+            height: 8px;
+        }
+
+        .wave-active.thinking {
+            background: #8338ec;
+            animation: thinkingWave 0.8s infinite;
+            height: 5px;
+        }
+
+        @keyframes listeningWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 5% 45%, 10% 55%, 15% 40%, 20% 60%, 25% 35%, 30% 65%, 35% 45%, 40% 55%, 45% 40%, 50% 60%, 55% 35%, 60% 65%, 65% 45%, 70% 55%, 75% 40%, 80% 60%, 85% 45%, 90% 55%, 95% 50%, 100% 50%);
+            }
+            50% { 
+                clip-path: polygon(0 50%, 5% 55%, 10% 45%, 15% 60%, 20% 40%, 25% 65%, 30% 35%, 35% 55%, 40% 45%, 45% 60%, 50% 40%, 55% 65%, 60% 35%, 65% 55%, 70% 45%, 75% 60%, 80% 40%, 85% 55%, 90% 45%, 95% 50%, 100% 50%);
+            }
+        }
+
+        @keyframes userWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 3% 20%, 6% 80%, 9% 15%, 12% 85%, 15% 25%, 18% 75%, 21% 10%, 24% 90%, 27% 30%, 30% 70%, 33% 20%, 36% 80%, 39% 15%, 42% 85%, 45% 25%, 48% 75%, 51% 30%, 54% 70%, 57% 20%, 60% 80%, 63% 25%, 66% 75%, 69% 15%, 72% 85%, 75% 30%, 78% 70%, 81% 20%, 84% 80%, 87% 25%, 90% 75%, 93% 40%, 96% 60%, 100% 50%);
+            }
+            50% { 
+                clip-path: polygon(0 50%, 3% 80%, 6% 20%, 9% 85%, 12% 15%, 15% 75%, 18% 25%, 21% 90%, 24% 10%, 27% 70%, 30% 30%, 33% 80%, 36% 20%, 39% 85%, 42% 15%, 45% 75%, 48% 25%, 51% 70%, 54% 30%, 57% 80%, 60% 20%, 63% 75%, 66% 25%, 69% 85%, 72% 15%, 75% 70%, 78% 30%, 81% 80%, 84% 20%, 87% 75%, 90% 25%, 93% 60%, 96% 40%, 100% 50%);
+            }
+        }
+
+        @keyframes aiWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 2% 10%, 4% 90%, 6% 5%, 8% 95%, 10% 15%, 12% 85%, 14% 8%, 16% 92%, 18% 20%, 20% 80%, 22% 12%, 24% 88%, 26% 25%, 28% 75%, 30% 18%, 32% 82%, 34% 30%, 36% 70%, 38% 22%, 40% 78%, 42% 35%, 44% 65%, 46% 28%, 48% 72%, 50% 40%, 52% 60%, 54% 35%, 56% 65%, 58% 30%, 60% 70%, 62% 25%, 64% 75%, 66% 20%, 68% 80%, 70% 15%, 72% 85%, 74% 10%, 76% 90%, 78% 5%, 80% 95%, 82% 15%, 84% 85%, 86% 20%, 88% 80%, 90% 25%, 92% 75%, 94% 35%, 96% 65%, 98% 45%, 100% 55%);
+            }
+            25% { 
+                clip-path: polygon(0 45%, 2% 85%, 4% 15%, 6% 90%, 8% 10%, 10% 80%, 12% 20%, 14% 85%, 16% 15%, 18% 75%, 20% 25%, 22% 80%, 24% 20%, 26% 70%, 28% 30%, 30% 75%, 32% 25%, 34% 65%, 36% 35%, 38% 70%, 40% 30%, 42% 60%, 44% 40%, 46% 65%, 48% 35%, 50% 55%, 52% 45%, 54% 60%, 56% 40%, 58% 65%, 60% 35%, 62% 70%, 64% 30%, 66% 75%, 68% 25%, 70% 80%, 72% 20%, 74% 85%, 76% 15%, 78% 90%, 80% 10%, 82% 85%, 84% 15%, 86% 80%, 88% 20%, 90% 75%, 92% 25%, 94% 65%, 96% 35%, 98% 55%, 100% 45%);
+            }
+            50% { 
+                clip-path: polygon(0 55%, 2% 30%, 4% 70%, 6% 25%, 8% 75%, 10% 35%, 12% 65%, 14% 30%, 16% 70%, 18% 40%, 20% 60%, 22% 35%, 24% 65%, 26% 45%, 28% 55%, 30% 40%, 32% 60%, 34% 50%, 36% 50%, 38% 45%, 40% 55%, 42% 50%, 44% 50%, 46% 45%, 48% 55%, 50% 50%, 52% 50%, 54% 45%, 56% 55%, 58% 50%, 60% 50%, 62% 45%, 64% 55%, 66% 40%, 68% 60%, 70% 35%, 72% 65%, 74% 30%, 76% 70%, 78% 25%, 80% 75%, 82% 30%, 84% 70%, 86% 35%, 88% 65%, 90% 40%, 92% 60%, 94% 45%, 96% 55%, 98% 50%, 100% 50%);
+            }
+            75% { 
+                clip-path: polygon(0 60%, 2% 75%, 4% 25%, 6% 80%, 8% 20%, 10% 70%, 12% 30%, 14% 75%, 16% 25%, 18% 65%, 20% 35%, 22% 70%, 24% 30%, 26% 60%, 28% 40%, 30% 65%, 32% 35%, 34% 55%, 36% 45%, 38% 60%, 40% 40%, 42% 55%, 44% 45%, 46% 50%, 48% 50%, 50% 45%, 52% 55%, 54% 50%, 56% 50%, 58% 45%, 60% 55%, 62% 40%, 64% 60%, 66% 35%, 68% 65%, 70% 30%, 72% 70%, 74% 25%, 76% 75%, 78% 20%, 80% 80%, 82% 15%, 84% 85%, 86% 10%, 88% 90%, 90% 5%, 92% 95%, 94% 15%, 96% 85%, 98% 25%, 100% 75%);
+            }
+        }
+
+        @keyframes thinkingWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 10% 45%, 20% 55%, 30% 40%, 40% 60%, 50% 35%, 60% 65%, 70% 30%, 80% 70%, 90% 45%, 100% 55%);
+            }
+            33% { 
+                clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 30%, 50% 70%, 60% 25%, 70% 75%, 80% 40%, 90% 60%, 100% 50%);
+            }
+            66% { 
+                clip-path: polygon(0 55%, 10% 35%, 20% 65%, 30% 30%, 40% 70%, 50% 45%, 60% 55%, 70% 40%, 80% 60%, 90% 35%, 100% 65%);
+            }
+        }
+
+        /* Status indicator at bottom */
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.show {
+            opacity: 1;
+        }
+
+        .status-indicator.user-speaking {
+            border-color: #00f5ff;
+            color: #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .status-indicator.ai-speaking {
+            border-color: #ff69b4;
+            color: #ff69b4;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+
+        /* Hidden video for camera */
+        #videoElement {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+        }
+
+        .error {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5em;
+                letter-spacing: 4px;
+            }
+            
+            .wave-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="space-bg"></div>
+    <div class="stars"></div>
+    <div class="cosmic-dust"></div>
+    
+    <div class="title">NEXUS 3000</div>
+    <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
+    
+    <div class="wave-container">
+        <div class="wave-line"></div>
+        <div class="wave-active" id="waveActive"></div>
+    </div>
+
+    <div class="status-indicator" id="statusIndicator">
+        Initializing...
+    </div>
+
+    <!-- Hidden video element for camera -->
+    <video id="videoElement" autoplay muted playsinline></video>
+
+    <script>
+        // Global variables
+        let isListening = false;
+        let isSpeaking = false;
+        let cameraActive = false;
+        let recognition = null;
+        let mediaStream = null;
+        let silenceTimer = null;
+        let speechEndTimer = null;
+        let sessionId = Math.random().toString(36).substr(2, 9);
+        let hasGreeted = false;
+        let audioContext = null;
+        let analyser = null;
+        let microphone = null;
+        let dataArray = null;
+        let isUserSpeaking = false;
+
+        // DOM elements
+        const waveActive = document.getElementById('waveActive');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        // Initialize camera (hidden)
+        async function initializeCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                
+                document.getElementById('videoElement').srcObject = mediaStream;
+                cameraActive = true;
+                console.log('Camera initialized');
+            } catch (error) {
+                console.log('Camera not available:', error);
+            }
+        }
+
+        // Initialize microphone for audio analysis
+        async function initializeMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { 
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100 
+                    } 
+                });
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.8;
+                
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                microphone.connect(analyser);
+                
+                // Start monitoring audio levels
+                monitorAudioLevels();
+                
+                return true;
+            } catch (error) {
+                console.error('Microphone setup failed:', error);
+                return false;
+            }
+        }
+
+        // Monitor audio levels to detect when user is actually speaking
+        function monitorAudioLevels() {
+            if (!analyser) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calculate average volume
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            const average = sum / dataArray.length;
+            
+            // Higher threshold to avoid false positives from background noise
+            const SPEECH_THRESHOLD = 35;
+            const currentlyDetectingSpeech = average > SPEECH_THRESHOLD;
+            
+            // Update wave visualization based on audio levels
+            if (isListening && currentlyDetectingSpeech) {
+                if (!isUserSpeaking) {
+                    isUserSpeaking = true;
+                    updateWaveVisualizer('user-speaking');
+                    updateStatusIndicator('👤 You are speaking', 'user-speaking', true);
+                }
+            } else if (isUserSpeaking && !currentlyDetectingSpeech) {
+                isUserSpeaking = false;
+                updateWaveVisualizer('listening');
+                updateStatusIndicator('🎤 Listening...', 'listening', true);
+            }
+            
+            requestAnimationFrame(monitorAudioLevels);
+        }
+
+        // Setup speech recognition with better noise handling
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false; // Changed to false for better control
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    updateWaveVisualizer('listening');
+                    updateStatusIndicator('🎤 Listening...', 'listening', true);
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        clearTimeout(silenceTimer);
+                        clearTimeout(speechEndTimer);
+                        handleUserSpeech(finalTranscript.trim());
+                    } else if (interimTranscript) {
+                        // Reset silence timer for interim results
+                        clearTimeout(silenceTimer);
+                        silenceTimer = setTimeout(() => {
+                            if (interimTranscript.trim()) {
+                                handleUserSpeech(interimTranscript.trim());
+                            }
+                        }, 2000);
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        showError("Microphone access denied");
+                    }
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    updateWaveVisualizer('idle');
+                    updateStatusIndicator('', '', false);
+                    
+                    // Restart listening after a short delay if not speaking
+                    if (!isSpeaking) {
+                        setTimeout(() => {
+                            startListening();
+                        }, 1000);
+                    }
+                };
+
+                // Start listening automatically after initialization
+                setTimeout(() => {
+                    startListening();
+                }, 3000);
+            } else {
+                showError("Speech recognition not supported");
+            }
+        }
+
+        // Start listening with better control
+        function startListening() {
+            if (recognition && !isListening && !isSpeaking) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Failed to start recognition:', error);
+                    // Retry after a short delay
+                    setTimeout(() => {
+                        startListening();
+                    }, 1000);
+                }
+            }
+        }
+
+        // Update wave visualizer
+        function updateWaveVisualizer(state) {
+            waveActive.className = 'wave-active';
+            
+            if (state === 'listening') {
+                waveActive.classList.add('listening');
+            } else if (state === 'user-speaking') {
+                waveActive.classList.add('user-speaking');
+            } else if (state === 'ai-speaking') {
+                waveActive.classList.add('ai-speaking');
+            } else if (state === 'thinking') {
+                waveActive.classList.add('thinking');
+            }
+        }
+
+        // Update status indicator
+        function updateStatusIndicator(text, type, show) {
+            statusIndicator.textContent = text;
+            statusIndicator.className = 'status-indicator';
+            
+            if (type) {
+                statusIndicator.classList.add(type);
+            }
+            
+            if (show) {
+                statusIndicator.classList.add('show');
+            }
+        }
+
+        // Handle user speech with better processing
+        async function handleUserSpeech(transcript) {
+            if (!transcript || transcript.length < 2) return;
+
+            // Stop listening temporarily
+            isListening = false;
+            if (recognition) {
+                recognition.stop();
+            }
+
+            updateWaveVisualizer('thinking');
+            updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
+
+            try {
+                // Capture image if camera is active
+                let imageData = null;
+                if (cameraActive) {
+                    imageData = captureImage();
+                }
+
+                const response = await getAIResponse(transcript, imageData);
+                await speakResponse(response);
+
+                // Wait 500ms after speaking before resuming listening
+                setTimeout(() => {
+                    startListening();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error handling speech:', error);
+                setTimeout(() => {
+                    startListening();
+                }, 1000);
+            }
+        }
+
+        // Get AI response from server
+        async function getAIResponse(userMessage, imageData = null) {
+            try {
+                const requestData = {
+                    message: userMessage,
+                    session_id: sessionId
+                };
+
+                if (imageData) {
+                    const base64Data = imageData.split(',')[1];
+                    requestData.image_data = base64Data;
+                }
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server response: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                return data.response;
+                
+            } catch (error) {
+                console.error('AI API Error:', error);
+                return "I'm having trouble connecting right now. Can you try that again?";
+            }
+        }
+
+        // Speak response with enhanced voice settings
+        async function speakResponse(text) {
+            return new Promise((resolve) => {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    
+                    // Get available voices and select the best female voice
+                    const voices = speechSynthesis.getVoices();
+                    const femaleVoice = voices.find(voice => 
+                        voice.name.toLowerCase().includes('samantha') ||
+                        voice.name.toLowerCase().includes('karen') ||
+                        voice.name.toLowerCase().includes('zira') ||
+                        voice.name.toLowerCase().includes('hazel') ||
+                        voice.name.toLowerCase().includes('female') ||
+                        voice.name.toLowerCase().includes('woman') ||
+                        (voice.name.toLowerCase().includes('english') && voice.name.toLowerCase().includes('us'))
+                    );
+                    
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
+                    }
+                    
+                    // Enhanced voice settings for more natural speech
+                    utterance.rate = 0.95;  // Slightly slower for clarity
+                    utterance.pitch = 1.15; // Higher pitch for female voice
+                    utterance.volume = 0.9;  // Loud and clear
+
+                    utterance.onstart = () => {
+                        isSpeaking = true;
+                        updateWaveVisualizer('ai-speaking');
+                        updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                    };
+
+                    utterance.onend = () => {
+                        isSpeaking = false;
+                        updateWaveVisualizer('idle');
+                        updateStatusIndicator('', '', false);
+                        resolve();
+                    };
+
+                    utterance.onerror = () => {
+                        isSpeaking = false;
+                        updateWaveVisualizer('idle');
+                        updateStatusIndicator('', '', false);
+                        resolve();
+                    };
+
+                    speechSynthesis.speak(utterance);
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        // Capture image from video
+        function captureImage() {
+            if (!cameraActive || !mediaStream) return null;
+
+            const video = document.getElementById('videoElement');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        // Show error
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                if (document.body.contains(errorDiv)) {
+                    document.body.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', async () => {
+            // Initialize camera first
+            await initializeCamera();
+            
+            // Initialize microphone for audio analysis
+            await initializeMicrophone();
+            
+            // Setup speech recognition
+            setupSpeechRecognition();
+            
+            // Load voices for speech synthesis
+            if ('speechSynthesis' in window) {
+                // Wait for voices to load
+                const loadVoices = () => {
+                    const voices = speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        console.log('Available voices:', voices.map(v => v.name));
+                    }
+                };
+                
+                speechSynthesis.addEventListener('voiceschanged', loadVoices);
+                loadVoices(); // Call immediately in case voices are already loaded
+            }
+
+            // Initial greeting after everything is ready
+            setTimeout(async () => {
+                if (!hasGreeted) {
+                    hasGreeted = true;
+                    const greeting = "Hello! I'm NEXUS 3000. I can see you through your camera and I'm listening for your voice. What would you like to talk about?";
+                    await speakResponse(greeting);
+                }
+            }, 4000);
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden, stop recognition
+                if (recognition && isListening) {
+                    recognition.stop();
+                }
+            } else {
+                // Page is visible again, restart recognition
+                if (!isSpeaking && !isListening) {
+                    setTimeout(() => {
+                        startListening();
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS 3000 • COSMIC AGI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            overflow: hidden;
+            position: relative;
+        }
+
         /* Animated Space Background */
         .space-bg {
             position: fixed;
@@ -240,9 +1023,6 @@
         <div class="galaxy"></div>
         <div class="galaxy"></div>
     </div>
-
-    <div class="title">NEXUS 3000</div>
-    <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
     
     <div class="wave-container">
         <div class="wave-line"></div>
