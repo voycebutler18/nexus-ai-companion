@@ -54,6 +54,65 @@
             background-image: radial-gradient(ellipse 600px 100px at 20% 40%, rgba(0, 212, 255, 0.1) 0%, transparent 70%), radial-gradient(ellipse 800px 80px at 80% 70%, rgba(255, 0, 110, 0.08) 0%, transparent 80%), radial-gradient(ellipse 500px 120px at 60% 20%, rgba(131, 56, 236, 0.06) 0%, transparent 75%);
             animation: cosmicDrift 180s ease-in-out infinite;
         }
+        .planets-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 40px -10px currentColor, inset 0 0 20px -5px rgba(255, 255, 255, 0.3);
+            background-blend-mode: multiply;
+        }
+        .planet-1 {
+            width: 250px;
+            height: 250px;
+            color: #ff4848;
+            background-image: radial-gradient(circle at 30% 30%, rgba(255, 200, 200, 0.5), transparent 50%), radial-gradient(circle, #c43a3a, #5a1a1a);
+            animation: move-planet-1 80s linear infinite;
+        }
+        .planet-2 {
+            width: 120px;
+            height: 120px;
+            color: #48aaff;
+            background-image: radial-gradient(circle at 70% 70%, rgba(200, 230, 255, 0.4), transparent 60%), radial-gradient(circle, #3a8bc4, #1a3e5a);
+            animation: move-planet-2 120s linear infinite -30s;
+        }
+        .planet-3 {
+            width: 60px;
+            height: 60px;
+            color: #e3d2ff;
+            background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.3), transparent 40%), radial-gradient(circle, #a370ff, #4d2b8b);
+            animation: move-planet-3 60s linear infinite;
+        }
+        .planet-4 {
+            width: 80px;
+            height: 80px;
+            color: #ffc26e;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 70%), radial-gradient(circle, #c48a3a, #5a411a);
+            animation: move-planet-4 200s linear infinite -60s;
+        }
+        @keyframes move-planet-1 {
+            0% { transform: translate(-20vw, 120vh) scale(0.8); }
+            100% { transform: translate(120vw, -20vh) scale(1.2); }
+        }
+        @keyframes move-planet-2 {
+            0% { transform: translate(110vw, 80vh) scale(0.6); }
+            100% { transform: translate(-30vw, 10vh) scale(0.9); }
+        }
+        @keyframes move-planet-3 {
+            0% { transform: translate(50vw, 110vh) scale(0.5); }
+            100% { transform: translate(30vw, -10vh) scale(0.5); }
+        }
+        @keyframes move-planet-4 {
+            0% { transform: translate(-10vw, 10vh) scale(0.4); }
+            100% { transform: translate(110vw, 30vh) scale(0.45); }
+        }
         @keyframes galaxyRotation {
             0% { transform: rotate(0deg) scale(1); }
             100% { transform: rotate(360deg) scale(1.02); }
@@ -215,6 +274,12 @@
     <div class="space-bg"></div>
     <div class="stars"></div>
     <div class="cosmic-dust"></div>
+    <div class="planets-container">
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+        <div class="planet planet-3"></div>
+        <div class="planet planet-4"></div>
+    </div>
 
     <div class="title">NEXUS 3000</div>
     <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
@@ -458,13 +523,13 @@
                 // iOS/Safari preferences
                 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                     selectedVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen')) ||
-                                   voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')) ||
-                                   voices.find(v => v.lang.includes('en-US'))[0];
+                                    voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')) ||
+                                    voices.find(v => v.lang.includes('en-US'))[0];
                 }
                 // Android preferences
                 else if (/Android/i.test(navigator.userAgent)) {
                     selectedVoice = voices.find(v => v.lang.includes('en-US') && v.name.toLowerCase().includes('female')) ||
-                                   voices.find(v => v.lang.includes('en-US'))[0];
+                                    voices.find(v => v.lang.includes('en-US'))[0];
                 }
                 // Desktop preferences
                 else {
