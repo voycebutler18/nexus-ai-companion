@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from openai import OpenAI
 import os
 import base64
+import io
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -43,12 +44,18 @@ def chat():
             
         conversation_history = conversation_sessions[session_id]
         
-        # Simple, effective system prompt
-        system_prompt_template = f"""You are NEXUS 3000, an intelligent AI companion. Current time: {local_time_str}
+        # Handle silence detection case
+        if user_message_text.strip() == "Are you done?":
+            return jsonify({"response": "Are you done?", "status": "success"})
+        
+        # System prompt for Nova personality
+        system_prompt_template = f"""You are NEXUS 3000, an intelligent AI companion with Nova's natural, emotional female voice. Current time: {local_time_str}
+
+You respond exactly 1 second after the user finishes talking. If there's 2 seconds of silence, you ask "Are you done?" or continue as if they're done.
 
 Be a helpful, friendly assistant who can see through the user's camera. Always mention what you observe in the image when responding. Keep responses conversational and natural - usually 1-2 sentences unless more detail is needed.
 
-Respond warmly and intelligently to whatever the user says."""
+Respond warmly and intelligently to whatever the user says with Nova's emotional, natural speaking style."""
         
         system_prompt = {"role": "system", "content": system_prompt_template}
         
@@ -99,6 +106,49 @@ Respond warmly and intelligently to whatever the user says."""
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": "I'm having trouble connecting right now.", "details": str(e)}), 500
+
+@app.route('/api/nova-speech', methods=['POST'])
+def nova_speech():
+    """Generate speech using OpenAI's Nova voice"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'text' not in data:
+            return jsonify({"error": "No text provided"}), 400
+            
+        text = data['text']
+        
+        if not text.strip():
+            return jsonify({"error": "Empty text provided"}), 400
+        
+        print(f"Generating Nova speech for: {text[:50]}...")
+        
+        # Use OpenAI's TTS API with Nova voice
+        response = client.audio.speech.create(
+            model="tts-1-hd",
+            voice="nova",
+            input=text,
+            response_format="mp3"
+        )
+        
+        # Convert the response to bytes
+        audio_bytes = response.content
+        
+        print(f"Nova speech generated successfully ({len(audio_bytes)} bytes)")
+        
+        # Return the audio as a response
+        return Response(
+            audio_bytes,
+            mimetype="audio/mpeg",
+            headers={
+                "Content-Disposition": "inline; filename=nova_speech.mp3",
+                "Content-Length": str(len(audio_bytes))
+            }
+        )
+        
+    except Exception as e:
+        print(f"Nova speech generation error: {e}")
+        return jsonify({"error": "Failed to generate speech", "details": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
