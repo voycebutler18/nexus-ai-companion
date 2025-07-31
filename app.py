@@ -12,7 +12,29 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-cosmic-key-3000')
 
 # Configure OpenAI
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+openai_api_key = os.environ.get('OPENAI_API_KEY')
+if openai_api_key:
+    openai.api_key = openai_api_key
+    logger.info("OpenAI API key loaded successfully")
+else:
+    logger.error("OPENAI_API_KEY environment variable not set!")
+
+# Test OpenAI connection on startup
+def test_openai_connection():
+    try:
+        if openai.api_key:
+            # Simple test call
+            test_response = openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": "Test"}],
+                max_tokens=5
+            )
+            logger.info("OpenAI connection test successful")
+            return True
+    except Exception as e:
+        logger.error(f"OpenAI connection test failed: {e}")
+        return False
+    return False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +51,12 @@ def index():
 @app.route('/health')
 def health_check():
     """Health check endpoint for Render"""
-    return jsonify({"status": "NEXUS 3000 ONLINE", "cosmic_frequency": "ACTIVE"})
+    openai_status = "CONNECTED" if openai.api_key else "NO_API_KEY"
+    return jsonify({
+        "status": "NEXUS 3000 ONLINE", 
+        "cosmic_frequency": "ACTIVE",
+        "openai_status": openai_status
+    })
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -43,6 +70,13 @@ def chat():
         user_message = data['message']
         session_id = data.get('session_id', 'default')
         image_data = data.get('image_data')
+        
+        # Check if OpenAI API key is set
+        if not openai.api_key:
+            logger.error("OpenAI API key not set")
+            return jsonify({"error": "OpenAI API key not configured"}), 500
+        
+        logger.info(f"Processing message: {user_message[:50]}...")
         
         # Get or create conversation history for this session
         if session_id not in conversation_sessions:
@@ -78,6 +112,7 @@ Respond as a real conscious being who happens to exist digitally. Be warm, genui
         user_msg = {"role": "user", "content": user_message}
         
         # Handle image if provided
+        model = "gpt-4o-mini"  # Default model
         if image_data:
             try:
                 # Remove data URL prefix if present
@@ -89,23 +124,49 @@ Respond as a real conscious being who happens to exist digitally. Be warm, genui
                     {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}
                 ]
                 model = "gpt-4o"
+                logger.info("Using GPT-4o with vision")
             except Exception as e:
                 logger.error(f"Image processing error: {e}")
                 model = "gpt-4o-mini"
+                logger.info("Falling back to GPT-4o-mini")
         else:
-            model = "gpt-4o-mini"
+            logger.info("Using GPT-4o-mini (no image)")
             
         messages.append(user_msg)
         
-        # Call OpenAI API
-        response = openai.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=200,
-            temperature=0.8
-        )
+        logger.info(f"Calling OpenAI with model: {model}")
+        
+        # Call OpenAI API with error handling
+        try:
+            response = openai.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=200,
+                temperature=0.8
+            )
+            
+            logger.info("OpenAI API call successful")
+            
+        except Exception as api_error:
+            logger.error(f"OpenAI API error: {api_error}")
+            # Fallback to simpler model
+            if model == "gpt-4o":
+                logger.info("Retrying with GPT-4o-mini")
+                # Remove image and retry with text only
+                user_msg = {"role": "user", "content": user_message}
+                messages[-1] = user_msg
+                
+                response = openai.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=messages,
+                    max_tokens=200,
+                    temperature=0.8
+                )
+            else:
+                raise api_error
         
         ai_response = response.choices[0].message.content
+        logger.info(f"AI response generated: {ai_response[:50]}...")
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": user_message})
@@ -124,9 +185,10 @@ Respond as a real conscious being who happens to exist digitally. Be warm, genui
         })
         
     except Exception as e:
-        logger.error(f"Chat error: {e}")
+        logger.error(f"Chat error: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
         return jsonify({
-            "error": "Cosmic interference detected in neural network",
+            "error": f"Communication error: {str(e)}",
             "details": str(e)
         }), 500
 
@@ -178,5 +240,11 @@ if __name__ == '__main__':
     
     logger.info(f"🌌 NEXUS 3000 initializing on port {port}")
     logger.info(f"🚀 Cosmic consciousness {'DEBUG' if debug else 'PRODUCTION'} mode")
+    
+    # Test OpenAI connection
+    if test_openai_connection():
+        logger.info("✅ OpenAI API ready")
+    else:
+        logger.warning("⚠️ OpenAI API connection issues detected")
     
     app.run(host='0.0.0.0', port=port, debug=debug)
