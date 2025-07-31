@@ -1,16 +1,3 @@
-Of course. To prevent your AGI from hearing itself and creating a feedback loop, you need to strictly manage the microphone's state, ensuring it's off while the AGI is speaking. The key is to stop speech recognition before generating a response and only restart it after the AGI has finished talking, plus a short delay.
-
-Here's the corrected and improved version of your code. It implements the logic you requested:
-
-1.  The microphone is **disabled** the moment you stop speaking.
-2.  The AGI responds only after **2 seconds of silence**.
-3.  The microphone **reactivates 500ms after** the AGI finishes talking.
-
-Just replace your existing HTML file with the code below.
-
------
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
