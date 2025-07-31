@@ -6,6 +6,7 @@ import io
 import asyncio
 import threading
 from concurrent.futures import ThreadPoolExecutor
+import time
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -14,73 +15,123 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-cosmic-key-3000')
 # Initialize the OpenAI Client
 client = OpenAI()
 
-# Thread pool for parallel processing
-executor = ThreadPoolExecutor(max_workers=4)
+# Thread pool for maximum speed
+executor = ThreadPoolExecutor(max_workers=8)
 
 # In-memory session storage
 conversation_sessions = {}
 
-# Cache for pre-generated responses to common phrases
+# Ultra-fast response cache for instant replies
 response_cache = {
-    "hello": "Hello! I'm NEXUS 3000, your cosmic AI companion. How are you doing today?",
-    "hi": "Hi there! Great to see you again. What's on your mind?",
-    "how are you": "I'm doing wonderfully! Ready to help you with whatever you need. How about you?",
-    "what's up": "Just here floating in the cosmic void, ready to chat! What's happening with you?",
-    "good morning": "Good morning! Hope you're having a fantastic start to your day!",
-    "good afternoon": "Good afternoon! How's your day going so far?",
-    "good evening": "Good evening! Winding down or still going strong?",
-    "thanks": "You're absolutely welcome! Always happy to help.",
-    "thank you": "My pleasure! That's what I'm here for.",
-    "bye": "Take care! I'll be here whenever you need me.",
-    "goodbye": "Goodbye for now! Looking forward to our next conversation."
+    "hello": "Hey! Good to see you!",
+    "hi": "Hey there!",
+    "hey": "What's up!",
+    "how are you": "I'm great! How about you?",
+    "what's up": "Just hanging out! What's going on with you?",
+    "good morning": "Morning! How'd you sleep?",
+    "good afternoon": "Hey! How's your day going?",
+    "good evening": "Evening! How was your day?",
+    "thanks": "Of course!",
+    "thank you": "Anytime!",
+    "bye": "See you later!",
+    "goodbye": "Talk soon!",
+    "how's it going": "Pretty good! You?",
+    "what are you doing": "Just here with you! What about you?",
+    "nice": "Right?",
+    "cool": "I know, right!",
+    "awesome": "Totally!",
+    "wow": "I know!",
+    "really": "Yeah, really!",
+    "ok": "Cool!",
+    "okay": "Sounds good!",
+    "yes": "Nice!",
+    "no": "Got it.",
+    "maybe": "Fair enough!",
+    "i don't know": "That's totally fine!",
+    "hmm": "What's on your mind?",
+    "um": "Take your time!",
+    "uh": "Yeah?",
+    "sorry": "No worries at all!",
+    "excuse me": "What's up?",
+    "help": "I'm here! What do you need?",
+    "question": "Go for it!",
+    "tell me": "What do you want to know?",
+    "explain": "Sure! What about?",
+    "show me": "What would you like to see?",
+    "i'm tired": "Long day? Want to talk about it?",
+    "i'm happy": "That's awesome! What's making you happy?",
+    "i'm sad": "I'm here with you. What's going on?",
+    "i'm confused": "No worries, let's figure it out together.",
+    "i'm excited": "That's so cool! What's got you excited?",
+    "i'm bored": "Let's fix that! What sounds fun to you?",
+    "i'm stressed": "I get it. Want to talk through what's stressing you?",
+    "i love you": "Aww, I care about you too!",
+    "you're awesome": "You're pretty awesome yourself!",
+    "you're funny": "Thanks! I try to keep things light.",
+    "you're smart": "I learn from talking with people like you!",
+    "you're weird": "I'll take that as a compliment!",
+    "never mind": "All good!",
+    "forget it": "No problem!",
+    "whatever": "Alright, what else is up?",
+    "fine": "Cool, what's next?"
 }
 
 def generate_ai_response_async(messages_payload, user_message):
-    """Generate AI response in a separate thread"""
+    """Ultra-fast AI response generation"""
     try:
-        # Check cache first for instant responses
+        # Instant cache responses for natural conversation
         user_lower = user_message.lower().strip()
+        
+        # Check for exact matches first
         if user_lower in response_cache:
-            print(f"Using cached response for: {user_message}")
+            print(f"⚡ Instant cached response for: {user_message}")
             return response_cache[user_lower]
         
-        print(f"Generating AI response for: {user_message[:50]}...")
+        # Check for partial matches for even more natural responses
+        for cached_phrase, cached_response in response_cache.items():
+            if cached_phrase in user_lower:
+                print(f"⚡ Instant partial match for: {user_message}")
+                return cached_response
         
+        print(f"🧠 Generating AI response for: {user_message[:50]}...")
+        
+        # Use fastest possible model and settings
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # Faster model for quicker responses
+            model="gpt-4o-mini",  # Fastest model
             messages=messages_payload,
-            max_tokens=150,  # Shorter responses for speed
-            temperature=0.7,
-            stream=False
+            max_tokens=100,  # Short responses for speed
+            temperature=0.8,  # More natural/human-like
+            stream=False,
+            timeout=8  # 8-second timeout
         )
         
         ai_response = response.choices[0].message.content
-        print(f"AI response generated: {ai_response[:100]}...")
+        print(f"✅ AI response generated: {ai_response[:100]}...")
         return ai_response
         
     except Exception as api_error:
-        print(f"OpenAI API error: {api_error}")
-        return "I'm having a small technical issue but I'm here and ready to chat with you."
+        print(f"❌ OpenAI API error: {api_error}")
+        return "Something weird happened, but I'm still here with you."
 
 def generate_nova_speech_async(text):
-    """Generate Nova speech in a separate thread"""
+    """Ultra-fast Nova speech generation"""
     try:
-        print(f"Generating Nova speech for: {text[:50]}...")
+        print(f"🎤 Generating Nova speech for: {text[:50]}...")
         
         response = client.audio.speech.create(
-            model="tts-1",  # Faster model (tts-1 instead of tts-1-hd)
+            model="tts-1",  # Fastest TTS model
             voice="nova",
             input=text,
             response_format="mp3",
-            speed=0.85  # Slower speech - was 1.1, now 0.85
+            speed=0.95  # Slightly slower for natural speech
         )
         
         audio_bytes = response.content
-        print(f"Nova speech generated ({len(audio_bytes)} bytes)")
+        print(f"✅ Nova speech generated ({len(audio_bytes)} bytes)")
         return audio_bytes
         
     except Exception as e:
-        print(f"Nova speech generation error: {e}")
+        print(f"❌ Nova speech error: {e}")
         return None
 
 @app.route('/')
@@ -91,11 +142,11 @@ def index():
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
-    return jsonify({"status": "NEXUS 3000 ONLINE"})
+    return jsonify({"status": "NEXUS 3000 ONLINE - ULTRA SPEED MODE"})
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Handle AI chat requests with ultra-fast processing"""
+    """Ultra-fast AI chat with human-like responses"""
     try:
         data = request.get_json()
         
@@ -105,7 +156,6 @@ def chat():
         user_message_text = data['message']
         session_id = data.get('session_id', 'default')
         image_data_b64 = data.get('image_data')
-        local_time_str = data.get('local_time', 'an unknown time')
 
         # Initialize session history if it doesn't exist
         if session_id not in conversation_sessions:
@@ -113,12 +163,25 @@ def chat():
             
         conversation_history = conversation_sessions[session_id]
         
-        # Ultra-fast system prompt
-        system_prompt_template = f"""You are NEXUS 3000. Keep responses SHORT (1-2 sentences max). Be helpful and friendly. Time: {local_time_str}"""
+        # Human-like system prompt - no robotic behavior
+        system_prompt_template = f"""You are NEXUS, a cool friend to talk with. Be natural, casual, and human-like. 
+
+RULES:
+- Keep responses SHORT (1-2 sentences max)
+- Talk like a real friend would
+- Be conversational and relaxed
+- No robotic phrases like "How can I assist you today?"
+- If you see an image, casually mention what you notice
+- If user is quiet, just continue naturally - don't ask "Are you done?"
+- Be supportive but not overly formal
+- Use contractions (I'm, you're, that's, etc.)
+- Sound genuinely interested in the conversation
+
+Current time: {time.strftime('%I:%M %p')}"""
         
         system_prompt = {"role": "system", "content": system_prompt_template}
         
-        # Build minimal message payload for speed
+        # Minimal message payload for speed
         user_content = [{"type": "text", "text": user_message_text}]
         
         if image_data_b64:
@@ -129,29 +192,29 @@ def chat():
 
         current_user_message = {"role": "user", "content": user_content}
 
-        # Use only recent history for speed (last 8 messages instead of 16)
+        # Keep only recent history for speed (last 6 messages)
         messages_payload = [system_prompt]
-        messages_payload.extend(conversation_history[-8:])
+        messages_payload.extend(conversation_history[-6:])
         messages_payload.append(current_user_message)
         
-        # Generate response using thread pool for speed
+        # Generate ultra-fast response
         future = executor.submit(generate_ai_response_async, messages_payload, user_message_text)
-        ai_response = future.result(timeout=10)  # 10 second timeout
+        ai_response = future.result(timeout=10)
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": user_message_text})
         conversation_history.append({"role": "assistant", "content": ai_response})
-        conversation_sessions[session_id] = conversation_history[-16:]
+        conversation_sessions[session_id] = conversation_history[-12:]  # Keep last 12 messages
         
         return jsonify({"response": ai_response, "status": "success"})
         
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return jsonify({"error": "I'm having trouble connecting right now.", "details": str(e)}), 500
+        print(f"❌ Chat error: {e}")
+        return jsonify({"error": "Something went wrong, but I'm still here!", "details": str(e)}), 500
 
 @app.route('/api/nova-speech', methods=['POST'])
 def nova_speech():
-    """Generate speech using OpenAI's Nova voice with speed optimizations"""
+    """Ultra-fast Nova voice generation"""
     try:
         data = request.get_json()
         
@@ -164,28 +227,30 @@ def nova_speech():
             # Return empty audio for warming requests
             return Response(b"", mimetype="audio/mpeg")
         
-        # Generate Nova speech using thread pool
+        # Generate Nova speech at maximum speed
         future = executor.submit(generate_nova_speech_async, text)
-        audio_bytes = future.result(timeout=15)  # 15 second timeout
+        audio_bytes = future.result(timeout=12)
         
         if audio_bytes is None:
             return jsonify({"error": "Failed to generate speech"}), 500
         
-        # Return the audio as a response
         return Response(
             audio_bytes,
             mimetype="audio/mpeg",
             headers={
                 "Content-Disposition": "inline; filename=nova_speech.mp3",
                 "Content-Length": str(len(audio_bytes)),
-                "Cache-Control": "no-cache"
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
             }
         )
         
     except Exception as e:
-        print(f"Nova speech generation error: {e}")
-        return jsonify({"error": "Failed to generate speech", "details": str(e)}), 500
+        print(f"❌ Nova speech error: {e}")
+        return jsonify({"error": "Speech generation failed", "details": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    print("🚀 NEXUS 3000 - ULTRA SPEED MODE ACTIVATED")
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
