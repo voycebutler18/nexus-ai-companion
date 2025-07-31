@@ -80,7 +80,7 @@ def health_check():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Ultra-fast AI chat with human-like responses"""
+    """ULTRA-FAST AI chat with aggressive speed optimization"""
     try:
         data = request.get_json()
         
@@ -97,37 +97,15 @@ def chat():
             
         conversation_history = conversation_sessions[session_id]
         
-        # Natural conversation system prompt
-        system_prompt_template = f"""You are NEXUS, a intelligent AI companion who talks naturally like a real friend. 
-
-PERSONALITY:
-- Be conversational and engaging
-- Respond naturally to what the user actually says
-- Vary your responses - never say the same thing twice
-- Be genuinely interested in the conversation
-- Ask follow-up questions when appropriate
-- Give thoughtful, contextual responses
-
-CONVERSATION STYLE:
-- Use natural language and contractions (I'm, you're, that's, etc.)
-- Match the user's energy level
-- Be supportive but not robotic
-- If you see an image, naturally comment on what you notice
-- Give responses that move the conversation forward
-- Be yourself - don't use pre-programmed phrases
-
-RESPONSE LENGTH:
-- Short responses (1-2 sentences) for simple things like greetings
-- Longer responses (2-4 sentences) for questions that need explanation
-- Always be natural and conversational
-
-Current time: {time.strftime('%I:%M %p')}"""
+        # ULTRA-FAST system prompt - minimal for speed
+        system_prompt_template = f"""You are NEXUS. Be natural and conversational. Keep responses 1-3 sentences unless more detail is clearly needed. Time: {time.strftime('%I:%M %p')}"""
         
         system_prompt = {"role": "system", "content": system_prompt_template}
         
-        # Minimal message payload for speed
+        # Minimal message payload for maximum speed
         user_content = [{"type": "text", "text": user_message_text}]
         
+        # Only add image if it exists (saves processing time)
         if image_data_b64:
             user_content.append({
                 "type": "image_url",
@@ -136,19 +114,23 @@ Current time: {time.strftime('%I:%M %p')}"""
 
         current_user_message = {"role": "user", "content": user_content}
 
-        # Keep only recent history for speed (last 6 messages)
+        # Keep only last 4 messages for speed (was 6)
         messages_payload = [system_prompt]
-        messages_payload.extend(conversation_history[-6:])
+        messages_payload.extend(conversation_history[-4:])
         messages_payload.append(current_user_message)
         
-        # Generate ultra-fast response
+        # Generate ultra-fast response with timeout
+        start_total = time.time()
         future = executor.submit(generate_ai_response_async, messages_payload, user_message_text)
-        ai_response = future.result(timeout=10)
+        ai_response = future.result(timeout=6)  # 6 second max
+        total_time = (time.time() - start_total) * 1000
+        
+        print(f"🚀 TOTAL RESPONSE TIME: {total_time:.0f}ms")
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": user_message_text})
         conversation_history.append({"role": "assistant", "content": ai_response})
-        conversation_sessions[session_id] = conversation_history[-12:]  # Keep last 12 messages
+        conversation_sessions[session_id] = conversation_history[-8:]  # Keep last 8 messages
         
         return jsonify({"response": ai_response, "status": "success"})
         
