@@ -858,30 +858,36 @@ function setupSpeechRecognition() {
         }
 
         function stopListening() {
+            console.log("🛑 FORCE STOPPING all speech recognition");
             if (silenceCheckTimer) clearInterval(silenceCheckTimer);
             if (recognitionTimeout) clearTimeout(recognitionTimeout);
-            if (recognition && isListening) {
-                isListening = false;
-                hasRecognitionStarted = false;
+            
+            if (recognition) {
                 try {
-                    recognition.stop();
+                    // Force abort - don't just stop
+                    recognition.abort();
+                    console.log("✅ Speech recognition ABORTED");
                 } catch (error) {
-                    console.error("Error stopping recognition:", error);
+                    console.log("Abort error (expected):", error);
                 }
             }
+            
+            isListening = false;
+            hasRecognitionStarted = false;
+            
+            // Clear any transcript data
+            waveActive.dataset.currentTranscript = "";
         }
         
         async function handleUserSpeech(transcript) {
             const trimmedTranscript = transcript.trim();
             
-            // Remove the "Are you done?" functionality completely
             if (transcript === "SILENCE_DETECTED") {
-                // Just restart listening naturally - no robotic responses
                 setTimeout(() => {
                     canListen = true;
                     updateRobotState('listening');
                     startListening();
-                }, 500);
+                }, 300);
                 return;
             }
             
@@ -891,45 +897,44 @@ function setupSpeechRecognition() {
                         canListen = true;
                         updateRobotState('listening');
                         startListening();
-                    }, 500);
+                    }, 300);
                 }
                 return;
             }
             
-            console.log(`🎤 Processing user speech: "${trimmedTranscript}"`);
+            console.log(`🎤 USER SAID: "${trimmedTranscript}"`);
             
-            // CRITICAL: Turn off microphone while processing (mobile)
-            if (isIOS || isAndroid) {
-                console.log("📱 Mobile: Turning OFF microphone while processing");
-                canListen = false;
-                stopListening();
-            } else {
-                canListen = false;
-                stopListening();
-            }
+            // IMMEDIATELY shut down microphone
+            console.log("🔇 SHUTTING DOWN MIC FOR PROCESSING");
+            canListen = false;
+            stopListening();
             
-            // Show thinking state immediately
+            // Show thinking state
             updateWaveVisualizer('thinking');
-            updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
+            updateStatusIndicator('🧠 Processing...', 'thinking', true);
             updateRobotState('thinking');
 
-            if (!cameraActive && !hasAttemptedCameraInit && !isIOS) {
+            // Skip camera initialization for speed on mobile
+            let imageData = null;
+            if (cameraActive) {
+                imageData = captureImage();
+            } else if (!hasAttemptedCameraInit && !isIOS && !isAndroid) {
                 hasAttemptedCameraInit = true;
                 await initializeCamera();
+                imageData = cameraActive ? captureImage() : null;
             }
 
             try {
-                const imageData = cameraActive ? captureImage() : null;
-                
-                // Generate response - mobile gets faster processing
+                // FASTEST possible AI response
+                const startTime = Date.now();
                 const responseText = await getAIResponse(trimmedTranscript, imageData);
+                console.log(`⚡ AI response in ${Date.now() - startTime}ms`);
                 
-                // Mobile: Immediate response (no 1-second delay)
-                // Desktop: Keep instant processing
+                // IMMEDIATELY start speaking - no delays
                 await speakNovaResponse(responseText);
             } catch (error) {
-                console.error('Error in speech handling pipeline:', error);
-                await speakNovaResponse("Something went wrong, but I'm still here with you.");
+                console.error('Speech processing error:', error);
+                await speakNovaResponse("Something went wrong, but I'm still here.");
             }
         }
         
