@@ -570,13 +570,13 @@
                     // Wait a bit more for camera auto-exposure to adjust
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     
-                    const initialPrompt = "I've just awakened. Greet the user warmly and describe what you can see through the camera. Be natural and conversational.";
+                    const initialPrompt = "Hello, I can see you through the camera. Please greet me and tell me what you observe.";
                     const greeting = await getAIResponse(initialPrompt, captureImage());
                     await speakResponse(greeting);
                 } else if (!hasGreeted && !cameraActive) {
                     // Fallback greeting without camera
                     hasGreeted = true;
-                    const greeting = await getAIResponse("I've just awakened. Greet the user warmly. Note that I don't have camera access right now.", null);
+                    const greeting = await getAIResponse("Hello, please introduce yourself as NEXUS 3000.", null);
                     await speakResponse(greeting);
                 }
             }, 3000);
