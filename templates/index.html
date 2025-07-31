@@ -300,13 +300,13 @@
                         clearTimeout(speechTimeout);
                     }
                     
-                    // Set 2-second timeout for silence detection
+                    // Set 1-second timeout for silence detection (as requested)
                     speechTimeout = setTimeout(() => {
                         if (currentTranscript.trim().length > 0 && !isSpeaking) {
-                            console.log("Processing speech after 2s silence:", currentTranscript);
+                            console.log("Processing speech after 1s silence:", currentTranscript);
                             handleUserSpeech(currentTranscript.trim());
                         }
-                    }, 2000);
+                    }, 1000);
                 }
             };
             
@@ -513,8 +513,8 @@
                     };
                 });
                 
-                // Additional wait for camera to adjust exposure and focus
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // Shorter wait - just 1 second for basic adjustment
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 cameraActive = true;
                 console.log("Camera initialized successfully");
@@ -562,24 +562,18 @@
                 speechSynthesis.getVoices();
             }
 
-            // Wait longer for camera to fully initialize and adjust to lighting
+            // Start much faster
             setTimeout(async () => {
                 if (!hasGreeted && cameraActive) {
                     hasGreeted = true;
-                    
-                    // Wait a bit more for camera auto-exposure to adjust
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    const initialPrompt = "Hello, I can see you through the camera. Please greet me and tell me what you observe.";
-                    const greeting = await getAIResponse(initialPrompt, captureImage());
+                    const greeting = await getAIResponse("Say hello and describe what you see", captureImage());
                     await speakResponse(greeting);
                 } else if (!hasGreeted && !cameraActive) {
-                    // Fallback greeting without camera
                     hasGreeted = true;
-                    const greeting = await getAIResponse("Hello, please introduce yourself as NEXUS 3000.", null);
+                    const greeting = await getAIResponse("Say hello", null);
                     await speakResponse(greeting);
                 }
-            }, 3000);
+            }, 1500);
         });
     </script>
 </body>
