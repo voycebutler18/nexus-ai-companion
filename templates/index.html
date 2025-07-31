@@ -241,6 +241,7 @@
         let speechPauseTimer = null;
         let lastSpeechTime = 0;
         let currentTranscript = '';
+        let speechTimeout = null;
         
         // --- DOM Elements ---
         const waveActive = document.getElementById('waveActive');
@@ -265,71 +266,109 @@
                     recognition.stop();
                     return;
                 }
+                console.log("Speech recognition started");
                 isListening = true;
                 updateWaveVisualizer('listening');
                 updateStatusIndicator('🎤 Listening...', 'listening', true);
-                lastSpeechTime = Date.now(); // Reset timer on start
             };
 
             recognition.onresult = (event) => {
                 if (isSpeaking) return;
 
                 let interimTranscript = '';
+                let finalTranscript = '';
+                
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    interimTranscript += event.results[i][0].transcript;
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
                 }
                 
-                if (interimTranscript.trim().length > 0) {
-                    lastSpeechTime = Date.now(); // Update time on new speech
-                    currentTranscript = interimTranscript;
+                const fullTranscript = (finalTranscript + interimTranscript).trim();
+                
+                if (fullTranscript.length > 0) {
+                    lastSpeechTime = Date.now();
+                    currentTranscript = fullTranscript;
                     updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
+                    updateWaveVisualizer('user-speaking');
+                    
+                    // Clear existing timeout
+                    if (speechTimeout) {
+                        clearTimeout(speechTimeout);
+                    }
+                    
+                    // Set 2-second timeout for silence detection
+                    speechTimeout = setTimeout(() => {
+                        if (currentTranscript.trim().length > 0 && !isSpeaking) {
+                            console.log("Processing speech after 2s silence:", currentTranscript);
+                            handleUserSpeech(currentTranscript.trim());
+                        }
+                    }, 2000);
                 }
             };
             
             recognition.onend = () => {
+                console.log("Speech recognition ended");
                 isListening = false;
                 if (!isSpeaking) {
-                    updateWaveVisualizer('idle');
-                    // Only restart if we are not in the process of handling speech
-                    setTimeout(() => startListening(), 100); 
+                    updateWaveVisualizer('listening');
+                    // Restart listening after a brief pause
+                    setTimeout(() => {
+                        if (!isSpeaking) {
+                            startListening();
+                        }
+                    }, 500);
                 }
             };
 
             recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
                 if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                    console.error('Speech recognition error:', event.error);
+                    setTimeout(() => {
+                        if (!isSpeaking) {
+                            startListening();
+                        }
+                    }, 1000);
                 }
             };
-
-            // This timer checks for pauses AFTER speech has started
-            setInterval(() => {
-                if (isListening && !isSpeaking && currentTranscript.trim().length > 0 && (Date.now() - lastSpeechTime > 2000)) {
-                    handleUserSpeech(currentTranscript.trim());
-                }
-            }, 500);
         }
 
         function startListening() {
             if (recognition && !isListening && !isSpeaking) {
                 try {
+                    console.log("Starting speech recognition");
                     currentTranscript = '';
+                    lastSpeechTime = 0;
                     recognition.start();
                 } catch (error) {
-                    setTimeout(() => startListening(), 100);
+                    console.error("Error starting recognition:", error);
+                    setTimeout(() => startListening(), 1000);
                 }
             }
         }
         
         async function handleUserSpeech(transcript) {
-            if (isSpeaking) return; // Prevent double execution
+            if (isSpeaking || !transcript.trim()) return;
 
-            // Reset state and stop listening
-            currentTranscript = '';
-            lastSpeechTime = 0;
+            console.log("Handling user speech:", transcript);
+            
+            // Stop listening immediately
             isListening = false;
             if (recognition) {
                 recognition.stop();
             }
+            
+            // Clear timeout
+            if (speechTimeout) {
+                clearTimeout(speechTimeout);
+                speechTimeout = null;
+            }
+
+            // Reset transcript
+            currentTranscript = '';
 
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
@@ -341,11 +380,6 @@
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
                 await speakResponse("I encountered an error. Please try again.");
-            } finally {
-                // After speaking (or error), wait and then restart listening
-                setTimeout(() => {
-                    startListening();
-                }, 500);
             }
         }
         
@@ -353,11 +387,17 @@
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
                     isSpeaking = false;
+                    // Restart listening after 500ms
+                    setTimeout(() => startListening(), 500);
                     resolve();
                     return;
                 }
                 
                 isSpeaking = true;
+                
+                // Stop any ongoing speech
+                speechSynthesis.cancel();
+                
                 const utterance = new SpeechSynthesisUtterance(text);
                 const voices = speechSynthesis.getVoices();
                 const femaleVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
@@ -368,20 +408,29 @@
                 utterance.volume = 0.9;
 
                 utterance.onstart = () => {
+                    console.log("AI started speaking");
                     updateWaveVisualizer('ai-speaking');
                     updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
                 };
 
                 utterance.onend = () => {
+                    console.log("AI finished speaking");
                     isSpeaking = false;
-                    updateWaveVisualizer('idle');
-                    updateStatusIndicator('', '', false);
+                    updateWaveVisualizer('listening');
+                    updateStatusIndicator('🎤 Listening...', 'listening', true);
+                    
+                    // Restart listening after 500ms delay
+                    setTimeout(() => {
+                        startListening();
+                    }, 500);
+                    
                     resolve();
                 };
 
                 utterance.onerror = (e) => {
                     console.error('Speech synthesis error:', e);
                     isSpeaking = false;
+                    setTimeout(() => startListening(), 500);
                     resolve();
                 };
                 
@@ -391,18 +440,29 @@
         
         async function getAIResponse(userMessage, imageData = null) {
             try {
-                // --- ADDED: Get current local time ---
-                const localTime = new Date().toLocaleString('en-US', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                    hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'
+                // Get current Central Time
+                const now = new Date();
+                const centralTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+                const localTime = centralTime.toLocaleString('en-US', {
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: 'numeric', 
+                    minute: '2-digit', 
+                    second: '2-digit', 
+                    timeZoneName: 'short',
+                    timeZone: 'America/Chicago'
                 });
 
                 const requestData = { 
                     message: userMessage, 
                     session_id: sessionId,
                     image_data: imageData ? imageData.split(',')[1] : null,
-                    local_time: localTime // Send the local time to the backend
+                    local_time: localTime
                 };
+
+                console.log("Sending request with time:", localTime);
 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -421,46 +481,82 @@
         }
         
         // --- UI & Utility Functions ---
-        function updateWaveVisualizer(state) { waveActive.className = 'wave-active ' + state; }
+        function updateWaveVisualizer(state) { 
+            waveActive.className = 'wave-active ' + state; 
+        }
+        
         function updateStatusIndicator(text, type, show) {
             statusIndicator.textContent = text;
             statusIndicator.className = 'status-indicator';
             if (type) statusIndicator.classList.add(type);
             if (show) statusIndicator.classList.add('show');
         }
+        
         async function initializeCamera() {
             try {
-                const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                document.getElementById('videoElement').srcObject = mediaStream;
+                const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 }, 
+                    audio: false 
+                });
+                const videoElement = document.getElementById('videoElement');
+                videoElement.srcObject = mediaStream;
+                
+                // Wait for video to load
+                await new Promise((resolve) => {
+                    videoElement.onloadedmetadata = resolve;
+                });
+                
                 cameraActive = true;
-            } catch (error) { console.log('Camera not available:', error); }
+                console.log("Camera initialized successfully");
+            } catch (error) { 
+                console.log('Camera not available:', error);
+                cameraActive = false;
+            }
         }
+        
         function captureImage() {
             if (!cameraActive) return null;
-            const video = document.getElementById('videoElement');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            return canvas.toDataURL('image/jpeg', 0.8);
+            
+            try {
+                const video = document.getElementById('videoElement');
+                if (video.videoWidth === 0 || video.videoHeight === 0) {
+                    console.log("Video not ready");
+                    return null;
+                }
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                return canvas.toDataURL('image/jpeg', 0.8);
+            } catch (error) {
+                console.error("Error capturing image:", error);
+                return null;
+            }
         }
         
         // --- Initialization ---
         window.addEventListener('load', async () => {
+            console.log("Initializing NEXUS 3000...");
+            
             await initializeCamera();
             setupSpeechRecognition();
             
             if ('speechSynthesis' in window) {
-                speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+                speechSynthesis.onvoiceschanged = () => {
+                    console.log("Voices loaded:", speechSynthesis.getVoices().length);
+                };
+                // Load voices immediately if available
+                speechSynthesis.getVoices();
             }
 
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    const initialPrompt = "I've just woken up. Greet the user naturally and briefly comment on what you can see through the camera.";
+                    const initialPrompt = "I've just awakened. Greet the user warmly and describe what you can see through the camera. Be natural and conversational.";
                     const greeting = await getAIResponse(initialPrompt, captureImage());
                     await speakResponse(greeting);
-                    startListening();
                 }
             }, 2000);
         });
