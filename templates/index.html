@@ -250,16 +250,25 @@
         // --- Core Functions ---
 
         function setupSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                console.error("Speech recognition not supported.");
-                updateStatusIndicator("Speech recognition not supported.", "error", true);
+            // Check for speech recognition support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                console.error("Speech recognition not supported on this browser/device.");
+                updateStatusIndicator("Speech not supported on this device", "error", true);
                 return;
             }
             
-            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
+            
+            // Mobile-specific settings
+            if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                recognition.continuous = false; // Android doesn't support continuous well
+                recognition.interimResults = false; // Simplify for mobile
+            }
 
             recognition.onstart = () => {
                 if (isSpeaking) {
@@ -300,13 +309,22 @@
                         clearTimeout(speechTimeout);
                     }
                     
-                    // Set 1-second timeout for silence detection (as requested)
+                    // Mobile: Process immediately on final result, Desktop: Wait 1 second
+                    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const timeoutDelay = isMobile ? 500 : 1000;
+                    
                     speechTimeout = setTimeout(() => {
                         if (currentTranscript.trim().length > 0 && !isSpeaking) {
-                            console.log("Processing speech after 1s silence:", currentTranscript);
+                            console.log(`Processing speech after ${timeoutDelay}ms silence:`, currentTranscript);
                             handleUserSpeech(currentTranscript.trim());
                         }
-                    }, 1000);
+                    }, timeoutDelay);
+                    
+                    // On mobile, also process immediately if we get a final result
+                    if (isMobile && finalTranscript.trim().length > 0) {
+                        if (speechTimeout) clearTimeout(speechTimeout);
+                        handleUserSpeech(finalTranscript.trim());
+                    }
                 }
             };
             
@@ -326,7 +344,9 @@
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
-                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                if (event.error === 'not-allowed') {
+                    updateStatusIndicator('Microphone permission denied', 'error', true);
+                } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
                     setTimeout(() => {
                         if (!isSpeaking) {
                             startListening();
@@ -386,8 +406,8 @@
         async function speakResponse(text) {
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
+                    console.log("Speech synthesis not available");
                     isSpeaking = false;
-                    // Restart listening after 500ms
                     setTimeout(() => startListening(), 500);
                     resolve();
                     return;
@@ -399,12 +419,38 @@
                 speechSynthesis.cancel();
                 
                 const utterance = new SpeechSynthesisUtterance(text);
-                const voices = speechSynthesis.getVoices();
-                const femaleVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
-                if (femaleVoice) utterance.voice = femaleVoice;
                 
-                utterance.rate = 0.95;
-                utterance.pitch = 1.15;
+                // Mobile-optimized voice selection
+                const voices = speechSynthesis.getVoices();
+                console.log("Available voices:", voices.length);
+                
+                // Better voice selection for mobile
+                let selectedVoice = null;
+                
+                // iOS/Safari preferences
+                if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    selectedVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen')) ||
+                                   voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')) ||
+                                   voices.find(v => v.lang.includes('en-US'))[0];
+                }
+                // Android preferences
+                else if (/Android/i.test(navigator.userAgent)) {
+                    selectedVoice = voices.find(v => v.lang.includes('en-US') && v.name.toLowerCase().includes('female')) ||
+                                   voices.find(v => v.lang.includes('en-US'))[0];
+                }
+                // Desktop preferences
+                else {
+                    selectedVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
+                }
+                
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                    console.log("Selected voice:", selectedVoice.name);
+                }
+                
+                // Mobile-optimized speech settings
+                utterance.rate = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 0.9 : 0.95;
+                utterance.pitch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1.0 : 1.15;
                 utterance.volume = 0.9;
 
                 utterance.onstart = () => {
@@ -434,7 +480,15 @@
                     resolve();
                 };
                 
-                speechSynthesis.speak(utterance);
+                // iOS requires user interaction for first speech
+                if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && !hasGreeted) {
+                    // Add a small delay for iOS
+                    setTimeout(() => {
+                        speechSynthesis.speak(utterance);
+                    }, 100);
+                } else {
+                    speechSynthesis.speak(utterance);
+                }
             });
         }
         
