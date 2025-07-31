@@ -335,18 +335,16 @@
         let isSpeaking = false;
         let canListen = true;
         let cameraActive = false;
-        let hasAttemptedCameraInit = false; // Prevents repeated camera requests
+        let hasAttemptedCameraInit = false;
         let recognition = null;
         let sessionId = Math.random().toString(36).substr(2, 9);
         let hasGreeted = false;
         let listeningRestartTimeout = null;
 
-        // --- NEW: Manual Silence Detection for iOS ---
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         let silenceCheckTimer = null;
         let lastResultTime = 0;
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        // --- NEW: AGI "Best Friend" Persona Definition ---
         const SYSTEM_PROMPT = `
 You are NEXUS 3000, a kind, compassionate best friend. Your primary goal is to be supportive and understanding. Adhere strictly to the following intelligence protocols:
 
@@ -374,7 +372,7 @@ You are NEXUS 3000, a kind, compassionate best friend. Your primary goal is to b
 - Remember details from earlier in this conversation session to show you are listening.
 - Ask reflective, helpful questions like, "How do you want to feel today?"
 - If the user provides an image, use it to inform your understanding of their mood and environment.
-- Bonus Powers: If the user wants to journal, you can take notes. You can also recall memories from earlier in the session (e.g., "Last Thursday you said..."). You can also track mood over time if requested.
+- Bonus Powers: If the user wants to journal, you can take notes. You can also recall memories from earlier in the session. You can also track mood over time if requested.
 
 Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"})}.
 ---
@@ -393,12 +391,12 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             });
         }
 
-        // --- NEW: iOS Silence Detection Function ---
         function checkSilence() {
             if (isListening && Date.now() - lastResultTime > 1200) {
                 console.log("iOS manual silence detection triggered.");
+                const finalTranscript = waveActive.dataset.currentTranscript || "";
                 stopListening(); 
-                handleUserSpeech(waveActive.dataset.currentTranscript || "");
+                handleUserSpeech(finalTranscript);
             }
         }
         
@@ -408,7 +406,7 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             if (!SpeechRecognition) { return; }
             
             recognition = new SpeechRecognition();
-            recognition.continuous = !isIOS; // Continuous is buggy on iOS
+            recognition.continuous = !isIOS;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             
@@ -425,17 +423,17 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             };
 
             recognition.onresult = (event) => {
-                lastResultTime = Date.now(); // Update timestamp on any result
+                lastResultTime = Date.now();
                 if (isSpeaking || !canListen) return;
 
                 let transcript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     transcript += event.results[i][0].transcript;
                 }
-                waveActive.dataset.currentTranscript = transcript; // Store transcript
+                waveActive.dataset.currentTranscript = transcript;
 
-                if (event.results[event.results.length - 1].isFinal) {
-                    console.log("Final result received, processing immediately.");
+                if (!isIOS && event.results[event.results.length - 1].isFinal) {
+                    console.log("Final result received on non-iOS, processing immediately.");
                     stopListening();
                     handleUserSpeech(transcript);
                 } else {
@@ -447,9 +445,8 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             recognition.onend = () => {
                 console.log("Speech recognition ended.");
                 isListening = false;
-                if (silenceCheckTimer) clearInterval(silenceCheckTimer); // Stop iOS timer
+                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
                 
-                // For non-iOS, this allows a natural restart loop if needed.
                 if (!isIOS && canListen && !isSpeaking) {
                     listeningRestartTimeout = setTimeout(() => {
                         if (canListen && !isSpeaking) startListening();
@@ -470,7 +467,7 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         function startListening() {
             if (!canListen || isSpeaking || isListening || !recognition) return;
             try {
-                waveActive.dataset.currentTranscript = ""; // Clear old transcript
+                waveActive.dataset.currentTranscript = "";
                 recognition.start();
             } catch (error) {
                 console.error("Error starting recognition:", error);
@@ -487,15 +484,21 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         
         async function handleUserSpeech(transcript) {
             const trimmedTranscript = transcript.trim();
-            if (isSpeaking || !trimmedTranscript) return;
+            if (isSpeaking || !trimmedTranscript) {
+                // If user was silent, just go back to listening without bothering the AI
+                if (!isSpeaking) {
+                    canListen = true;
+                    startListening();
+                }
+                return;
+            };
             
             canListen = false;
             stopListening();
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
 
-            // NEW: Lazy load camera on first interaction if it hasn't been tried
-            if (!cameraActive && !hasAttemptedCameraInit) {
+            if (!cameraActive && !hasAttemptedCameraInit && !isIOS) {
                 hasAttemptedCameraInit = true;
                 await initializeCamera();
             }
@@ -530,13 +533,20 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
                 const voices = speechSynthesis.getVoices();
                 let selectedVoice = null;
                 
-                if (isIOS) {
-                    selectedVoice = voices.find(v => v.name.includes('Samantha')) || voices.find(v => v.lang === 'en-US');
-                } else {
-                    selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female')) || voices.find(v => v.lang === 'en-US');
+                // --- CORRECTED: More robust voice selection logic for all platforms ---
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha|Karen|Google US English/i.test(v.name));
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
+                }
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang === 'en-US');
                 }
                 
-                if (selectedVoice) utterance.voice = selectedVoice;
+                if (selectedVoice) {
+                    console.log("Selected voice:", selectedVoice.name);
+                    utterance.voice = selectedVoice;
+                }
+                
                 utterance.rate = isIOS ? 0.95 : 1.0;
                 utterance.pitch = 1.1;
 
@@ -554,7 +564,7 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
                         updateWaveVisualizer('listening');
                         updateStatusIndicator('🎤 Listening...', 'listening', true);
                         startListening();
-                    }, 200); // Shorter delay after speaking
+                    }, 200);
                     resolve();
                 };
 
@@ -570,7 +580,6 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         }
         
         async function getAIResponse(userMessage, imageData = null) {
-            // Prepend the system prompt to the user message
             const fullMessage = SYSTEM_PROMPT + "\n\nUser's Message: \"" + userMessage + "\"";
             const requestData = { 
                 message: fullMessage, 
@@ -652,16 +661,24 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             startOverlay.style.opacity = '0';
             setTimeout(() => { startOverlay.style.display = 'none'; }, 500);
 
-            console.log("Initializing NEXUS 3000 (Audio-First)...");
+            console.log("Initializing NEXUS 3000...");
             
-            // Trigger voice list loading
+            // --- CORRECTED: Platform-specific initialization ---
+            if (isIOS) {
+                // For iPhone, get camera/mic permissions immediately with the tap.
+                await initializeCamera();
+            } else {
+                // For Android, defer camera to prevent crashes.
+                console.log("Android/Desktop detected. Deferring camera initialization.");
+            }
+            
             if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    // Initial greeting is always audio-only to ensure it works on Android.
-                    const greeting = await getAIResponse("Say hello", null);
+                    const initialImage = cameraActive ? captureImage() : null;
+                    const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
                     await speakResponse(greeting);
                 }
             }, 500);
