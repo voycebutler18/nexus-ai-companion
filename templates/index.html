@@ -347,6 +347,14 @@
         const waveActive = document.getElementById('waveActive');
         const statusIndicator = document.getElementById('statusIndicator');
         const startOverlay = document.getElementById('start-overlay');
+        
+        // --- MODIFICATION: Promise to ensure voices are loaded before speaking ---
+        let voicesLoadedPromise = null;
+        if ('speechSynthesis' in window && speechSynthesis.getVoices().length === 0) {
+            voicesLoadedPromise = new Promise(resolve => {
+                speechSynthesis.onvoiceschanged = () => resolve();
+            });
+        }
 
         // --- Core Functions ---
 
@@ -505,6 +513,12 @@
         }
         
         async function speakResponse(text) {
+            // MODIFICATION: Wait for the voices to be ready before trying to speak.
+            if (voicesLoadedPromise) {
+                await voicesLoadedPromise;
+                voicesLoadedPromise = null; // No need to wait again.
+            }
+
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
                     setTimeout(() => {
@@ -630,13 +644,18 @@
         
         async function initializeCamera() {
             try {
+                // MODIFICATION: Request audio with processing to improve quality/volume.
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
                         facingMode: 'user'
                     }, 
-                    audio: false 
+                    audio: {
+                        autoGainControl: true,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
                 });
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
@@ -652,7 +671,7 @@
                 
                 cameraActive = true;
             } catch (error) { 
-                console.log('Camera not available:', error);
+                console.log('Camera/Audio not available:', error);
                 cameraActive = false;
             }
         }
@@ -679,13 +698,23 @@
         }
         
         async function startNexus() {
-            // MODIFIED: Synchronously "prime" the speech synthesis engine on user tap.
             if ('speechSynthesis' in window) {
                 console.log("Priming Speech Synthesis for mobile...");
                 const primingUtterance = new SpeechSynthesisUtterance('');
                 primingUtterance.volume = 0;
                 speechSynthesis.speak(primingUtterance);
                 speechSynthesis.cancel();
+            }
+
+            setupSpeechRecognition();
+            if (recognition) {
+                console.log("Priming Speech Recognition for mobile...");
+                try {
+                    recognition.start();
+                    recognition.stop();
+                } catch (e) {
+                    console.error("Error during recognition priming:", e);
+                }
             }
 
             startOverlay.style.opacity = '0';
@@ -696,12 +725,9 @@
             console.log("Initializing NEXUS 3000...");
             
             await initializeCamera();
-            setupSpeechRecognition();
             
+            // This call remains to help trigger the voice list loading.
             if ('speechSynthesis' in window) {
-                speechSynthesis.onvoiceschanged = () => {
-                    console.log("Voices loaded:", speechSynthesis.getVoices().length);
-                };
                 speechSynthesis.getVoices();
             }
 
