@@ -5,6 +5,6 @@ Pillow==10.4.0
 python-socketio==5.11.0
 python-engineio==4.9.0
 gunicorn==21.2.0
-eventlet==0.36.1
-bidict==0.23.1
+gevent==23.9.1
+gevent-websocket==0.10.1
 python-dotenv==1.0.0
