@@ -496,13 +496,25 @@
                 speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
             }
 
-            // Initial greeting from NEXUS
+            // --- UPDATED: Dynamic AI Greeting ---
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    const greeting = await getAIResponse("I've just come online. Introduce yourself briefly.");
+                    
+                    // 1. Capture the initial image.
+                    const imageData = cameraActive ? captureImage() : null;
+                    
+                    // 2. Create a specific prompt for the initial, vision-based greeting.
+                    const initialPrompt = "I've just woken up. Greet the user naturally and briefly comment on what you can see through the camera.";
+                    
+                    // 3. Get the AI-generated greeting from the backend.
+                    const greeting = await getAIResponse(initialPrompt, imageData);
+                    
+                    // 4. Speak the dynamic greeting.
                     await speakResponse(greeting);
-                    startListening(); // Start listening after the greeting
+                    
+                    // 5. Start the normal listening loop.
+                    startListening();
                 }
             }, 2000);
         });
@@ -517,4 +529,3 @@
     </script>
 </body>
 </html>
-```
