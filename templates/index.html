@@ -23,6 +23,35 @@
             position: relative;
         }
         script { display: none !important; }
+        
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+        #start-button {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            color: #00ffff;
+            background: transparent;
+            border: 2px solid #00ffff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-shadow: 0 0 15px #00ffff;
+            animation: pulse 2s infinite;
+        }
+
         .space-bg {
             position: fixed;
             top: 0;
@@ -271,6 +300,10 @@
     </style>
 </head>
 <body>
+    <div id="start-overlay">
+        <button id="start-button">TAP TO BEGIN</button>
+    </div>
+
     <div class="space-bg"></div>
     <div class="stars"></div>
     <div class="cosmic-dust"></div>
@@ -299,7 +332,7 @@
         // --- State Management ---
         let isListening = false;
         let isSpeaking = false;
-        let canListen = true; // New flag to control when listening is allowed
+        let canListen = true;
         let cameraActive = false;
         let recognition = null;
         let sessionId = Math.random().toString(36).substr(2, 9);
@@ -313,11 +346,11 @@
         // --- DOM Elements ---
         const waveActive = document.getElementById('waveActive');
         const statusIndicator = document.getElementById('statusIndicator');
+        const startOverlay = document.getElementById('start-overlay');
 
         // --- Core Functions ---
 
         function setupSpeechRecognition() {
-            // Check for speech recognition support
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             
             if (!SpeechRecognition) {
@@ -331,10 +364,9 @@
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             
-            // Mobile-specific settings
             if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                recognition.continuous = false; // Android doesn't support continuous well
-                recognition.interimResults = false; // Simplify for mobile
+                recognition.continuous = false;
+                recognition.interimResults = false;
             }
 
             recognition.onstart = () => {
@@ -345,9 +377,7 @@
             };
 
             recognition.onresult = (event) => {
-                // If AI is speaking, ignore all speech input
                 if (isSpeaking || !canListen) {
-                    console.log("Ignoring speech input - AI is speaking");
                     return;
                 }
 
@@ -371,20 +401,17 @@
                     updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
                     updateWaveVisualizer('user-speaking');
                     
-                    // Clear existing timeout
                     if (speechTimeout) {
                         clearTimeout(speechTimeout);
                     }
                     
-                    // Wait 2 seconds after user stops speaking
+                    // MODIFIED: Wait 0.6 seconds after user stops speaking for faster processing
                     speechTimeout = setTimeout(() => {
                         if (currentTranscript.trim().length > 0 && !isSpeaking && canListen) {
-                            console.log("Processing speech after 2s silence:", currentTranscript);
                             handleUserSpeech(currentTranscript.trim());
                         }
-                    }, 2000);
+                    }, 600); 
                     
-                    // On mobile, also process immediately if we get a final result
                     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     if (isMobile && finalTranscript.trim().length > 0) {
                         if (speechTimeout) clearTimeout(speechTimeout);
@@ -397,7 +424,6 @@
                 console.log("Speech recognition ended");
                 isListening = false;
                 
-                // Only restart if we're allowed to listen and AI isn't speaking
                 if (canListen && !isSpeaking) {
                     updateWaveVisualizer('listening');
                     listeningRestartTimeout = setTimeout(() => {
@@ -426,14 +452,11 @@
         }
 
         function startListening() {
-            // Don't start listening if AI is speaking or listening is disabled
             if (!canListen || isSpeaking || isListening || !recognition) {
-                console.log("Cannot start listening:", { canListen, isSpeaking, isListening });
                 return;
             }
             
             try {
-                console.log("Starting speech recognition");
                 currentTranscript = '';
                 lastSpeechTime = 0;
                 recognition.start();
@@ -449,12 +472,10 @@
 
         function stopListening() {
             if (recognition && isListening) {
-                console.log("Stopping speech recognition");
                 isListening = false;
                 recognition.stop();
             }
             
-            // Clear any pending timeouts
             if (speechTimeout) {
                 clearTimeout(speechTimeout);
                 speechTimeout = null;
@@ -467,16 +488,10 @@
         
         async function handleUserSpeech(transcript) {
             if (isSpeaking || !transcript.trim()) return;
-
-            console.log("Handling user speech:", transcript);
             
-            // CRITICAL: Stop all listening immediately when processing speech
             canListen = false;
             stopListening();
-
-            // Reset transcript
             currentTranscript = '';
-
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
 
@@ -493,8 +508,6 @@
         async function speakResponse(text) {
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
-                    console.log("Speech synthesis not available");
-                    // Re-enable listening after 500ms
                     setTimeout(() => {
                         canListen = true;
                         startListening();
@@ -503,51 +516,38 @@
                     return;
                 }
                 
-                // CRITICAL: Set speaking state and disable listening
                 isSpeaking = true;
                 canListen = false;
-                stopListening(); // Make sure listening is completely stopped
-                
-                // Stop any ongoing speech
+                stopListening();
                 speechSynthesis.cancel();
                 
                 const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Mobile-optimized voice selection
                 const voices = speechSynthesis.getVoices();
-                console.log("Available voices:", voices.length);
                 
-                // Better voice selection for mobile
                 let selectedVoice = null;
                 
-                // iOS/Safari preferences
                 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                     selectedVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen')) ||
                                     voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')) ||
                                     voices.find(v => v.lang.includes('en-US'))[0];
                 }
-                // Android preferences
                 else if (/Android/i.test(navigator.userAgent)) {
                     selectedVoice = voices.find(v => v.lang.includes('en-US') && v.name.toLowerCase().includes('female')) ||
                                     voices.find(v => v.lang.includes('en-US'))[0];
                 }
-                // Desktop preferences
                 else {
                     selectedVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
                 }
                 
                 if (selectedVoice) {
                     utterance.voice = selectedVoice;
-                    console.log("Selected voice:", selectedVoice.name);
                 }
                 
-                // Mobile-optimized speech settings
                 utterance.rate = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 0.9 : 0.95;
                 utterance.pitch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1.0 : 1.15;
                 utterance.volume = 0.9;
 
                 utterance.onstart = () => {
-                    console.log("AI started speaking - microphone disabled");
                     isSpeaking = true;
                     canListen = false;
                     updateWaveVisualizer('ai-speaking');
@@ -555,17 +555,13 @@
                 };
 
                 utterance.onend = () => {
-                    console.log("AI finished speaking - enabling microphone after 500ms");
                     isSpeaking = false;
-                    
-                    // Wait 500ms before allowing user to speak again
                     setTimeout(() => {
                         canListen = true;
                         updateWaveVisualizer('listening');
                         updateStatusIndicator('🎤 Listening...', 'listening', true);
                         startListening();
                     }, 500);
-                    
                     resolve();
                 };
 
@@ -579,21 +575,12 @@
                     resolve();
                 };
                 
-                // iOS requires user interaction for first speech
-                if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && !hasGreeted) {
-                    // Add a small delay for iOS
-                    setTimeout(() => {
-                        speechSynthesis.speak(utterance);
-                    }, 100);
-                } else {
-                    speechSynthesis.speak(utterance);
-                }
+                speechSynthesis.speak(utterance);
             });
         }
         
         async function getAIResponse(userMessage, imageData = null) {
             try {
-                // Get current Central Time
                 const now = new Date();
                 const centralTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
                 const localTime = centralTime.toLocaleString('en-US', {
@@ -615,8 +602,6 @@
                     local_time: localTime
                 };
 
-                console.log("Sending request with time:", localTime);
-
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -633,7 +618,6 @@
             }
         }
         
-        // --- UI & Utility Functions ---
         function updateWaveVisualizer(state) { 
             waveActive.className = 'wave-active ' + state; 
         }
@@ -658,7 +642,6 @@
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
                 
-                // Wait for video metadata to load
                 await new Promise((resolve) => {
                     videoElement.onloadedmetadata = () => {
                         videoElement.play();
@@ -666,11 +649,9 @@
                     };
                 });
                 
-                // Shorter wait - just 1 second for basic adjustment
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 cameraActive = true;
-                console.log("Camera initialized successfully");
             } catch (error) { 
                 console.log('Camera not available:', error);
                 cameraActive = false;
@@ -683,7 +664,6 @@
             try {
                 const video = document.getElementById('videoElement');
                 if (video.videoWidth === 0 || video.videoHeight === 0) {
-                    console.log("Video not ready");
                     return null;
                 }
                 
@@ -699,11 +679,14 @@
             }
         }
         
-        // --- Initialization ---
-        window.addEventListener('load', async () => {
+        async function startNexus() {
+            startOverlay.style.opacity = '0';
+            setTimeout(() => {
+                startOverlay.style.display = 'none';
+            }, 500);
+
             console.log("Initializing NEXUS 3000...");
             
-            // Initialize camera first
             await initializeCamera();
             setupSpeechRecognition();
             
@@ -711,22 +694,21 @@
                 speechSynthesis.onvoiceschanged = () => {
                     console.log("Voices loaded:", speechSynthesis.getVoices().length);
                 };
-                // Load voices immediately if available
                 speechSynthesis.getVoices();
             }
 
-            // Start much faster
             setTimeout(async () => {
-                if (!hasGreeted && cameraActive) {
+                if (!hasGreeted) {
                     hasGreeted = true;
-                    const greeting = await getAIResponse("Say hello and describe what you see", captureImage());
-                    await speakResponse(greeting);
-                } else if (!hasGreeted && !cameraActive) {
-                    hasGreeted = true;
-                    const greeting = await getAIResponse("Say hello", null);
+                    const initialImage = cameraActive ? captureImage() : null;
+                    const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
                     await speakResponse(greeting);
                 }
-            }, 1500);
+            }, 500);
+        }
+
+        window.addEventListener('load', () => {
+            startOverlay.addEventListener('click', startNexus, { once: true });
         });
     </script>
 </body>
