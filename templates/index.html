@@ -601,26 +601,18 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
 
         function checkSilence() {
             if (isListening && Date.now() - lastResultTime > 2000) {
-                console.log("2-second silence detected");
+                console.log("2-second silence detected - handling naturally");
                 const finalTranscript = waveActive.dataset.currentTranscript || "";
                 stopListening(); 
                 if (finalTranscript.trim()) {
-                    // Wait 1 second after user finishes, then respond
-                    setTimeout(() => {
-                        handleUserSpeech(finalTranscript);
-                    }, 1000);
+                    // Process immediately - no artificial delays
+                    handleUserSpeech(finalTranscript);
                 } else {
-                    // Only ask "Are you done?" on iPhone if we haven't asked recently
-                    if (isIOS) {
-                        // For iPhone, just restart listening instead of asking "are you done"
-                        setTimeout(() => {
-                            canListen = true;
-                            startListening();
-                        }, 1000);
-                    } else {
-                        // For other platforms, ask "are you done?"
-                        handleUserSpeech("SILENCE_DETECTED");
-                    }
+                    // Just continue listening naturally - like a real friend would
+                    setTimeout(() => {
+                        canListen = true;
+                        startListening();
+                    }, 500);
                 }
             }
         }
@@ -804,16 +796,14 @@ function setupSpeechRecognition() {
         async function handleUserSpeech(transcript) {
             const trimmedTranscript = transcript.trim();
             
-            // Handle 2-second silence case
+            // Remove the "Are you done?" functionality completely
             if (transcript === "SILENCE_DETECTED") {
-                canListen = false;
-                stopListening();
-                updateWaveVisualizer('thinking');
-                updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
-                updateRobotState('thinking');
-                
-                // Pre-generate "Are you done?" without API call for instant response
-                await speakNovaResponse("Are you done?");
+                // Just restart listening naturally - no robotic responses
+                setTimeout(() => {
+                    canListen = true;
+                    updateRobotState('listening');
+                    startListening();
+                }, 500);
                 return;
             }
             
@@ -846,17 +836,15 @@ function setupSpeechRecognition() {
             try {
                 const imageData = cameraActive ? captureImage() : null;
                 
-                // Start both AI response and Nova speech generation in parallel
-                const [responseText] = await Promise.all([
-                    getAIResponse(trimmedTranscript, imageData),
-                    // Pre-warm Nova API connection
-                    preWarmNovaAPI()
-                ]);
+                // Parallel processing for maximum speed
+                const responsePromise = getAIResponse(trimmedTranscript, imageData);
                 
+                // Start processing response immediately - no delays
+                const responseText = await responsePromise;
                 await speakNovaResponse(responseText);
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
-                await speakNovaResponse("I encountered an error. Please try again.");
+                await speakNovaResponse("Something went wrong, but I'm still here with you.");
             }
         }
         
@@ -1013,8 +1001,8 @@ function setupSpeechRecognition() {
                 utterance.voice = selectedVoice;
             }
             
-            utterance.rate = isIOS ? 0.8 : isAndroid ? 0.75 : 0.85;  // Slower speech rates
-            utterance.pitch = 1.0;  // Lowered pitch slightly
+            utterance.rate = isIOS ? 0.9 : isAndroid ? 0.88 : 0.92;  // Just slightly slower than normal
+            utterance.pitch = 1.05;  // Slightly higher pitch for more pleasant sound
             utterance.volume = 1.0;
 
             utterance.onend = () => {
