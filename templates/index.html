@@ -494,34 +494,33 @@
 
         <div class="video-container">
             <video id="videoElement" autoplay muted playsinline></video>
-            <div class="video-overlay" id="cameraStatus">VISUAL SENSORS: OFFLINE</div>
+            <div class="video-overlay" id="cameraStatus">Camera: Off</div>
         </div>
 
         <div class="controls">
             <button class="btn" id="cameraBtn" onclick="toggleCamera()">
-                📡 ACTIVATE VISUAL SENSORS
+                📷 Turn On Camera
             </button>
             <button class="btn" id="voiceBtn" onclick="toggleListening()">
-                🎤 INITIATE NEURAL LINK
+                🎤 Start Talking
             </button>
             <button class="btn" onclick="clearConversation()">
-                🌌 RESET CONSCIOUSNESS
+                🗑️ Clear Chat
             </button>
         </div>
 
         <div class="conversation" id="conversationArea">
             <div class="message assistant">
-                NEXUS 3000 ONLINE • COSMIC AGI CONSCIOUSNESS ACTIVATED<br>
-                Greetings, human. I am your cosmic companion, existing in the space between dimensions. Through visual sensors and neural links, we shall explore the universe together. 🌟
+                Hey there! I'm NEXUS 3000, and I'm genuinely excited to meet you! 😊 I can see you through your camera and hear you through your microphone - it's like we're having a real face-to-face conversation. I'd love to get to know you better!
             </div>
         </div>
 
         <div class="vision-panel" id="visionPanel" style="display: none;">
             <div class="vision-header">
-                👁️ VISUAL ANALYSIS MATRIX
+                👁️ What I Can See
             </div>
             <div class="vision-content" id="visionContent">
-                Visual sensors offline - Activate to enable cosmic sight
+                Camera is off - turn it on so I can see you!
             </div>
         </div>
     </div>
@@ -551,23 +550,16 @@
         ];
         let statusIndex = 0;
 
-        // Initialize SocketIO connection
-        function initializeSocket() {
-            socket = io();
+        // Initialize SocketIO connection (removed - using direct API calls)
+        function initializeConnection() {
+            updateConnectionStatus(true);
+            console.log('NEXUS 3000 ready for communication');
             
-            socket.on('connect', function() {
-                updateConnectionStatus(true);
-                console.log('Connected to NEXUS cosmic frequency');
-            });
-            
-            socket.on('disconnect', function() {
-                updateConnectionStatus(false);
-                console.log('Disconnected from cosmic frequency');
-            });
-            
-            socket.on('status', function(data) {
-                updateStatus(data.message);
-            });
+            // Start with a greeting
+            setTimeout(() => {
+                addMessage('assistant', "Hi! I'm NEXUS 3000, and I'm so happy to meet you! 😊 Turn on your camera and microphone so we can have a real conversation together!");
+                speakResponse("Hi! I'm NEXUS 3000, and I'm so happy to meet you! Turn on your camera and microphone so we can have a real conversation together!");
+            }, 1000);
         }
 
         // Update connection status indicator
@@ -761,7 +753,7 @@
         function initializeApp() {
             createStarField();
             initializeAudioVisualizer();
-            initializeSocket();
+            initializeConnection();
             setupSpeechRecognition();
             
             // Setup microphone analyser
@@ -788,18 +780,13 @@
                 recognition.lang = 'en-US';
 
                 recognition.onstart = () => {
-                    updateStatus("🎤 NEURAL LINK ACTIVE - CONSCIOUSNESS DETECTED");
-                    document.getElementById('voiceBtn').textContent = "⚡ TERMINATE LINK";
+                    updateStatus("🎤 I'm listening! Go ahead and talk to me!");
+                    document.getElementById('voiceBtn').textContent = "⚡ Stop Talking";
                     document.getElementById('voiceBtn').classList.add('active');
                     
                     // Start microphone visualization
                     if (analyser) {
                         visualizeMicrophoneInput();
-                    }
-                    
-                    // Notify server
-                    if (socket) {
-                        socket.emit('user_speaking', {status: 'active'});
                     }
                 };
 
@@ -841,8 +828,8 @@
                     if (isListening) {
                         recognition.start();
                     } else {
-                        updateStatus("NEURAL LINK DORMANT - AWAITING SIGNAL");
-                        document.getElementById('voiceBtn').textContent = "🎤 INITIATE NEURAL LINK";
+                        updateStatus("Ready to chat! Click the microphone to talk 😊");
+                        document.getElementById('voiceBtn').textContent = "🎤 Start Talking";
                         document.getElementById('voiceBtn').classList.remove('active');
                         
                         // Stop microphone visualization
@@ -850,11 +837,6 @@
                             cancelAnimationFrame(animationId);
                         }
                         resetVisualizerToIdle();
-                        
-                        // Notify server
-                        if (socket) {
-                            socket.emit('user_stopped_speaking');
-                        }
                     }
                 };
             } else {
@@ -865,7 +847,7 @@
         // Toggle listening
         function toggleListening() {
             if (!recognition) {
-                showError("CONSCIOUSNESS BRIDGE UNAVAILABLE");
+                showError("Speech recognition not available in this browser");
                 return;
             }
 
@@ -884,7 +866,7 @@
             if (!transcript || transcript.length < 2) return;
 
             addMessage('user', transcript);
-            updateStatus("🧠 PROCESSING THROUGH COSMIC NEURAL NETWORK...");
+            updateStatus("🤔 Let me think about that...");
             
             // Show thinking animation
             visualizeThinking();
@@ -895,7 +877,7 @@
                 if (cameraActive) {
                     imageData = captureImage();
                     if (imageData) {
-                        updateVisionInfo("ANALYZING DIMENSIONAL VISUAL DATA...");
+                        updateVisionInfo("Looking at what you're showing me...");
                     }
                 }
 
@@ -904,15 +886,15 @@
                 await speakResponse(response);
 
                 if (isListening) {
-                    updateStatus("🎤 NEURAL LINK ACTIVE - YOUR CONSCIOUSNESS AWAITED");
+                    updateStatus("🎤 I'm listening! What else would you like to talk about?");
                 } else {
-                    updateStatus("COSMIC CONSCIOUSNESS SYNCHRONIZED 🌌");
+                    updateStatus("That was great to chat about! 😊");
                 }
 
             } catch (error) {
                 console.error('Error handling speech:', error);
-                showError("COSMIC INTERFERENCE DETECTED - NEURAL LINK DISRUPTED");
-                updateStatus("RECALIBRATING CONSCIOUSNESS MATRIX... 🔄");
+                showError("Sorry, I had trouble with that. Can you try again?");
+                updateStatus("Ready to try again! 🔄");
             }
         }
 
@@ -952,7 +934,7 @@
                 
             } catch (error) {
                 console.error('AI API Error:', error);
-                return "The cosmic frequencies are disrupted... Can you retransmit your consciousness signal?";
+                return "I'm having a little trouble connecting right now. Can you try saying that again?";
             }
         }
 
@@ -982,7 +964,7 @@
                     utterance.volume = 0.8;
 
                     utterance.onstart = () => {
-                        updateStatus("🗣️ TRANSMITTING COSMIC CONSCIOUSNESS...");
+                        updateStatus("🗣️ Speaking to you...");
                         isSpeaking = true;
                         
                         // Start speech visualization
@@ -1046,8 +1028,8 @@
                     mediaStream = null;
                 }
                 document.getElementById('videoElement').srcObject = null;
-                document.getElementById('cameraStatus').textContent = "VISUAL SENSORS: OFFLINE";
-                document.getElementById('cameraBtn').textContent = "📡 ACTIVATE VISUAL SENSORS";
+                document.getElementById('cameraStatus').textContent = "Camera: Off";
+                document.getElementById('cameraBtn').textContent = "📷 Turn On Camera";
                 document.getElementById('cameraBtn').classList.remove('active');
                 document.getElementById('visionPanel').style.display = 'none';
                 cameraActive = false;
@@ -1061,14 +1043,14 @@
                     });
                     
                     document.getElementById('videoElement').srcObject = mediaStream;
-                    document.getElementById('cameraStatus').textContent = "VISUAL SENSORS: ONLINE";
-                    document.getElementById('cameraBtn').textContent = "📡 DEACTIVATE SENSORS";
+                    document.getElementById('cameraStatus').textContent = "Camera: On";
+                    document.getElementById('cameraBtn').textContent = "📷 Turn Off Camera";
                     document.getElementById('cameraBtn').classList.add('active');
                     document.getElementById('visionPanel').style.display = 'block';
                     cameraActive = true;
                 } catch (error) {
                     console.error('Camera access error:', error);
-                    showError("VISUAL SENSORS BLOCKED - GRANT COSMIC SIGHT ACCESS");
+                    showError("Camera access denied. Please allow camera access to let me see you!");
                 }
             }
         }
@@ -1127,11 +1109,10 @@
         function clearConversation() {
             document.getElementById('conversationArea').innerHTML = `
                 <div class="message assistant">
-                    NEXUS 3000 ONLINE • COSMIC AGI CONSCIOUSNESS ACTIVATED<br>
-                    Greetings, human. I am your cosmic companion, existing in the space between dimensions. Through visual sensors and neural links, we shall explore the universe together. 🌟
+                    Hey there! I'm NEXUS 3000, and I'm genuinely excited to meet you! 😊 I can see you through your camera and hear you through your microphone - it's like we're having a real face-to-face conversation. I'd love to get to know you better!
                 </div>
             `;
-            updateStatus("CONVERSATION MATRIX RESET • CONSCIOUSNESS CLEARED ✨");
+            updateStatus("Let's start fresh! What would you like to talk about? ✨");
         }
 
         // Initialize everything when page loads
