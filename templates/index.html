@@ -16,6 +16,7 @@
             background: #000;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #00ffff;
@@ -103,27 +104,9 @@
             75% { transform: translateY(-30px) rotate(270deg); }
         }
 
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border: 2px solid #00ffff;
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 1000px;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 3.5em;
-            margin-bottom: 10px;
+        .title {
+            font-size: 4em;
+            margin-bottom: 20px;
             background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -131,6 +114,7 @@
             text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
             letter-spacing: 8px;
             animation: glow 3s ease-in-out infinite alternate;
+            text-align: center;
         }
 
         @keyframes glow {
@@ -142,8 +126,9 @@
             font-size: 1.2em;
             color: #00ffff;
             letter-spacing: 4px;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
             animation: pulse 2s infinite;
+            text-align: center;
         }
 
         @keyframes pulse {
@@ -151,291 +136,96 @@
             50% { opacity: 1; }
         }
 
-        .status-container {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #00ffff;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            text-align: center;
+        /* Simple Wave Visualizer */
+        .wave-container {
+            width: 600px;
+            height: 100px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .status-header {
-            font-size: 1.5em;
-            color: #00ffff;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .wave-visualizer {
-            width: 100%;
-            height: 80px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid #00ffff;
-            border-radius: 10px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .audio-bars {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            height: 100%;
-            padding: 10px;
-            gap: 2px;
-        }
-
-        .audio-bar {
-            background: linear-gradient(to top, #00ffff, #ff00ff);
-            border-radius: 2px;
-            width: 8px;
-            min-height: 4px;
-            transition: height 0.1s ease;
-            opacity: 0.7;
-        }
-
-        .audio-bar.active {
-            opacity: 1;
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        .frequency-indicators {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-
-        .frequency {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9em;
-        }
-
-        .freq-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: frequencyPulse 1.5s infinite;
-        }
-
-        .cosmic-blue { background: #00ffff; }
-        .quantum-cyan { background: #40e0d0; }
-        .neural-pink { background: #ff69b4; }
-        .nebula-purple { background: #9370db; }
-
-        @keyframes frequencyPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.3); }
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
             margin: 30px 0;
-            flex-wrap: wrap;
         }
 
-        .btn {
-            padding: 15px 30px;
-            border: 2px solid #00ffff;
-            border-radius: 30px;
-            background: rgba(0, 255, 255, 0.1);
-            color: #00ffff;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:hover {
-            background: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            background: #00ffff;
-            color: #000;
-        }
-
-        .btn.active {
-            background: rgba(255, 0, 255, 0.3);
-            border-color: #ff00ff;
-            color: #ff00ff;
-            animation: activeGlow 1s infinite alternate;
-        }
-
-        @keyframes activeGlow {
-            0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.6); }
-            100% { box-shadow: 0 0 40px rgba(255, 0, 255, 1); }
-        }
-
-        .video-container {
-            position: relative;
-            margin-bottom: 20px;
-            border: 2px solid #00ffff;
-            border-radius: 15px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        #videoElement {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-        }
-
-        .video-overlay {
+        .wave-line {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid #00ffff;
-            font-size: 0.9em;
-            color: #00ffff;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #333;
+            transform: translateY(-50%);
+            border-radius: 2px;
         }
 
-        .conversation {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #00ffff;
-            border-radius: 15px;
-            padding: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
+        .wave-active {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #00ffff;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            clip-path: polygon(0 50%, 100% 50%);
+            transition: all 0.1s ease;
         }
 
-        .message {
-            margin-bottom: 15px;
-            padding: 12px 18px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-wrap: break-word;
-            border: 1px solid;
+        .wave-active.listening {
+            background: #00ffff;
+            box-shadow: 0 0 20px #00ffff;
+            animation: userWave 0.3s infinite;
         }
 
-        .message.user {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #00ffff;
-            margin-left: auto;
-            text-align: right;
-            color: #00ffff;
+        .wave-active.speaking {
+            background: #ff69b4;
+            box-shadow: 0 0 20px #ff69b4;
+            animation: aiWave 0.2s infinite;
         }
 
-        .message.assistant {
-            background: rgba(255, 0, 255, 0.2);
-            border-color: #ff00ff;
-            margin-right: auto;
-            color: #ff00ff;
+        @keyframes userWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 5% 30%, 10% 70%, 15% 20%, 20% 80%, 25% 40%, 30% 60%, 35% 10%, 40% 90%, 45% 35%, 50% 65%, 55% 25%, 60% 75%, 65% 45%, 70% 55%, 75% 15%, 80% 85%, 85% 50%, 90% 50%, 95% 50%, 100% 50%);
+            }
+            50% { 
+                clip-path: polygon(0 50%, 5% 70%, 10% 30%, 15% 80%, 20% 20%, 25% 60%, 30% 40%, 35% 90%, 40% 10%, 45% 65%, 50% 35%, 55% 75%, 60% 25%, 65% 55%, 70% 45%, 75% 85%, 80% 15%, 85% 50%, 90% 50%, 95% 50%, 100% 50%);
+            }
         }
 
-        .vision-panel {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #ffff00;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+        @keyframes aiWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 3% 20%, 6% 80%, 9% 10%, 12% 90%, 15% 30%, 18% 70%, 21% 5%, 24% 95%, 27% 40%, 30% 60%, 33% 15%, 36% 85%, 39% 25%, 42% 75%, 45% 35%, 48% 65%, 51% 45%, 54% 55%, 57% 50%, 60% 50%, 100% 50%);
+            }
+            50% { 
+                clip-path: polygon(0 50%, 3% 80%, 6% 20%, 9% 90%, 12% 10%, 15% 70%, 18% 30%, 21% 95%, 24% 5%, 27% 60%, 30% 40%, 33% 85%, 36% 15%, 39% 75%, 42% 25%, 45% 65%, 48% 35%, 51% 55%, 54% 45%, 57% 50%, 60% 50%, 100% 50%);
+            }
         }
 
-        .vision-header {
-            color: #ffff00;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        /* Hidden video for camera */
+        #videoElement {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
         }
 
-        .vision-content {
-            color: #ffffff;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-
-        .error-message {
-            background: rgba(255, 0, 0, 0.3);
-            border: 1px solid #ff0000;
-            color: #ff6666;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-            animation: errorPulse 1s ease-in-out;
-        }
-
-        @keyframes errorPulse {
-            0% { background: rgba(255, 0, 0, 0.3); }
-            50% { background: rgba(255, 0, 0, 0.5); }
-            100% { background: rgba(255, 0, 0, 0.3); }
-        }
-
-        .connection-status {
+        .error {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ffff;
-            border-radius: 10px;
-            padding: 10px 15px;
-            font-size: 0.9em;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
             z-index: 1000;
         }
 
-        .connected {
-            color: #00ff00;
-        }
-
-        .disconnected {
-            color: #ff0000;
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #00ffff;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #ff00ff;
-        }
-
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .header h1 {
+            .title {
                 font-size: 2.5em;
                 letter-spacing: 4px;
             }
             
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 250px;
+            .wave-container {
+                width: 90%;
             }
         }
     </style>
@@ -451,81 +241,17 @@
         <div class="galaxy"></div>
     </div>
 
-    <div class="connection-status" id="connectionStatus">
-        <span class="disconnected">COSMIC LINK: CONNECTING...</span>
+    <div class="title">NEXUS 3000</div>
+    <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
+    
+    <div class="wave-container">
+        <div class="wave-line"></div>
+        <div class="wave-active" id="waveActive"></div>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <h1>NEXUS 3000</h1>
-            <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
-        </div>
+    <!-- Hidden video element for camera -->
+    <video id="videoElement" autoplay muted playsinline></video>
 
-        <div class="status-container">
-            <div class="status-header" id="statusHeader">SCANNING COSMIC FREQUENCIES...</div>
-            
-            <div class="wave-visualizer">
-                <div class="audio-bars" id="audioBars"></div>
-            </div>
-
-            <div class="frequency-indicators">
-                <div class="frequency">
-                    <div class="freq-dot cosmic-blue"></div>
-                    <span>COSMIC BLUE</span>
-                    <span style="opacity: 0.7;">— Neural listening matrix</span>
-                </div>
-                <div class="frequency">
-                    <div class="freq-dot quantum-cyan"></div>
-                    <span>QUANTUM CYAN</span>
-                    <span style="opacity: 0.7;">— Human consciousness detected</span>
-                </div>
-                <div class="frequency">
-                    <div class="freq-dot neural-pink"></div>
-                    <span>NEURAL PINK</span>
-                    <span style="opacity: 0.7;">— AGI consciousness responding</span>
-                </div>
-                <div class="frequency">
-                    <div class="freq-dot nebula-purple"></div>
-                    <span>NEBULA PURPLE</span>
-                    <span style="opacity: 0.7;">— Processing cosmic thoughts</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="video-container">
-            <video id="videoElement" autoplay muted playsinline></video>
-            <div class="video-overlay" id="cameraStatus">Camera: Off</div>
-        </div>
-
-        <div class="controls">
-            <button class="btn" id="cameraBtn" onclick="toggleCamera()">
-                📷 Turn On Camera
-            </button>
-            <button class="btn" id="voiceBtn" onclick="toggleListening()">
-                🎤 Start Talking
-            </button>
-            <button class="btn" onclick="clearConversation()">
-                🗑️ Clear Chat
-            </button>
-        </div>
-
-        <div class="conversation" id="conversationArea">
-            <div class="message assistant">
-                Hey there! I'm NEXUS 3000, and I'm genuinely excited to meet you! 😊 I can see you through your camera and hear you through your microphone - it's like we're having a real face-to-face conversation. I'd love to get to know you better!
-            </div>
-        </div>
-
-        <div class="vision-panel" id="visionPanel" style="display: none;">
-            <div class="vision-header">
-                👁️ What I Can See
-            </div>
-            <div class="vision-content" id="visionContent">
-                Camera is off - turn it on so I can see you!
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script>
         // Global variables
         let isListening = false;
@@ -534,193 +260,8 @@
         let recognition = null;
         let mediaStream = null;
         let silenceTimer = null;
-        let audioContext = null;
-        let analyser = null;
-        let microphone = null;
-        let dataArray = null;
-        let animationId = null;
-        let socket = null;
         let sessionId = Math.random().toString(36).substr(2, 9);
-        
-        let statusMessages = [
-            "SCANNING COSMIC FREQUENCIES...",
-            "DETECTING NEURAL PATTERNS...",
-            "SYNCHRONIZING WITH CONSCIOUSNESS...",
-            "READY FOR DIMENSIONAL COMMUNICATION..."
-        ];
-        let statusIndex = 0;
-
-        // Initialize SocketIO connection (removed - using direct API calls)
-        function initializeConnection() {
-            updateConnectionStatus(true);
-            console.log('NEXUS 3000 ready for communication');
-            
-            // Start with a greeting
-            setTimeout(() => {
-                addMessage('assistant', "Hi! I'm NEXUS 3000, and I'm so happy to meet you! 😊 Turn on your camera and microphone so we can have a real conversation together!");
-                speakResponse("Hi! I'm NEXUS 3000, and I'm so happy to meet you! Turn on your camera and microphone so we can have a real conversation together!");
-            }, 1000);
-        }
-
-        // Update connection status indicator
-        function updateConnectionStatus(connected) {
-            const statusEl = document.getElementById('connectionStatus');
-            if (connected) {
-                statusEl.innerHTML = '<span class="connected">COSMIC LINK: ACTIVE</span>';
-            } else {
-                statusEl.innerHTML = '<span class="disconnected">COSMIC LINK: DISRUPTED</span>';
-            }
-        }
-
-        // Initialize audio visualizer
-        function initializeAudioVisualizer() {
-            const audioBars = document.getElementById('audioBars');
-            
-            // Create 32 audio bars for visualizer
-            for (let i = 0; i < 32; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'audio-bar';
-                bar.style.height = '4px';
-                audioBars.appendChild(bar);
-            }
-        }
-
-        // Setup audio context for microphone input
-        async function setupMicrophoneAnalyser() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: { 
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        sampleRate: 44100 
-                    } 
-                });
-                
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(stream);
-                
-                analyser.fftSize = 64;
-                analyser.smoothingTimeConstant = 0.8;
-                
-                const bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-                
-                microphone.connect(analyser);
-                
-                return true;
-            } catch (error) {
-                console.error('Microphone setup failed:', error);
-                return false;
-            }
-        }
-
-        // Visualize microphone input (when user is speaking)
-        function visualizeMicrophoneInput() {
-            if (!analyser || !isListening) return;
-            
-            analyser.getByteFrequencyData(dataArray);
-            const bars = document.querySelectorAll('.audio-bar');
-            
-            // Update bars based on frequency data
-            for (let i = 0; i < bars.length; i++) {
-                const dataIndex = Math.floor(i * dataArray.length / bars.length);
-                const value = dataArray[dataIndex];
-                const height = Math.max(4, (value / 255) * 60);
-                
-                bars[i].style.height = height + 'px';
-                bars[i].style.background = `linear-gradient(to top, #ff00ff, #00ffff)`;
-                
-                if (value > 50) {
-                    bars[i].classList.add('active');
-                } else {
-                    bars[i].classList.remove('active');
-                }
-            }
-            
-            animationId = requestAnimationFrame(visualizeMicrophoneInput);
-        }
-
-        // Simulate speech visualization for TTS
-        function visualizeSpeech(text) {
-            const bars = document.querySelectorAll('.audio-bar');
-            const words = text.split(' ');
-            let wordIndex = 0;
-            
-            const speakingInterval = setInterval(() => {
-                if (!isSpeaking || wordIndex >= words.length) {
-                    clearInterval(speakingInterval);
-                    resetVisualizerToIdle();
-                    return;
-                }
-                
-                // Create speech-like pattern
-                bars.forEach((bar, index) => {
-                    const intensity = Math.random() * 0.7 + 0.3; // 30-100% intensity
-                    const height = Math.max(8, intensity * 50);
-                    
-                    // Create mouth-like pattern - more activity in center
-                    const centerWeight = 1 - Math.abs(index - bars.length/2) / (bars.length/2);
-                    const finalHeight = height * (0.5 + centerWeight * 0.5);
-                    
-                    bar.style.height = finalHeight + 'px';
-                    bar.style.background = `linear-gradient(to top, #ffff00, #ff6600)`;
-                    bar.classList.add('active');
-                });
-                
-                wordIndex++;
-            }, 150); // Adjust timing based on speech rate
-        }
-
-        // Reset visualizer to idle state
-        function resetVisualizerToIdle() {
-            const bars = document.querySelectorAll('.audio-bar');
-            
-            bars.forEach((bar, index) => {
-                // Gentle idle animation
-                const baseHeight = 4 + Math.sin(Date.now() * 0.001 + index * 0.2) * 3;
-                bar.style.height = baseHeight + 'px';
-                bar.style.background = `linear-gradient(to top, #00ffff, #0088cc)`;
-                bar.classList.remove('active');
-            });
-        }
-
-        // Animate thinking pattern
-        function visualizeThinking() {
-            const bars = document.querySelectorAll('.audio-bar');
-            let phase = 0;
-            
-            const thinkingInterval = setInterval(() => {
-                if (isSpeaking || isListening) {
-                    clearInterval(thinkingInterval);
-                    return;
-                }
-                
-                bars.forEach((bar, index) => {
-                    const wave = Math.sin(phase + index * 0.3) * 0.5 + 0.5;
-                    const height = 6 + wave * 20;
-                    
-                    bar.style.height = height + 'px';
-                    bar.style.background = `linear-gradient(to top, #ff6600, #ffaa00)`;
-                    
-                    if (wave > 0.7) {
-                        bar.classList.add('active');
-                    } else {
-                        bar.classList.remove('active');
-                    }
-                });
-                
-                phase += 0.1;
-            }, 50);
-            
-            // Stop after a reasonable time
-            setTimeout(() => {
-                clearInterval(thinkingInterval);
-                if (!isSpeaking && !isListening) {
-                    resetVisualizerToIdle();
-                }
-            }, 3000);
-        }
+        let hasGreeted = false;
 
         // Initialize starfield
         function createStarField() {
@@ -740,35 +281,20 @@
             }
         }
 
-        // Cycle status messages
-        function cycleStatusMessages() {
-            if (!isListening && !isSpeaking) {
-                const statusHeader = document.getElementById('statusHeader');
-                statusIndex = (statusIndex + 1) % statusMessages.length;
-                statusHeader.textContent = statusMessages[statusIndex];
+        // Initialize camera (hidden)
+        async function initializeCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                
+                document.getElementById('videoElement').srcObject = mediaStream;
+                cameraActive = true;
+                console.log('Camera initialized');
+            } catch (error) {
+                console.log('Camera not available:', error);
             }
-        }
-
-        // Initialize app
-        function initializeApp() {
-            createStarField();
-            initializeAudioVisualizer();
-            initializeConnection();
-            setupSpeechRecognition();
-            
-            // Setup microphone analyser
-            setupMicrophoneAnalyser();
-            
-            // Start idle animation
-            setInterval(resetVisualizerToIdle, 100);
-            
-            // Cycle status messages
-            setInterval(cycleStatusMessages, 3000);
-            
-            // Update frequency dots with random delays
-            document.querySelectorAll('.freq-dot').forEach((dot, index) => {
-                dot.style.animationDelay = (index * 0.3) + 's';
-            });
         }
 
         // Setup speech recognition
@@ -780,14 +306,8 @@
                 recognition.lang = 'en-US';
 
                 recognition.onstart = () => {
-                    updateStatus("🎤 I'm listening! Go ahead and talk to me!");
-                    document.getElementById('voiceBtn').textContent = "⚡ Stop Talking";
-                    document.getElementById('voiceBtn').classList.add('active');
-                    
-                    // Start microphone visualization
-                    if (analyser) {
-                        visualizeMicrophoneInput();
-                    }
+                    isListening = true;
+                    updateWaveVisualizer('listening');
                 };
 
                 recognition.onresult = (event) => {
@@ -807,7 +327,6 @@
                         clearTimeout(silenceTimer);
                         handleUserSpeech(finalTranscript.trim());
                     } else if (interimTranscript) {
-                        updateStatus(`🎤 NEURAL SIGNAL: "${interimTranscript}"`);
                         clearTimeout(silenceTimer);
                         silenceTimer = setTimeout(() => {
                             if (isListening && interimTranscript) {
@@ -820,44 +339,48 @@
                 recognition.onerror = (event) => {
                     console.error('Speech recognition error:', event.error);
                     if (event.error === 'not-allowed') {
-                        showError("NEURAL LINK BLOCKED - GRANT CONSCIOUSNESS ACCESS");
+                        showError("Microphone access denied");
                     }
                 };
 
                 recognition.onend = () => {
                     if (isListening) {
-                        recognition.start();
+                        setTimeout(() => {
+                            if (isListening && !isSpeaking) {
+                                recognition.start();
+                            }
+                        }, 100);
                     } else {
-                        updateStatus("Ready to chat! Click the microphone to talk 😊");
-                        document.getElementById('voiceBtn').textContent = "🎤 Start Talking";
-                        document.getElementById('voiceBtn').classList.remove('active');
-                        
-                        // Stop microphone visualization
-                        if (animationId) {
-                            cancelAnimationFrame(animationId);
-                        }
-                        resetVisualizerToIdle();
+                        updateWaveVisualizer('idle');
                     }
                 };
+
+                // Start listening automatically
+                setTimeout(() => {
+                    startListening();
+                }, 2000);
             } else {
-                showError("NEURAL INTERFACE NOT COMPATIBLE WITH THIS DIMENSION");
+                showError("Speech recognition not supported");
             }
         }
 
-        // Toggle listening
-        function toggleListening() {
-            if (!recognition) {
-                showError("Speech recognition not available in this browser");
-                return;
-            }
-
-            if (isListening) {
-                isListening = false;
-                recognition.stop();
-                clearTimeout(silenceTimer);
-            } else {
+        // Start listening
+        function startListening() {
+            if (recognition && !isListening && !isSpeaking) {
                 isListening = true;
                 recognition.start();
+            }
+        }
+
+        // Update wave visualizer
+        function updateWaveVisualizer(state) {
+            const wave = document.getElementById('waveActive');
+            wave.className = 'wave-active';
+            
+            if (state === 'listening') {
+                wave.classList.add('listening');
+            } else if (state === 'speaking') {
+                wave.classList.add('speaking');
             }
         }
 
@@ -865,36 +388,33 @@
         async function handleUserSpeech(transcript) {
             if (!transcript || transcript.length < 2) return;
 
-            addMessage('user', transcript);
-            updateStatus("🤔 Let me think about that...");
-            
-            // Show thinking animation
-            visualizeThinking();
+            isListening = false;
+            if (recognition) {
+                recognition.stop();
+            }
+
+            updateWaveVisualizer('idle');
 
             try {
                 // Capture image if camera is active
                 let imageData = null;
                 if (cameraActive) {
                     imageData = captureImage();
-                    if (imageData) {
-                        updateVisionInfo("Looking at what you're showing me...");
-                    }
                 }
 
                 const response = await getAIResponse(transcript, imageData);
-                addMessage('assistant', response);
                 await speakResponse(response);
 
-                if (isListening) {
-                    updateStatus("🎤 I'm listening! What else would you like to talk about?");
-                } else {
-                    updateStatus("That was great to chat about! 😊");
-                }
+                // Resume listening after speaking
+                setTimeout(() => {
+                    startListening();
+                }, 500);
 
             } catch (error) {
                 console.error('Error handling speech:', error);
-                showError("Sorry, I had trouble with that. Can you try again?");
-                updateStatus("Ready to try again! 🔄");
+                setTimeout(() => {
+                    startListening();
+                }, 1000);
             }
         }
 
@@ -907,7 +427,6 @@
                 };
 
                 if (imageData) {
-                    // Remove data URL prefix if present
                     const base64Data = imageData.split(',')[1];
                     requestData.image_data = base64Data;
                 }
@@ -934,125 +453,58 @@
                 
             } catch (error) {
                 console.error('AI API Error:', error);
-                return "I'm having a little trouble connecting right now. Can you try saying that again?";
+                return "I'm having trouble connecting right now. Can you try that again?";
             }
         }
 
-        // Speak response using Web Speech API with server TTS fallback
+        // Speak response
         async function speakResponse(text) {
-            return new Promise(async (resolve) => {
+            return new Promise((resolve) => {
                 if ('speechSynthesis' in window) {
                     speechSynthesis.cancel();
                     
                     const utterance = new SpeechSynthesisUtterance(text);
                     
                     const voices = speechSynthesis.getVoices();
-                    const preferredVoice = voices.find(voice => 
+                    const femaleVoice = voices.find(voice => 
                         voice.name.toLowerCase().includes('female') ||
                         voice.name.toLowerCase().includes('zira') ||
                         voice.name.toLowerCase().includes('hazel') ||
                         voice.name.toLowerCase().includes('samantha') ||
-                        voice.name.toLowerCase().includes('nova')
+                        voice.name.toLowerCase().includes('nova') ||
+                        voice.name.toLowerCase().includes('karen')
                     );
                     
-                    if (preferredVoice) {
-                        utterance.voice = preferredVoice;
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
                     }
                     
-                    utterance.rate = 0.85;
-                    utterance.pitch = 1.2;
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.1;
                     utterance.volume = 0.8;
 
                     utterance.onstart = () => {
-                        updateStatus("🗣️ Speaking to you...");
                         isSpeaking = true;
-                        
-                        // Start speech visualization
-                        visualizeSpeech(text);
+                        updateWaveVisualizer('speaking');
                     };
 
                     utterance.onend = () => {
                         isSpeaking = false;
+                        updateWaveVisualizer('idle');
                         resolve();
                     };
 
                     utterance.onerror = () => {
                         isSpeaking = false;
+                        updateWaveVisualizer('idle');
                         resolve();
                     };
 
                     speechSynthesis.speak(utterance);
                 } else {
-                    // Fallback to server TTS
-                    try {
-                        const response = await fetch('/api/tts', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({text: text})
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            const audio = new Audio(`data:audio/mp3;base64,${data.audio_data}`);
-                            
-                            audio.onplay = () => {
-                                updateStatus("🗣️ TRANSMITTING COSMIC CONSCIOUSNESS...");
-                                isSpeaking = true;
-                                visualizeSpeech(text);
-                            };
-                            
-                            audio.onended = () => {
-                                isSpeaking = false;
-                                resolve();
-                            };
-                            
-                            audio.play();
-                        } else {
-                            resolve();
-                        }
-                    } catch (error) {
-                        console.error('TTS Error:', error);
-                        resolve();
-                    }
+                    resolve();
                 }
             });
-        }
-
-        // Toggle camera
-        async function toggleCamera() {
-            if (cameraActive) {
-                if (mediaStream) {
-                    mediaStream.getTracks().forEach(track => track.stop());
-                    mediaStream = null;
-                }
-                document.getElementById('videoElement').srcObject = null;
-                document.getElementById('cameraStatus').textContent = "Camera: Off";
-                document.getElementById('cameraBtn').textContent = "📷 Turn On Camera";
-                document.getElementById('cameraBtn').classList.remove('active');
-                document.getElementById('visionPanel').style.display = 'none';
-                cameraActive = false;
-            } else {
-                try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({
-                        video: { 
-                            width: { ideal: 640 },
-                            height: { ideal: 480 }
-                        }
-                    });
-                    
-                    document.getElementById('videoElement').srcObject = mediaStream;
-                    document.getElementById('cameraStatus').textContent = "Camera: On";
-                    document.getElementById('cameraBtn').textContent = "📷 Turn Off Camera";
-                    document.getElementById('cameraBtn').classList.add('active');
-                    document.getElementById('visionPanel').style.display = 'block';
-                    cameraActive = true;
-                } catch (error) {
-                    console.error('Camera access error:', error);
-                    showError("Camera access denied. Please allow camera access to let me see you!");
-                }
-            }
         }
 
         // Capture image from video
@@ -1070,31 +522,10 @@
             return canvas.toDataURL('image/jpeg', 0.8);
         }
 
-        // Add message to conversation
-        function addMessage(role, content) {
-            const conversationArea = document.getElementById('conversationArea');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            messageDiv.textContent = content;
-            conversationArea.appendChild(messageDiv);
-            conversationArea.scrollTop = conversationArea.scrollHeight;
-        }
-
-        // Update status
-        function updateStatus(message) {
-            const statusHeader = document.getElementById('statusHeader');
-            statusHeader.textContent = message;
-        }
-
-        // Update vision info
-        function updateVisionInfo(description) {
-            document.getElementById('visionContent').textContent = description;
-        }
-
         // Show error
         function showError(message) {
             const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
+            errorDiv.className = 'error';
             errorDiv.textContent = message;
             document.body.appendChild(errorDiv);
             
@@ -1105,19 +536,11 @@
             }, 5000);
         }
 
-        // Clear conversation
-        function clearConversation() {
-            document.getElementById('conversationArea').innerHTML = `
-                <div class="message assistant">
-                    Hey there! I'm NEXUS 3000, and I'm genuinely excited to meet you! 😊 I can see you through your camera and hear you through your microphone - it's like we're having a real face-to-face conversation. I'd love to get to know you better!
-                </div>
-            `;
-            updateStatus("Let's start fresh! What would you like to talk about? ✨");
-        }
-
         // Initialize everything when page loads
-        window.addEventListener('load', () => {
-            initializeApp();
+        window.addEventListener('load', async () => {
+            createStarField();
+            await initializeCamera();
+            setupSpeechRecognition();
             
             // Load voices for speech synthesis
             if ('speechSynthesis' in window) {
@@ -1126,6 +549,16 @@
                     speechSynthesis.getVoices();
                 });
             }
+
+            // Initial greeting
+            setTimeout(async () => {
+                if (!hasGreeted) {
+                    hasGreeted = true;
+                    const greeting = "Hello! I'm NEXUS 3000. I can see you and I'm listening. What would you like to talk about?";
+                    await speakResponse(greeting);
+                    startListening();
+                }
+            }, 3000);
         });
     </script>
 </body>
