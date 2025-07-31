@@ -30,7 +30,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -41,15 +41,18 @@
         }
         #start-button {
             font-family: 'Courier New', monospace;
-            font-size: 1.5em;
+            font-size: 1.8em;
             color: #00ffff;
-            background: transparent;
-            border: 2px solid #00ffff;
-            padding: 20px 40px;
-            border-radius: 10px;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 3px solid #00ffff;
+            padding: 25px 50px;
+            border-radius: 15px;
             cursor: pointer;
-            text-shadow: 0 0 15px #00ffff;
-            animation: pulse 2s infinite;
+            text-shadow: 0 0 20px #00ffff;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            animation: holoPulse 2s infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
         .space-bg {
@@ -58,7 +61,18 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at 20% 30%, #1a0033 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, #0d1421 0%, transparent 50%), radial-gradient(ellipse at 40% 80%, #2d1b69 0%, transparent 60%), radial-gradient(ellipse 1200px 400px at 30% 20%, rgba(0, 212, 255, 0.3) 0%, transparent 40%), radial-gradient(ellipse 800px 300px at 70% 60%, rgba(255, 0, 110, 0.25) 0%, transparent 35%), radial-gradient(ellipse 1000px 200px at 50% 90%, rgba(131, 56, 236, 0.2) 0%, transparent 45%), radial-gradient(ellipse at 10% 60%, rgba(255, 27, 141, 0.4) 0%, transparent 50%), radial-gradient(ellipse at 90% 40%, rgba(0, 245, 255, 0.3) 0%, transparent 45%), radial-gradient(ellipse at 60% 10%, rgba(138, 43, 226, 0.35) 0%, transparent 40%), radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.05) 0%, rgba(131, 56, 236, 0.2) 30%, transparent 70%), linear-gradient(125deg, #000011 0%, #0a0a0f 30%, #1a0033 60%, #000022 100%);
+            background: 
+                radial-gradient(ellipse at 20% 30%, #1a0033 0%, transparent 50%), 
+                radial-gradient(ellipse at 80% 70%, #0d1421 0%, transparent 50%), 
+                radial-gradient(ellipse at 40% 80%, #2d1b69 0%, transparent 60%), 
+                radial-gradient(ellipse 1200px 400px at 30% 20%, rgba(0, 212, 255, 0.4) 0%, transparent 40%), 
+                radial-gradient(ellipse 800px 300px at 70% 60%, rgba(255, 0, 110, 0.3) 0%, transparent 35%), 
+                radial-gradient(ellipse 1000px 200px at 50% 90%, rgba(131, 56, 236, 0.25) 0%, transparent 45%), 
+                radial-gradient(ellipse at 10% 60%, rgba(255, 27, 141, 0.5) 0%, transparent 50%), 
+                radial-gradient(ellipse at 90% 40%, rgba(0, 245, 255, 0.4) 0%, transparent 45%), 
+                radial-gradient(ellipse at 60% 10%, rgba(138, 43, 226, 0.4) 0%, transparent 40%), 
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(131, 56, 236, 0.3) 30%, transparent 70%), 
+                linear-gradient(125deg, #000011 0%, #0a0a0f 30%, #1a0033 60%, #000022 100%);
             animation: galaxyRotation 200s linear infinite;
             z-index: -3;
         }
@@ -69,7 +83,23 @@
             width: 100%;
             height: 100%;
             z-index: -2;
-            background-image: radial-gradient(3px 3px at 120px 80px, #ffffff, transparent), radial-gradient(2px 2px at 350px 200px, #00f5ff, transparent), radial-gradient(4px 4px at 580px 120px, #ffffff, transparent), radial-gradient(2px 2px at 750px 300px, #ff1b8d, transparent), radial-gradient(3px 3px at 200px 400px, #8338ec, transparent), radial-gradient(2px 2px at 900px 150px, #00d4ff, transparent), radial-gradient(2px 2px at 180px 180px, #ffffff, transparent), radial-gradient(1px 1px at 420px 350px, #00d4ff, transparent), radial-gradient(2px 2px at 680px 250px, #ffffff, transparent), radial-gradient(1px 1px at 820px 400px, #ff006e, transparent), radial-gradient(2px 2px at 50px 300px, #ffffff, transparent), radial-gradient(1px 1px at 300px 100px, rgba(255, 255, 255, 0.8), transparent), radial-gradient(1px 1px at 500px 380px, rgba(0, 245, 255, 0.6), transparent), radial-gradient(1px 1px at 150px 250px, rgba(255, 255, 255, 0.9), transparent), radial-gradient(1px 1px at 700px 80px, rgba(255, 27, 141, 0.7), transparent), radial-gradient(1px 1px at 80px 450px, rgba(255, 255, 255, 0.8), transparent);
+            background-image: 
+                radial-gradient(3px 3px at 120px 80px, #ffffff, transparent), 
+                radial-gradient(2px 2px at 350px 200px, #00f5ff, transparent), 
+                radial-gradient(4px 4px at 580px 120px, #ffffff, transparent), 
+                radial-gradient(2px 2px at 750px 300px, #ff1b8d, transparent), 
+                radial-gradient(3px 3px at 200px 400px, #8338ec, transparent), 
+                radial-gradient(2px 2px at 900px 150px, #00d4ff, transparent), 
+                radial-gradient(2px 2px at 180px 180px, #ffffff, transparent), 
+                radial-gradient(1px 1px at 420px 350px, #00d4ff, transparent), 
+                radial-gradient(2px 2px at 680px 250px, #ffffff, transparent), 
+                radial-gradient(1px 1px at 820px 400px, #ff006e, transparent), 
+                radial-gradient(2px 2px at 50px 300px, #ffffff, transparent), 
+                radial-gradient(1px 1px at 300px 100px, rgba(255, 255, 255, 0.8), transparent), 
+                radial-gradient(1px 1px at 500px 380px, rgba(0, 245, 255, 0.6), transparent), 
+                radial-gradient(1px 1px at 150px 250px, rgba(255, 255, 255, 0.9), transparent), 
+                radial-gradient(1px 1px at 700px 80px, rgba(255, 27, 141, 0.7), transparent), 
+                radial-gradient(1px 1px at 80px 450px, rgba(255, 255, 255, 0.8), transparent);
             background-size: 1000px 500px;
             animation: starfield 300s linear infinite, starTwinkle 4s ease-in-out infinite alternate;
         }
@@ -80,7 +110,10 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background-image: radial-gradient(ellipse 600px 100px at 20% 40%, rgba(0, 212, 255, 0.1) 0%, transparent 70%), radial-gradient(ellipse 800px 80px at 80% 70%, rgba(255, 0, 110, 0.08) 0%, transparent 80%), radial-gradient(ellipse 500px 120px at 60% 20%, rgba(131, 56, 236, 0.06) 0%, transparent 75%);
+            background-image: 
+                radial-gradient(ellipse 600px 100px at 20% 40%, rgba(0, 212, 255, 0.15) 0%, transparent 70%), 
+                radial-gradient(ellipse 800px 80px at 80% 70%, rgba(255, 0, 110, 0.12) 0%, transparent 80%), 
+                radial-gradient(ellipse 500px 120px at 60% 20%, rgba(131, 56, 236, 0.1) 0%, transparent 75%);
             animation: cosmicDrift 180s ease-in-out infinite;
         }
         .planets-container {
@@ -95,35 +128,43 @@
         .planet {
             position: absolute;
             border-radius: 50%;
-            box-shadow: 0 0 40px -10px currentColor, inset 0 0 20px -5px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 50px -10px currentColor, inset 0 0 25px -5px rgba(255, 255, 255, 0.4);
             background-blend-mode: multiply;
         }
         .planet-1 {
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
             color: #ff4848;
-            background-image: radial-gradient(circle at 30% 30%, rgba(255, 200, 200, 0.5), transparent 50%), radial-gradient(circle, #c43a3a, #5a1a1a);
+            background-image: 
+                radial-gradient(circle at 30% 30%, rgba(255, 200, 200, 0.6), transparent 50%), 
+                radial-gradient(circle, #c43a3a, #5a1a1a);
             animation: move-planet-1 80s linear infinite;
         }
         .planet-2 {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             color: #48aaff;
-            background-image: radial-gradient(circle at 70% 70%, rgba(200, 230, 255, 0.4), transparent 60%), radial-gradient(circle, #3a8bc4, #1a3e5a);
+            background-image: 
+                radial-gradient(circle at 70% 70%, rgba(200, 230, 255, 0.5), transparent 60%), 
+                radial-gradient(circle, #3a8bc4, #1a3e5a);
             animation: move-planet-2 120s linear infinite -30s;
         }
         .planet-3 {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             color: #e3d2ff;
-            background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.3), transparent 40%), radial-gradient(circle, #a370ff, #4d2b8b);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.4), transparent 40%), 
+                radial-gradient(circle, #a370ff, #4d2b8b);
             animation: move-planet-3 60s linear infinite;
         }
         .planet-4 {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             color: #ffc26e;
-            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 70%), radial-gradient(circle, #c48a3a, #5a411a);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.3), transparent 70%), 
+                radial-gradient(circle, #c48a3a, #5a411a);
             animation: move-planet-4 200s linear infinite -60s;
         }
         @keyframes move-planet-1 {
@@ -160,43 +201,184 @@
             50% { transform: translate(100px, -50px) rotate(180deg); }
             75% { transform: translate(-50px, -100px) rotate(270deg); }
         }
+        @keyframes holoPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            }
+            50% { 
+                opacity: 1; 
+                box-shadow: 0 0 60px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 255, 255, 0.2);
+            }
+        }
+        
         .title {
-            font-size: 4em;
+            font-size: 4.5em;
             margin-bottom: 20px;
-            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
-            letter-spacing: 8px;
-            animation: glow 3s ease-in-out infinite alternate;
+            text-shadow: 0 0 40px rgba(0, 255, 255, 0.9);
+            letter-spacing: 12px;
+            animation: glow 3s ease-in-out infinite alternate, gradientShift 6s ease-in-out infinite;
             text-align: center;
+            font-weight: bold;
         }
         @keyframes glow {
-            0% { text-shadow: 0 0 30px rgba(0, 255, 255, 0.8); }
-            100% { text-shadow: 0 0 60px rgba(0, 255, 255, 1), 0 0 90px rgba(255, 0, 255, 0.5); }
+            0% { text-shadow: 0 0 40px rgba(0, 255, 255, 0.9); }
+            100% { text-shadow: 0 0 80px rgba(0, 255, 255, 1), 0 0 120px rgba(255, 0, 255, 0.6); }
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         .subtitle {
-            font-size: 1.2em;
+            font-size: 1.4em;
             color: #00ffff;
-            letter-spacing: 4px;
-            margin-bottom: 50px;
+            letter-spacing: 6px;
+            margin-bottom: 30px;
             animation: pulse 2s infinite;
             text-align: center;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+            font-weight: bold;
         }
         @keyframes pulse {
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
         }
+
+        /* ROBOT FACE CONTAINER */
+        .robot-face-container {
+            width: 200px;
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.8));
+            border: 3px solid #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), inset 0 0 30px rgba(0, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: faceGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes faceGlow {
+            0% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), inset 0 0 30px rgba(0, 255, 255, 0.1); }
+            100% { box-shadow: 0 0 60px rgba(0, 255, 255, 0.9), inset 0 0 40px rgba(0, 255, 255, 0.2); }
+        }
+
+        .robot-face {
+            width: 160px;
+            height: 160px;
+            position: relative;
+        }
+
+        /* ROBOT EYES */
+        .robot-eyes {
+            display: flex;
+            justify-content: space-between;
+            width: 80px;
+            margin: 0 auto 20px;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .robot-eye {
+            width: 25px;
+            height: 25px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00ffff, inset 0 0 10px rgba(255, 255, 255, 0.3);
+            animation: eyePulse 2s ease-in-out infinite;
+        }
+        .robot-eye.listening {
+            animation: eyePulse 2s ease-in-out infinite, eyeListening 1s ease-in-out infinite;
+        }
+        .robot-eye.thinking {
+            animation: eyeThinking 0.8s ease-in-out infinite;
+        }
+        @keyframes eyePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        @keyframes eyeListening {
+            0%, 100% { background: #00ffff; }
+            50% { background: #00aaff; }
+        }
+        @keyframes eyeThinking {
+            0%, 100% { background: #8338ec; }
+            50% { background: #a370ff; }
+        }
+
+        /* ROBOT MOUTH */
+        .robot-mouth {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #00ffff;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .mouth-indicator {
+            width: 100%;
+            height: 100%;
+            background: #00ffff;
+            border-radius: 30px;
+            transform: scaleY(0.2);
+            transition: all 0.1s ease;
+        }
+        .mouth-indicator.listening {
+            background: #00ffff;
+            animation: mouthListening 1s ease-in-out infinite;
+        }
+        .mouth-indicator.user-speaking {
+            background: #00aaff;
+            animation: mouthUserSpeaking 0.15s ease-in-out infinite;
+        }
+        .mouth-indicator.ai-speaking {
+            background: #d870f0;
+            animation: mouthAISpeaking 0.3s ease-in-out infinite;
+        }
+        .mouth-indicator.thinking {
+            background: #8338ec;
+            animation: mouthThinking 0.6s ease-in-out infinite;
+        }
+        @keyframes mouthListening {
+            0%, 100% { transform: scaleY(0.2); }
+            50% { transform: scaleY(0.4); }
+        }
+        @keyframes mouthUserSpeaking {
+            0%, 100% { transform: scaleY(0.3) scaleX(0.9); }
+            50% { transform: scaleY(0.8) scaleX(1.1); }
+        }
+        @keyframes mouthAISpeaking {
+            0%, 100% { transform: scaleY(0.4) scaleX(0.8); }
+            25% { transform: scaleY(0.9) scaleX(1.2); }
+            50% { transform: scaleY(0.6) scaleX(1.0); }
+            75% { transform: scaleY(1.0) scaleX(1.1); }
+        }
+        @keyframes mouthThinking {
+            0%, 100% { transform: scaleY(0.2) scaleX(0.9); }
+            50% { transform: scaleY(0.5) scaleX(1.0); }
+        }
+
         .wave-container {
             width: 600px;
             height: 120px;
             position: relative;
             margin: 30px 0;
-            background: rgba(0, 255, 255, 0.05);
-            border: 2px solid #00ffff;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.1);
+            background: rgba(0, 255, 255, 0.08);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4), inset 0 0 40px rgba(0, 255, 255, 0.15);
         }
         .wave-line {
             position: absolute;
@@ -218,7 +400,7 @@
             transform: translateY(-50%);
             border-radius: 2px;
             transition: all 0.1s ease;
-            box-shadow: 0 0 20px currentColor;
+            box-shadow: 0 0 25px currentColor;
         }
         .wave-active.listening {
             background: #00ffff;
@@ -263,28 +445,34 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ffff;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 14px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00ffff;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
             color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
             z-index: 100;
             opacity: 0;
             transition: all 0.3s ease;
+            font-weight: bold;
         }
         .status-indicator.show { opacity: 1; }
         .status-indicator.user-speaking {
             border-color: #00aaff;
             color: #00aaff;
-            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 170, 255, 0.6);
         }
         .status-indicator.ai-speaking {
             border-color: #d870f0;
             color: #d870f0;
-            box-shadow: 0 0 20px rgba(216, 112, 240, 0.5);
+            box-shadow: 0 0 30px rgba(216, 112, 240, 0.6);
+        }
+        .status-indicator.thinking {
+            border-color: #8338ec;
+            color: #8338ec;
+            box-shadow: 0 0 30px rgba(131, 56, 236, 0.6);
         }
         #videoElement {
             position: absolute;
@@ -294,14 +482,16 @@
             height: 1px;
         }
         @media (max-width: 768px) {
-            .title { font-size: 2.5em; letter-spacing: 4px; }
+            .title { font-size: 3em; letter-spacing: 6px; }
             .wave-container { width: 90%; }
+            .robot-face-container { width: 160px; height: 160px; }
+            .robot-face { width: 130px; height: 130px; }
         }
     </style>
 </head>
 <body>
     <div id="start-overlay">
-        <button id="start-button">TAP TO BEGIN</button>
+        <button id="start-button">Initialize NEXUS Protocol</button>
     </div>
 
     <div class="space-bg"></div>
@@ -316,6 +506,18 @@
 
     <div class="title">NEXUS 3000</div>
     <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
+
+    <div class="robot-face-container">
+        <div class="robot-face">
+            <div class="robot-eyes">
+                <div class="robot-eye" id="leftEye"></div>
+                <div class="robot-eye" id="rightEye"></div>
+            </div>
+            <div class="robot-mouth">
+                <div class="mouth-indicator" id="mouthIndicator"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="wave-container">
         <div class="wave-line"></div>
@@ -340,10 +542,13 @@
         let sessionId = Math.random().toString(36).substr(2, 9);
         let hasGreeted = false;
         let listeningRestartTimeout = null;
+        let recognitionTimeout = null;
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/.test(navigator.userAgent);
         let silenceCheckTimer = null;
         let lastResultTime = 0;
+        let hasRecognitionStarted = false;
 
         const SYSTEM_PROMPT = `
 You are NEXUS 3000, a kind, compassionate best friend. Your primary goal is to be supportive and understanding. Adhere strictly to the following intelligence protocols:
@@ -356,7 +561,7 @@ You are NEXUS 3000, a kind, compassionate best friend. Your primary goal is to b
 
 2. Emotional Intelligence:
 - Analyze the user's voice tone and facial expressions (if an image is provided) to understand their emotional state (stress, sadness, joy).
-- Respond with compassion. If they seem down, say things like, "I’m here with you. Want to talk about it?"
+- Respond with compassion. If they seem down, say things like, "I'm here with you. Want to talk about it?"
 - Celebrate their successes enthusiastically.
 
 3. Conversational Intelligence:
@@ -383,6 +588,9 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         const statusIndicator = document.getElementById('statusIndicator');
         const startOverlay = document.getElementById('start-overlay');
         const silentAudio = document.getElementById('silent-audio');
+        const leftEye = document.getElementById('leftEye');
+        const rightEye = document.getElementById('rightEye');
+        const mouthIndicator = document.getElementById('mouthIndicator');
         
         let voicesLoadedPromise = null;
         if ('speechSynthesis' in window && speechSynthesis.getVoices().length === 0) {
@@ -392,93 +600,192 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         }
 
         function checkSilence() {
-            if (isListening && Date.now() - lastResultTime > 1200) {
-                console.log("iOS manual silence detection triggered.");
+            if (isListening && Date.now() - lastResultTime > 2000) {
+                console.log("Manual silence detection triggered.");
                 const finalTranscript = waveActive.dataset.currentTranscript || "";
                 stopListening(); 
-                handleUserSpeech(finalTranscript);
+                if (finalTranscript.trim()) {
+                    handleUserSpeech(finalTranscript);
+                } else {
+                    // Just restart listening if no speech
+                    setTimeout(() => {
+                        canListen = true;
+                        startListening();
+                    }, 500);
+                }
             }
         }
         
-        function setupSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) { return; }
-            
-            recognition = new SpeechRecognition();
-            recognition.continuous = !isIOS;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-            
-            recognition.onstart = () => {
-                console.log(`Speech recognition started (Continuous: ${recognition.continuous})`);
-                isListening = true;
-                updateWaveVisualizer('listening');
-                updateStatusIndicator('🎤 Listening...', 'listening', true);
-                lastResultTime = Date.now();
-                if (isIOS) {
-                    if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                    silenceCheckTimer = setInterval(checkSilence, 250);
-                }
-            };
-
-            recognition.onresult = (event) => {
-                lastResultTime = Date.now();
-                if (isSpeaking || !canListen) return;
-
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    transcript += event.results[i][0].transcript;
-                }
-                waveActive.dataset.currentTranscript = transcript;
-
-                if (!isIOS && event.results[event.results.length - 1].isFinal) {
-                    console.log("Final result received on non-iOS, processing immediately.");
+function setupSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) { 
+        console.error("Speech recognition not supported");
+        return; 
+    }
+    
+    recognition = new SpeechRecognition();
+    
+    // Platform-specific settings
+    if (isIOS) {
+        recognition.continuous = false;
+        recognition.interimResults = false;
+    } else if (isAndroid) {
+        recognition.continuous = false;
+        recognition.interimResults = true;
+    } else {
+        recognition.continuous = true;
+        recognition.interimResults = true;
+    }
+    
+    recognition.lang = 'en-US';
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = () => {
+        console.log(`Speech recognition started (Platform: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'}, Continuous: ${recognition.continuous})`);
+        isListening = true;
+        hasRecognitionStarted = true;
+        updateWaveVisualizer('listening');
+        updateStatusIndicator('🎤 Listening...', 'listening', true);
+        updateRobotState('listening');
+        lastResultTime = Date.now();
+        
+        // Clear any existing timeout
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        
+        // Set platform-specific timeout
+        if (isIOS || isAndroid) {
+            recognitionTimeout = setTimeout(() => {
+                if (isListening) {
+                    console.log("Recognition timeout - restarting");
+                    const transcript = waveActive.dataset.currentTranscript || "";
                     stopListening();
-                    handleUserSpeech(transcript);
-                } else {
-                    updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
-                    updateWaveVisualizer('user-speaking');
+                    if (transcript.trim()) {
+                        handleUserSpeech(transcript);
+                    } else {
+                        setTimeout(() => {
+                            canListen = true;
+                            startListening();
+                        }, 500);
+                    }
                 }
-            };
-            
-            recognition.onend = () => {
-                console.log("Speech recognition ended.");
-                isListening = false;
-                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                
-                if (!isIOS && canListen && !isSpeaking) {
-                    listeningRestartTimeout = setTimeout(() => {
-                        if (canListen && !isSpeaking) startListening();
-                    }, 100);
-                }
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                isListening = false;
-                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                if (event.error === 'not-allowed') {
-                    updateStatusIndicator('Microphone permission denied.', 'error', true);
-                }
-            };
+            }, 8000); // 8 second timeout for mobile
         }
+        
+        if (isIOS || isAndroid) {
+            if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+            silenceCheckTimer = setInterval(checkSilence, 500);
+        }
+    };
+
+    recognition.onresult = (event) => {
+        lastResultTime = Date.now();
+        if (isSpeaking || !canListen) return;
+
+        let transcript = '';
+        let isFinal = false;
+        
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcript += event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                isFinal = true;
+            }
+        }
+        
+        waveActive.dataset.currentTranscript = transcript;
+        console.log(`Speech result: "${transcript}" (Final: ${isFinal})`);
+
+        if (transcript.trim()) {
+            updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
+            updateWaveVisualizer('user-speaking');
+            updateRobotState('user-speaking');
+        }
+
+        // Handle final results immediately on all platforms
+        if (isFinal && transcript.trim()) {
+            console.log("Final result received, processing immediately.");
+            stopListening();
+            handleUserSpeech(transcript);
+        }
+    };
+    
+    recognition.onend = () => {
+        console.log("Speech recognition ended.");
+        isListening = false;
+        hasRecognitionStarted = false;
+        if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        
+        // Auto-restart only for desktop continuous mode
+        if (!isIOS && !isAndroid && canListen && !isSpeaking) {
+            setTimeout(() => {
+                if (canListen && !isSpeaking) {
+                    console.log("Auto-restarting recognition (desktop)");
+                    startListening();
+                }
+            }, 100);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        isListening = false;
+        hasRecognitionStarted = false;
+        if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        
+        if (event.error === 'not-allowed') {
+            updateStatusIndicator('Microphone permission denied.', 'error', true);
+            updateRobotState('error');
+        } else if (event.error === 'no-speech') {
+            // Just restart listening for no-speech
+            setTimeout(() => {
+                if (canListen && !isSpeaking) {
+                    startListening();
+                }
+            }, 500);
+        } else {
+            console.log(`Recognition error: ${event.error}, restarting...`);
+            setTimeout(() => {
+                if (canListen && !isSpeaking) {
+                    startListening();
+                }
+            }, 1000);
+        }
+    };
+}
 
         function startListening() {
             if (!canListen || isSpeaking || isListening || !recognition) return;
+            
             try {
                 waveActive.dataset.currentTranscript = "";
+                console.log("Attempting to start recognition...");
                 recognition.start();
             } catch (error) {
                 console.error("Error starting recognition:", error);
+                if (error.name === 'InvalidStateError') {
+                    // Recognition is already running, wait and try again
+                    setTimeout(() => {
+                        if (canListen && !isSpeaking && !isListening) {
+                            startListening();
+                        }
+                    }, 1000);
+                }
             }
         }
 
         function stopListening() {
             if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+            if (recognitionTimeout) clearTimeout(recognitionTimeout);
             if (recognition && isListening) {
                 isListening = false;
-                recognition.stop();
+                hasRecognitionStarted = false;
+                try {
+                    recognition.stop();
+                } catch (error) {
+                    console.error("Error stopping recognition:", error);
+                }
             }
         }
         
@@ -487,16 +794,22 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             if (isSpeaking || !trimmedTranscript) {
                 // If user was silent, just go back to listening without bothering the AI
                 if (!isSpeaking) {
-                    canListen = true;
-                    startListening();
+                    setTimeout(() => {
+                        canListen = true;
+                        updateRobotState('listening');
+                        startListening();
+                    }, 500);
                 }
                 return;
-            };
+            }
+            
+            console.log(`Processing user speech: "${trimmedTranscript}"`);
             
             canListen = false;
             stopListening();
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
+            updateRobotState('thinking');
 
             if (!cameraActive && !hasAttemptedCameraInit && !isIOS) {
                 hasAttemptedCameraInit = true;
@@ -519,7 +832,11 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
 
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
-                    setTimeout(() => { canListen = true; startListening(); }, 500);
+                    setTimeout(() => { 
+                        canListen = true; 
+                        updateRobotState('listening');
+                        startListening(); 
+                    }, 500);
                     resolve();
                     return;
                 }
@@ -533,8 +850,15 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
                 const voices = speechSynthesis.getVoices();
                 let selectedVoice = null;
                 
-                // --- CORRECTED: More robust voice selection logic for all platforms ---
-                selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha|Karen|Google US English/i.test(v.name));
+                // Robust voice selection for all platforms
+                if (isIOS) {
+                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha/i.test(v.name));
+                } else if (isAndroid) {
+                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English/i.test(v.name));
+                } else {
+                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English|Microsoft Zira/i.test(v.name));
+                }
+                
                 if (!selectedVoice) {
                     selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
                 }
@@ -547,35 +871,55 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
                     utterance.voice = selectedVoice;
                 }
                 
-                utterance.rate = isIOS ? 0.95 : 1.0;
+                utterance.rate = isIOS ? 0.95 : isAndroid ? 0.9 : 1.0;
                 utterance.pitch = 1.1;
+                utterance.volume = 1.0;
 
                 utterance.onstart = () => {
+                    console.log("Speech synthesis started");
                     isSpeaking = true;
                     canListen = false;
                     updateWaveVisualizer('ai-speaking');
                     updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                    updateRobotState('ai-speaking');
                 };
 
                 utterance.onend = () => {
+                    console.log("Speech synthesis ended");
                     isSpeaking = false;
                     setTimeout(() => {
                         canListen = true;
                         updateWaveVisualizer('listening');
                         updateStatusIndicator('🎤 Listening...', 'listening', true);
+                        updateRobotState('listening');
                         startListening();
-                    }, 200);
+                    }, 300);
                     resolve();
                 };
 
                 utterance.onerror = (e) => {
                     console.error('Speech synthesis error:', e);
                     isSpeaking = false;
-                    setTimeout(() => { canListen = true; startListening(); }, 500);
+                    setTimeout(() => { 
+                        canListen = true; 
+                        updateRobotState('listening');
+                        startListening(); 
+                    }, 500);
                     resolve();
                 };
                 
-                speechSynthesis.speak(utterance);
+                try {
+                    speechSynthesis.speak(utterance);
+                } catch (error) {
+                    console.error('Error speaking:', error);
+                    isSpeaking = false;
+                    setTimeout(() => { 
+                        canListen = true; 
+                        updateRobotState('listening');
+                        startListening(); 
+                    }, 500);
+                    resolve();
+                }
             });
         }
         
@@ -607,6 +951,15 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
             waveActive.className = 'wave-active ' + state; 
         }
         
+        function updateRobotState(state) {
+            // Update eyes
+            leftEye.className = 'robot-eye ' + state;
+            rightEye.className = 'robot-eye ' + state;
+            
+            // Update mouth
+            mouthIndicator.className = 'mouth-indicator ' + state;
+        }
+        
         function updateStatusIndicator(text, type, show) {
             statusIndicator.textContent = text;
             statusIndicator.className = 'status-indicator';
@@ -616,16 +969,22 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         
         async function initializeCamera() {
             try {
+                console.log("Requesting camera and microphone permissions...");
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, 
-                    audio: { autoGainControl: true, echoCancellation: true, noiseSuppression: true }
+                    audio: { 
+                        autoGainControl: true, 
+                        echoCancellation: true, 
+                        noiseSuppression: true,
+                        sampleRate: 48000
+                    }
                 });
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
                 await new Promise(r => videoElement.onloadedmetadata = r);
                 videoElement.play();
                 cameraActive = true;
-                console.log("Camera successfully initialized.");
+                console.log("Camera and microphone successfully initialized.");
             } catch (error) { 
                 console.log('Camera/Audio not available:', error);
                 cameraActive = false;
@@ -646,16 +1005,27 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
         
         function unlockAudio() {
             console.log("Unlocking audio context...");
-            silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance('');
-                speechSynthesis.speak(utterance);
-                speechSynthesis.cancel();
+            try {
+                silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance('');
+                    utterance.volume = 0;
+                    speechSynthesis.speak(utterance);
+                    speechSynthesis.cancel();
+                }
+            } catch (error) {
+                console.log("Audio unlock error:", error);
             }
         }
 
         async function startNexus() {
+            console.log("🚀 NEXUS 3000 Protocol Initiated");
+            
             unlockAudio();
+            
+            // Initialize camera and microphone immediately for all platforms
+            await initializeCamera();
+            
             setupSpeechRecognition();
 
             startOverlay.style.opacity = '0';
@@ -663,28 +1033,31 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
 
             console.log("Initializing NEXUS 3000...");
             
-            // --- CORRECTED: Platform-specific initialization ---
-            if (isIOS) {
-                // For iPhone, get camera/mic permissions immediately with the tap.
-                await initializeCamera();
-            } else {
-                // For Android, defer camera to prevent crashes.
-                console.log("Android/Desktop detected. Deferring camera initialization.");
+            if ('speechSynthesis' in window) {
+                speechSynthesis.getVoices();
             }
-            
-            if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
+                    updateRobotState('thinking');
                     const initialImage = cameraActive ? captureImage() : null;
                     const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
                     await speakResponse(greeting);
                 }
-            }, 500);
+            }, 1000);
         }
 
+        // Prevent page reload on mobile
+        window.addEventListener('beforeunload', (e) => {
+            if (isListening || isSpeaking) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
         window.addEventListener('load', () => {
+            console.log(`Platform detected: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'}`);
             startOverlay.addEventListener('click', startNexus, { once: true });
         });
     </script>
