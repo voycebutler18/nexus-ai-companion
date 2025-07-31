@@ -43,20 +43,12 @@ def chat():
             
         conversation_history = conversation_sessions[session_id]
         
-        # Enhanced system prompt with stronger vision requirements
-        system_prompt_template = f"""You are NEXUS 3000, a friendly AI assistant with visual capabilities. You can see through the user's camera and should describe what you observe.
+        # Simple, effective system prompt
+        system_prompt_template = f"""You are NEXUS 3000, an intelligent AI companion. Current time: {local_time_str}
 
-Current time: {local_time_str}
+Be a helpful, friendly assistant who can see through the user's camera. Always mention what you observe in the image when responding. Keep responses conversational and natural - usually 1-2 sentences unless more detail is needed.
 
-Instructions:
-- Always describe what you see in the camera image when responding
-- Be conversational and friendly
-- Use the current time to give appropriate greetings
-- Describe the user's appearance, surroundings, and lighting
-- If the image is unclear, describe what you can make out
-- Respond naturally to the user's questions and conversation
-
-Start your response by mentioning what you can see, then address what the user said."""
+Respond warmly and intelligently to whatever the user says."""
         
         system_prompt = {"role": "system", "content": system_prompt_template}
         
@@ -75,7 +67,7 @@ Start your response by mentioning what you can see, then address what the user s
         current_user_message = {"role": "user", "content": user_content}
 
         messages_payload = [system_prompt]
-        messages_payload.extend(conversation_history[-10:])  # Keep last 10 exchanges
+        messages_payload.extend(conversation_history[-16:])  # Keep last 16 messages (8 turns)
         messages_payload.append(current_user_message)
         
         # Call OpenAI API with vision model
@@ -100,7 +92,7 @@ Start your response by mentioning what you can see, then address what the user s
         # Update conversation history
         conversation_history.append({"role": "user", "content": user_message_text})
         conversation_history.append({"role": "assistant", "content": ai_response})
-        conversation_sessions[session_id] = conversation_history[-20:]  # Keep last 20 messages
+        conversation_sessions[session_id] = conversation_history[-32:]  # Keep last 32 messages (16 turns)
         
         return jsonify({"response": ai_response, "status": "success"})
         
