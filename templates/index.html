@@ -601,7 +601,7 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
 
         function checkSilence() {
             if (isListening && Date.now() - lastResultTime > 2000) {
-                console.log("2-second silence detected - asking if user is done");
+                console.log("2-second silence detected");
                 const finalTranscript = waveActive.dataset.currentTranscript || "";
                 stopListening(); 
                 if (finalTranscript.trim()) {
@@ -610,8 +610,17 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
                         handleUserSpeech(finalTranscript);
                     }, 1000);
                 } else {
-                    // 2 seconds of silence - ask "Are you done?"
-                    handleUserSpeech("SILENCE_DETECTED");
+                    // Only ask "Are you done?" on iPhone if we haven't asked recently
+                    if (isIOS) {
+                        // For iPhone, just restart listening instead of asking "are you done"
+                        setTimeout(() => {
+                            canListen = true;
+                            startListening();
+                        }, 1000);
+                    } else {
+                        // For other platforms, ask "are you done?"
+                        handleUserSpeech("SILENCE_DETECTED");
+                    }
                 }
             }
         }
@@ -1004,8 +1013,8 @@ function setupSpeechRecognition() {
                 utterance.voice = selectedVoice;
             }
             
-            utterance.rate = isIOS ? 0.95 : isAndroid ? 0.9 : 1.0;
-            utterance.pitch = 1.1;
+            utterance.rate = isIOS ? 0.8 : isAndroid ? 0.75 : 0.85;  // Slower speech rates
+            utterance.pitch = 1.0;  // Lowered pitch slightly
             utterance.volume = 1.0;
 
             utterance.onend = () => {
