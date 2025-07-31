@@ -7,6 +7,7 @@ import asyncio
 import threading
 from concurrent.futures import ThreadPoolExecutor
 import time
+import json
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -18,8 +19,41 @@ client = OpenAI()
 # Thread pool for maximum speed
 executor = ThreadPoolExecutor(max_workers=8)
 
-# In-memory session storage
-conversation_sessions = {}
+# Conversation storage file
+CONVERSATIONS_FILE = 'conversations.json'
+
+def load_conversations():
+    """Load conversations from JSON file"""
+    try:
+        if os.path.exists(CONVERSATIONS_FILE):
+            with open(CONVERSATIONS_FILE, 'r') as f:
+                data = json.load(f)
+                print(f"✅ Loaded {len(data)} conversation sessions from file")
+                return data
+        else:
+            print("📁 No existing conversations file - starting fresh")
+            return {}
+    except Exception as e:
+        print(f"❌ Error loading conversations: {e}")
+        return {}
+
+def save_conversations(conversations):
+    """Save conversations to JSON file"""
+    try:
+        # Keep only last 100 messages per session to prevent file from getting huge
+        cleaned_conversations = {}
+        for session_id, messages in conversations.items():
+            cleaned_conversations[session_id] = messages[-100:]  # Keep last 100 messages
+        
+        with open(CONVERSATIONS_FILE, 'w') as f:
+            json.dump(cleaned_conversations, f, indent=2)
+        print(f"💾 Saved {len(cleaned_conversations)} conversation sessions to file")
+    except Exception as e:
+        print(f"❌ Error saving conversations: {e}")
+
+# Load existing conversations on startup
+conversation_sessions = load_conversations()
+print(f"🚀 NEXUS 3000 - LOADED {len(conversation_sessions)} EXISTING CONVERSATIONS")
 
 # Removed all cached responses - AI will generate natural responses every time
 response_cache = {}
@@ -75,8 +109,14 @@ def index():
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint"""
-    return jsonify({"status": "NEXUS 3000 ONLINE - ULTRA SPEED MODE"})
+    """Health check endpoint with conversation stats"""
+    total_conversations = len(conversation_sessions)
+    total_messages = sum(len(messages) for messages in conversation_sessions.values())
+    return jsonify({
+        "status": "NEXUS 3000 ONLINE - PERSISTENT MEMORY ACTIVE",
+        "conversations": total_conversations,
+        "total_messages": total_messages
+    })
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -130,7 +170,10 @@ def chat():
         # Update conversation history
         conversation_history.append({"role": "user", "content": user_message_text})
         conversation_history.append({"role": "assistant", "content": ai_response})
-        conversation_sessions[session_id] = conversation_history[-8:]  # Keep last 8 messages
+        conversation_sessions[session_id] = conversation_history[-8:]  # Keep last 8 messages in memory
+        
+        # Save to file after every conversation
+        save_conversations(conversation_sessions)
         
         return jsonify({"response": ai_response, "status": "success"})
         
@@ -178,5 +221,6 @@ def nova_speech():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print("🚀 NEXUS 3000 - ULTRA SPEED MODE ACTIVATED")
+    print("🚀 NEXUS 3000 - PERSISTENT MEMORY MODE ACTIVATED")
+    print(f"💾 Conversations will be saved to: {CONVERSATIONS_FILE}")
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
