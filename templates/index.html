@@ -896,10 +896,17 @@ function setupSpeechRecognition() {
                 return;
             }
             
-            console.log(`Processing user speech: "${trimmedTranscript}"`);
+            console.log(`🎤 Processing user speech: "${trimmedTranscript}"`);
             
-            canListen = false;
-            stopListening();
+            // CRITICAL: Turn off microphone while processing (mobile)
+            if (isIOS || isAndroid) {
+                console.log("📱 Mobile: Turning OFF microphone while processing");
+                canListen = false;
+                stopListening();
+            } else {
+                canListen = false;
+                stopListening();
+            }
             
             // Show thinking state immediately
             updateWaveVisualizer('thinking');
@@ -914,11 +921,11 @@ function setupSpeechRecognition() {
             try {
                 const imageData = cameraActive ? captureImage() : null;
                 
-                // Parallel processing for maximum speed
-                const responsePromise = getAIResponse(trimmedTranscript, imageData);
+                // Generate response - mobile gets faster processing
+                const responseText = await getAIResponse(trimmedTranscript, imageData);
                 
-                // Start processing response immediately - no delays
-                const responseText = await responsePromise;
+                // Mobile: Immediate response (no 1-second delay)
+                // Desktop: Keep instant processing
                 await speakNovaResponse(responseText);
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
@@ -1079,20 +1086,35 @@ function setupSpeechRecognition() {
                 utterance.voice = selectedVoice;
             }
             
-            utterance.rate = isIOS ? 0.9 : isAndroid ? 0.88 : 0.92;  // Just slightly slower than normal
-            utterance.pitch = 1.05;  // Slightly higher pitch for more pleasant sound
+            utterance.rate = isIOS ? 0.9 : isAndroid ? 0.88 : 0.92;
+            utterance.pitch = 1.05;
             utterance.volume = 1.0;
 
             utterance.onend = () => {
-                console.log("Fallback speech synthesis ended");
+                console.log("🔊 Fallback system speech ended");
                 isSpeaking = false;
-                setTimeout(() => {
-                    canListen = true;
+                
+                // Mobile-specific restart sequence for fallback voice too
+                if (isIOS || isAndroid) {
+                    console.log("📱 Mobile fallback: AGI finished speaking, waiting 500ms");
                     updateWaveVisualizer('listening');
-                    updateStatusIndicator('🎤 Listening...', 'listening', true);
+                    updateStatusIndicator('🎤 Your turn - speak now!', 'listening', true);
                     updateRobotState('listening');
-                    startListening();
-                }, 300);
+                    
+                    setTimeout(() => {
+                        console.log("📱 Mobile fallback: Turning microphone back ON");
+                        canListen = true;
+                        startListening();
+                    }, 500); // 500ms delay for mobile
+                } else {
+                    setTimeout(() => {
+                        canListen = true;
+                        updateWaveVisualizer('listening');
+                        updateStatusIndicator('🎤 Listening...', 'listening', true);
+                        updateRobotState('listening');
+                        startListening();
+                    }, 300);
+                }
                 resolve();
             };
 
