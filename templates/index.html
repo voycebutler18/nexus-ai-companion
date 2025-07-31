@@ -601,17 +601,17 @@ Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "Amer
 
         function checkSilence() {
             if (isListening && Date.now() - lastResultTime > 2000) {
-                console.log("Manual silence detection triggered.");
+                console.log("2-second silence detected - asking if user is done");
                 const finalTranscript = waveActive.dataset.currentTranscript || "";
                 stopListening(); 
                 if (finalTranscript.trim()) {
-                    handleUserSpeech(finalTranscript);
-                } else {
-                    // Just restart listening if no speech
+                    // Wait 1 second after user finishes, then respond
                     setTimeout(() => {
-                        canListen = true;
-                        startListening();
-                    }, 500);
+                        handleUserSpeech(finalTranscript);
+                    }, 1000);
+                } else {
+                    // 2 seconds of silence - ask "Are you done?"
+                    handleUserSpeech("SILENCE_DETECTED");
                 }
             }
         }
@@ -703,9 +703,12 @@ function setupSpeechRecognition() {
 
         // Handle final results immediately on all platforms
         if (isFinal && transcript.trim()) {
-            console.log("Final result received, processing immediately.");
+            console.log("Final result received, processing with 1-second delay.");
             stopListening();
-            handleUserSpeech(transcript);
+            // Wait exactly 1 second after user finishes speaking
+            setTimeout(() => {
+                handleUserSpeech(transcript);
+            }, 1000);
         }
     };
     
@@ -791,8 +794,27 @@ function setupSpeechRecognition() {
         
         async function handleUserSpeech(transcript) {
             const trimmedTranscript = transcript.trim();
+            
+            // Handle 2-second silence case
+            if (transcript === "SILENCE_DETECTED") {
+                canListen = false;
+                stopListening();
+                updateWaveVisualizer('thinking');
+                updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
+                updateRobotState('thinking');
+                
+                try {
+                    const responseText = await getAIResponse("Are you done?", null);
+                    await speakNovaResponse(responseText);
+                } catch (error) {
+                    console.error('Error in silence handling:', error);
+                    await speakNovaResponse("Are you done?");
+                }
+                return;
+            }
+            
             if (isSpeaking || !trimmedTranscript) {
-                // If user was silent, just go back to listening without bothering the AI
+                // If user was silent, just go back to listening
                 if (!isSpeaking) {
                     setTimeout(() => {
                         canListen = true;
@@ -819,19 +841,16 @@ function setupSpeechRecognition() {
             try {
                 const imageData = cameraActive ? captureImage() : null;
                 const responseText = await getAIResponse(trimmedTranscript, imageData);
-                await speakResponse(responseText);
+                await speakNovaResponse(responseText);
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
-                await speakResponse("I encountered an error. Please try again.");
+                await speakNovaResponse("I encountered an error. Please try again.");
             }
         }
         
-        async function speakResponse(text) {
-            if (voicesLoadedPromise) await voicesLoadedPromise;
-            voicesLoadedPromise = null;
-
-            return new Promise((resolve) => {
-                if (!('speechSynthesis' in window) || !text) {
+        async function speakNovaResponse(text) {
+            return new Promise(async (resolve) => {
+                if (!text) {
                     setTimeout(() => { 
                         canListen = true; 
                         updateRobotState('listening');
@@ -844,83 +863,140 @@ function setupSpeechRecognition() {
                 isSpeaking = true;
                 canListen = false;
                 stopListening();
-                speechSynthesis.cancel();
                 
-                const utterance = new SpeechSynthesisUtterance(text);
-                const voices = speechSynthesis.getVoices();
-                let selectedVoice = null;
-                
-                // Robust voice selection for all platforms
-                if (isIOS) {
-                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha/i.test(v.name));
-                } else if (isAndroid) {
-                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English/i.test(v.name));
-                } else {
-                    selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English|Microsoft Zira/i.test(v.name));
-                }
-                
-                if (!selectedVoice) {
-                    selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
-                }
-                if (!selectedVoice) {
-                    selectedVoice = voices.find(v => v.lang === 'en-US');
-                }
-                
-                if (selectedVoice) {
-                    console.log("Selected voice:", selectedVoice.name);
-                    utterance.voice = selectedVoice;
-                }
-                
-                utterance.rate = isIOS ? 0.95 : isAndroid ? 0.9 : 1.0;
-                utterance.pitch = 1.1;
-                utterance.volume = 1.0;
+                updateWaveVisualizer('ai-speaking');
+                updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                updateRobotState('ai-speaking');
 
-                utterance.onstart = () => {
-                    console.log("Speech synthesis started");
-                    isSpeaking = true;
-                    canListen = false;
-                    updateWaveVisualizer('ai-speaking');
-                    updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
-                    updateRobotState('ai-speaking');
-                };
-
-                utterance.onend = () => {
-                    console.log("Speech synthesis ended");
-                    isSpeaking = false;
-                    setTimeout(() => {
-                        canListen = true;
-                        updateWaveVisualizer('listening');
-                        updateStatusIndicator('🎤 Listening...', 'listening', true);
-                        updateRobotState('listening');
-                        startListening();
-                    }, 300);
-                    resolve();
-                };
-
-                utterance.onerror = (e) => {
-                    console.error('Speech synthesis error:', e);
-                    isSpeaking = false;
-                    setTimeout(() => { 
-                        canListen = true; 
-                        updateRobotState('listening');
-                        startListening(); 
-                    }, 500);
-                    resolve();
-                };
-                
                 try {
-                    speechSynthesis.speak(utterance);
+                    // Request Nova voice audio from server
+                    const response = await fetch('/api/nova-speech', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: text })
+                    });
+                    
+                    if (response.ok) {
+                        const audioBlob = await response.blob();
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        
+                        audio.onloadeddata = () => {
+                            console.log("Nova audio loaded, playing...");
+                            audio.play();
+                        };
+                        
+                        audio.onended = () => {
+                            console.log("Nova speech synthesis ended");
+                            isSpeaking = false;
+                            URL.revokeObjectURL(audioUrl);
+                            setTimeout(() => {
+                                canListen = true;
+                                updateWaveVisualizer('listening');
+                                updateStatusIndicator('🎤 Listening...', 'listening', true);
+                                updateRobotState('listening');
+                                startListening();
+                            }, 300);
+                            resolve();
+                        };
+                        
+                        audio.onerror = (e) => {
+                            console.error('Nova audio playback error:', e);
+                            fallbackToSystemVoice(text, resolve);
+                        };
+                        
+                    } else {
+                        console.log("Nova API failed, falling back to system voice");
+                        fallbackToSystemVoice(text, resolve);
+                    }
                 } catch (error) {
-                    console.error('Error speaking:', error);
-                    isSpeaking = false;
-                    setTimeout(() => { 
-                        canListen = true; 
-                        updateRobotState('listening');
-                        startListening(); 
-                    }, 500);
-                    resolve();
+                    console.error('Nova API error:', error);
+                    fallbackToSystemVoice(text, resolve);
                 }
             });
+        }
+        
+        async function fallbackToSystemVoice(text, resolve) {
+            if (voicesLoadedPromise) await voicesLoadedPromise;
+            voicesLoadedPromise = null;
+
+            if (!('speechSynthesis' in window)) {
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
+                return;
+            }
+            
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = speechSynthesis.getVoices();
+            let selectedVoice = null;
+            
+            // Try to find best female voice
+            if (isIOS) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha/i.test(v.name));
+            } else if (isAndroid) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English/i.test(v.name));
+            } else {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English|Microsoft Zira/i.test(v.name));
+            }
+            
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
+            }
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang === 'en-US');
+            }
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
+            utterance.rate = isIOS ? 0.95 : isAndroid ? 0.9 : 1.0;
+            utterance.pitch = 1.1;
+            utterance.volume = 1.0;
+
+            utterance.onend = () => {
+                console.log("Fallback speech synthesis ended");
+                isSpeaking = false;
+                setTimeout(() => {
+                    canListen = true;
+                    updateWaveVisualizer('listening');
+                    updateStatusIndicator('🎤 Listening...', 'listening', true);
+                    updateRobotState('listening');
+                    startListening();
+                }, 300);
+                resolve();
+            };
+
+            utterance.onerror = (e) => {
+                console.error('Fallback speech synthesis error:', e);
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
+            };
+            
+            try {
+                speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.error('Error with fallback speech:', error);
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
+            }
         }
         
         async function getAIResponse(userMessage, imageData = null) {
@@ -1043,7 +1119,7 @@ function setupSpeechRecognition() {
                     updateRobotState('thinking');
                     const initialImage = cameraActive ? captureImage() : null;
                     const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
-                    await speakResponse(greeting);
+                    await speakNovaResponse(greeting);
                 }
             }, 1000);
         }
