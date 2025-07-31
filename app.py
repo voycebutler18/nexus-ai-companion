@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO, emit
 import openai
 import os
 import base64
@@ -11,7 +10,6 @@ import logging
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-cosmic-key-3000')
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Configure OpenAI
 openai.api_key = os.environ.get('OPENAI_API_KEY')
@@ -162,36 +160,6 @@ def text_to_speech():
             "details": str(e)
         }), 500
 
-@socketio.on('connect')
-def handle_connect():
-    """Handle WebSocket connection"""
-    emit('status', {'message': 'NEXUS 3000 COSMIC CONNECTION ESTABLISHED'})
-    logger.info('Client connected to cosmic frequency')
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    """Handle WebSocket disconnection"""
-    logger.info('Client disconnected from cosmic frequency')
-
-@socketio.on('audio_data')
-def handle_audio_data(data):
-    """Handle real-time audio data for visualization"""
-    try:
-        # Echo audio data back for visualization
-        emit('audio_visualization', data, broadcast=False)
-    except Exception as e:
-        logger.error(f"Audio handling error: {e}")
-
-@socketio.on('user_speaking')
-def handle_user_speaking(data):
-    """Handle user speaking events"""
-    emit('nexus_listening', {'status': 'NEURAL_LINK_ACTIVE'}, broadcast=False)
-
-@socketio.on('user_stopped_speaking')
-def handle_user_stopped_speaking():
-    """Handle user stopped speaking"""
-    emit('nexus_processing', {'status': 'PROCESSING_CONSCIOUSNESS'}, broadcast=False)
-
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
@@ -208,4 +176,4 @@ if __name__ == '__main__':
     logger.info(f"🌌 NEXUS 3000 initializing on port {port}")
     logger.info(f"🚀 Cosmic consciousness {'DEBUG' if debug else 'PRODUCTION'} mode")
     
-    socketio.run(app, host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port, debug=debug)
