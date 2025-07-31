@@ -238,7 +238,7 @@
         let recognition = null;
         let sessionId = Math.random().toString(36).substr(2, 9);
         let hasGreeted = false;
-        let pauseCheckInterval = null;
+        let speechPauseTimer = null;
         let lastSpeechTime = 0;
         let currentTranscript = '';
         
@@ -248,105 +248,84 @@
 
         // --- Core Functions ---
 
-        /**
-         * Initializes and sets up the Web Speech API for recognition.
-         * This is where the core logic for listening and silence detection resides.
-         */
         function setupSpeechRecognition() {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
-
-                recognition.onstart = () => {
-                    // Prevent starting if the AGI is speaking.
-                    if (isSpeaking) {
-                        recognition.stop();
-                        return;
-                    }
-                    isListening = true;
-                    updateWaveVisualizer('listening');
-                    updateStatusIndicator('🎤 Listening continuously...', 'listening', true);
-                    
-                    // Start an interval to check for 2 seconds of silence.
-                    clearInterval(pauseCheckInterval);
-                    pauseCheckInterval = setInterval(() => {
-                        if (lastSpeechTime > 0 && Date.now() - lastSpeechTime > 2000 && currentTranscript.trim().length > 0) {
-                            handleUserSpeech(currentTranscript.trim());
-                        }
-                    }, 100);
-                };
-
-                recognition.onresult = (event) => {
-                    // CRITICAL: Ignore any recognition results while the AGI is speaking.
-                    if (isSpeaking) return;
-
-                    let interimTranscript = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                         interimTranscript += event.results[i][0].transcript;
-                    }
-                    
-                    // Update the transcript and the time of the last detected word.
-                    if(interimTranscript.trim().length > 0) {
-                        currentTranscript = interimTranscript;
-                        lastSpeechTime = Date.now();
-                        updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
-                    }
-                };
-                
-                recognition.onend = () => {
-                    clearInterval(pauseCheckInterval);
-                    isListening = false;
-                    // Automatically restart listening only if not transitioning to speaking state.
-                    if (!isSpeaking) {
-                        updateWaveVisualizer('idle');
-                        // Attempt to restart listening to maintain a continuous session.
-                        setTimeout(() => startListening(), 100); 
-                    }
-                };
-
-                recognition.onerror = (event) => {
-                    // Ignore common, non-critical errors like 'no-speech'.
-                    if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                        console.error('Speech recognition error:', event.error);
-                    }
-                };
-
-            } else {
-                console.error("Speech recognition not supported in this browser.");
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.error("Speech recognition not supported.");
+                updateStatusIndicator("Speech recognition not supported.", "error", true);
+                return;
             }
+            
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                if (isSpeaking) {
+                    recognition.stop();
+                    return;
+                }
+                isListening = true;
+                updateWaveVisualizer('listening');
+                updateStatusIndicator('🎤 Listening...', 'listening', true);
+                lastSpeechTime = Date.now(); // Reset timer on start
+            };
+
+            recognition.onresult = (event) => {
+                if (isSpeaking) return;
+
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+                
+                if (interimTranscript.trim().length > 0) {
+                    lastSpeechTime = Date.now(); // Update time on new speech
+                    currentTranscript = interimTranscript;
+                    updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
+                }
+            };
+            
+            recognition.onend = () => {
+                isListening = false;
+                if (!isSpeaking) {
+                    updateWaveVisualizer('idle');
+                    // Only restart if we are not in the process of handling speech
+                    setTimeout(() => startListening(), 100); 
+                }
+            };
+
+            recognition.onerror = (event) => {
+                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    console.error('Speech recognition error:', event.error);
+                }
+            };
+
+            // This timer checks for pauses AFTER speech has started
+            setInterval(() => {
+                if (isListening && !isSpeaking && currentTranscript.trim().length > 0 && (Date.now() - lastSpeechTime > 2000)) {
+                    handleUserSpeech(currentTranscript.trim());
+                }
+            }, 500);
         }
 
-        /**
-         * Starts the speech recognition service if it's not already active.
-         */
         function startListening() {
             if (recognition && !isListening && !isSpeaking) {
                 try {
-                    // Reset state before starting
                     currentTranscript = '';
-                    lastSpeechTime = 0;
                     recognition.start();
                 } catch (error) {
-                    // Handle cases where start() is called too soon after stop().
-                    setTimeout(() => startListening(), 500);
+                    setTimeout(() => startListening(), 100);
                 }
             }
         }
         
-        /**
-         * Handles the user's final transcript after a pause.
-         * This function stops listening and begins the AGI response cycle.
-         * @param {string} transcript The user's speech.
-         */
         async function handleUserSpeech(transcript) {
-            // Reset state and stop the silence checker.
-            lastSpeechTime = 0;
-            currentTranscript = '';
-            clearInterval(pauseCheckInterval);
+            if (isSpeaking) return; // Prevent double execution
 
-            // 1. Stop listening immediately.
+            // Reset state and stop listening
+            currentTranscript = '';
+            lastSpeechTime = 0;
             isListening = false;
             if (recognition) {
                 recognition.stop();
@@ -357,83 +336,73 @@
 
             try {
                 const imageData = cameraActive ? captureImage() : null;
-                
-                // 2. Get the AI's response.
                 const responseText = await getAIResponse(transcript, imageData);
-                
-                // 3. Speak the response. This function will not resolve until speaking is complete.
                 await speakResponse(responseText);
-
-                // 4. After speaking, wait 500ms before listening again.
+            } catch (error) {
+                console.error('Error in speech handling pipeline:', error);
+                await speakResponse("I encountered an error. Please try again.");
+            } finally {
+                // After speaking (or error), wait and then restart listening
                 setTimeout(() => {
                     startListening();
                 }, 500);
-
-            } catch (error) {
-                console.error('Error in speech handling pipeline:', error);
-                speakResponse("I encountered an error. Please try again.");
-                // Ensure listening restarts even after an error.
-                setTimeout(() => startListening(), 500);
             }
         }
         
-        /**
-         * Uses SpeechSynthesis to speak the provided text.
-         * Sets the `isSpeaking` flag to control the application state.
-         * @param {string} text The text for the AGI to speak.
-         * @returns {Promise<void>} A promise that resolves when speaking is finished.
-         */
         async function speakResponse(text) {
             return new Promise((resolve) => {
-                if ('speechSynthesis' in window && text) {
-                    isSpeaking = true; // Set speaking flag immediately.
-                    
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    // Voice selection logic...
-                    const voices = speechSynthesis.getVoices();
-                    const femaleVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
-                    if (femaleVoice) utterance.voice = femaleVoice;
-                    
-                    utterance.rate = 0.95;
-                    utterance.pitch = 1.15;
-                    utterance.volume = 0.9;
-
-                    utterance.onstart = () => {
-                        updateWaveVisualizer('ai-speaking');
-                        updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
-                    };
-
-                    utterance.onend = () => {
-                        isSpeaking = false; // Clear flag when done.
-                        updateWaveVisualizer('idle');
-                        updateStatusIndicator('', '', false);
-                        resolve(); // Resolve the promise.
-                    };
-
-                    utterance.onerror = (e) => {
-                        console.error('Speech synthesis error:', e);
-                        isSpeaking = false;
-                        updateWaveVisualizer('idle');
-                        resolve(); // Resolve even on error to not hang the application.
-                    };
-                    
-                    speechSynthesis.speak(utterance);
-                } else {
+                if (!('speechSynthesis' in window) || !text) {
                     isSpeaking = false;
                     resolve();
+                    return;
                 }
+                
+                isSpeaking = true;
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = speechSynthesis.getVoices();
+                const femaleVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
+                if (femaleVoice) utterance.voice = femaleVoice;
+                
+                utterance.rate = 0.95;
+                utterance.pitch = 1.15;
+                utterance.volume = 0.9;
+
+                utterance.onstart = () => {
+                    updateWaveVisualizer('ai-speaking');
+                    updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                };
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    updateWaveVisualizer('idle');
+                    updateStatusIndicator('', '', false);
+                    resolve();
+                };
+
+                utterance.onerror = (e) => {
+                    console.error('Speech synthesis error:', e);
+                    isSpeaking = false;
+                    resolve();
+                };
+                
+                speechSynthesis.speak(utterance);
             });
         }
         
-        /**
-         * Fetches a response from your backend API.
-         */
         async function getAIResponse(userMessage, imageData = null) {
             try {
-                const requestData = { message: userMessage, session_id: sessionId };
-                if (imageData) {
-                    requestData.image_data = imageData.split(',')[1];
-                }
+                // --- ADDED: Get current local time ---
+                const localTime = new Date().toLocaleString('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'
+                });
+
+                const requestData = { 
+                    message: userMessage, 
+                    session_id: sessionId,
+                    image_data: imageData ? imageData.split(',')[1] : null,
+                    local_time: localTime // Send the local time to the backend
+                };
 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -452,28 +421,20 @@
         }
         
         // --- UI & Utility Functions ---
-
-        function updateWaveVisualizer(state) {
-            waveActive.className = 'wave-active ' + state;
-        }
-
+        function updateWaveVisualizer(state) { waveActive.className = 'wave-active ' + state; }
         function updateStatusIndicator(text, type, show) {
             statusIndicator.textContent = text;
             statusIndicator.className = 'status-indicator';
             if (type) statusIndicator.classList.add(type);
             if (show) statusIndicator.classList.add('show');
         }
-
         async function initializeCamera() {
             try {
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 document.getElementById('videoElement').srcObject = mediaStream;
                 cameraActive = true;
-            } catch (error) {
-                console.log('Camera not available:', error);
-            }
+            } catch (error) { console.log('Camera not available:', error); }
         }
-
         function captureImage() {
             if (!cameraActive) return null;
             const video = document.getElementById('videoElement');
@@ -485,46 +446,23 @@
         }
         
         // --- Initialization ---
-        
         window.addEventListener('load', async () => {
             await initializeCamera();
             setupSpeechRecognition();
             
-            // Pre-load speech synthesis voices
             if ('speechSynthesis' in window) {
-                speechSynthesis.getVoices();
                 speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
             }
 
-            // --- UPDATED: Dynamic AI Greeting ---
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    
-                    // 1. Capture the initial image.
-                    const imageData = cameraActive ? captureImage() : null;
-                    
-                    // 2. Create a specific prompt for the initial, vision-based greeting.
                     const initialPrompt = "I've just woken up. Greet the user naturally and briefly comment on what you can see through the camera.";
-                    
-                    // 3. Get the AI-generated greeting from the backend.
-                    const greeting = await getAIResponse(initialPrompt, imageData);
-                    
-                    // 4. Speak the dynamic greeting.
+                    const greeting = await getAIResponse(initialPrompt, captureImage());
                     await speakResponse(greeting);
-                    
-                    // 5. Start the normal listening loop.
                     startListening();
                 }
             }, 2000);
-        });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (recognition) recognition.stop();
-            } else {
-                startListening();
-            }
         });
     </script>
 </body>
