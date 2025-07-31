@@ -738,43 +738,121 @@ function setupSpeechRecognition() {
         if (silenceCheckTimer) clearInterval(silenceCheckTimer);
         if (recognitionTimeout) clearTimeout(recognitionTimeout);
         
-        if (event.error === 'not-allowed') {
-            updateStatusIndicator('Microphone permission denied.', 'error', true);
-            updateRobotState('error');
-        } else if (event.error === 'no-speech') {
-            // Just restart listening for no-speech
-            setTimeout(() => {
-                if (canListen && !isSpeaking) {
-                    startListening();
-                }
-            }, 500);
+        // iPhone-specific error handling
+        if (isIOS) {
+            updateStatusIndicator('🎤 iPhone: Tap and speak clearly', 'listening', true);
+            
+            if (event.error === 'not-allowed') {
+                updateStatusIndicator('❌ iPhone: Please allow microphone access in Settings', 'error', true);
+                updateRobotState('error');
+            } else if (event.error === 'no-speech') {
+                console.log("iPhone: No speech detected, restarting...");
+                setTimeout(() => {
+                    if (canListen && !isSpeaking) {
+                        startListening();
+                    }
+                }, 500);
+            } else if (event.error === 'audio-capture') {
+                updateStatusIndicator('❌ iPhone: Microphone not working. Check Settings > Safari > Microphone', 'error', true);
+                updateRobotState('error');
+            } else {
+                console.log(`iPhone recognition error: ${event.error}, restarting...`);
+                setTimeout(() => {
+                    if (canListen && !isSpeaking) {
+                        startListening();
+                    }
+                }, 1000);
+            }
         } else {
-            console.log(`Recognition error: ${event.error}, restarting...`);
-            setTimeout(() => {
-                if (canListen && !isSpeaking) {
-                    startListening();
-                }
-            }, 1000);
+            // Android/Desktop error handling
+            if (event.error === 'not-allowed') {
+                updateStatusIndicator('❌ Microphone permission denied', 'error', true);
+                updateRobotState('error');
+            } else if (event.error === 'no-speech') {
+                setTimeout(() => {
+                    if (canListen && !isSpeaking) {
+                        startListening();
+                    }
+                }, 500);
+            } else {
+                console.log(`Recognition error: ${event.error}, restarting...`);
+                setTimeout(() => {
+                    if (canListen && !isSpeaking) {
+                        startListening();
+                    }
+                }, 1000);
+            }
         }
     };
 }
 
         function startListening() {
-            if (!canListen || isSpeaking || isListening || !recognition) return;
+            if (!canListen || isSpeaking || isListening || !recognition) {
+                console.log("❌ Cannot start listening:", { 
+                    canListen, 
+                    isSpeaking, 
+                    isListening, 
+                    hasRecognition: !!recognition 
+                });
+                return;
+            }
             
             try {
                 waveActive.dataset.currentTranscript = "";
-                console.log("Attempting to start recognition...");
-                recognition.start();
-            } catch (error) {
-                console.error("Error starting recognition:", error);
-                if (error.name === 'InvalidStateError') {
-                    // Recognition is already running, wait and try again
+                console.log("🚀 Starting speech recognition...");
+                
+                // Mobile-specific start procedure
+                if (isIOS || isAndroid) {
+                    // Force abort any existing recognition
+                    try {
+                        recognition.abort();
+                    } catch (e) {
+                        // Ignore abort errors
+                    }
+                    
+                    // Delay for mobile to properly reset
                     setTimeout(() => {
-                        if (canListen && !isSpeaking && !isListening) {
-                            startListening();
+                        try {
+                            if (canListen && !isSpeaking && !isListening) {
+                                recognition.start();
+                                console.log("📱 Mobile: Recognition started successfully");
+                            }
+                        } catch (startError) {
+                            console.error("📱 Mobile: Recognition start failed:", startError);
+                            
+                            // Show user-friendly error for mobile
+                            if (startError.name === 'NotAllowedError') {
+                                updateStatusIndicator('❌ Please allow microphone access', 'error', true);
+                            } else {
+                                updateStatusIndicator('❌ Microphone issue - please refresh page', 'error', true);
+                            }
                         }
-                    }, 1000);
+                    }, 200); // 200ms delay for mobile
+                } else {
+                    // Desktop - immediate start
+                    recognition.start();
+                    console.log("💻 Desktop: Recognition started");
+                }
+            } catch (error) {
+                console.error("❌ Error starting recognition:", error);
+                
+                if (error.name === 'InvalidStateError') {
+                    console.log("🔄 Recognition already running, forcing restart...");
+                    try {
+                        recognition.abort();
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking && !isListening) {
+                                startListening();
+                            }
+                        }, 500);
+                    } catch (abortError) {
+                        console.error("❌ Error aborting recognition:", abortError);
+                        updateStatusIndicator('❌ Speech recognition error - please refresh', 'error', true);
+                    }
+                } else if (error.name === 'NotAllowedError') {
+                    updateStatusIndicator('❌ Microphone permission denied', 'error', true);
+                } else {
+                    updateStatusIndicator('❌ Speech recognition failed - please refresh', 'error', true);
                 }
             }
         }
@@ -1091,22 +1169,60 @@ function setupSpeechRecognition() {
             try {
                 console.log("Requesting camera and microphone permissions...");
                 
-                // Platform-specific media constraints
+                // iPhone needs audio-first approach for proper mic permissions
                 let constraints;
                 if (isIOS) {
-                    constraints = { 
-                        video: { 
-                            width: { ideal: 720 }, 
-                            height: { ideal: 480 }, 
-                            facingMode: 'user' 
-                        }, 
-                        audio: { 
-                            autoGainControl: false,  // iOS works better without AGC
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            sampleRate: 44100
-                        }
-                    };
+                    // iPhone: Request audio first, then add video
+                    try {
+                        console.log("iPhone: Requesting audio permission first...");
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false,
+                                sampleRate: 44100
+                            } 
+                        });
+                        console.log("iPhone: Audio permission granted");
+                        
+                        // Now request video
+                        const fullStream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                width: { ideal: 640 }, 
+                                height: { ideal: 480 }, 
+                                facingMode: 'user' 
+                            }, 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false,
+                                sampleRate: 44100
+                            }
+                        });
+                        
+                        // Stop the audio-only stream
+                        audioStream.getTracks().forEach(track => track.stop());
+                        
+                        const videoElement = document.getElementById('videoElement');
+                        videoElement.srcObject = fullStream;
+                        await new Promise(r => videoElement.onloadedmetadata = r);
+                        videoElement.play();
+                        cameraActive = true;
+                        console.log("iPhone: Full camera and microphone initialized successfully");
+                        
+                    } catch (iosError) {
+                        console.log("iPhone camera failed, trying audio-only:", iosError);
+                        // Audio-only fallback for iPhone
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false
+                            } 
+                        });
+                        console.log("iPhone: Audio-only initialization successful");
+                        cameraActive = false;
+                    }
                 } else if (isAndroid) {
                     constraints = { 
                         video: { 
@@ -1121,6 +1237,14 @@ function setupSpeechRecognition() {
                             sampleRate: 48000
                         }
                     };
+                    
+                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = mediaStream;
+                    await new Promise(r => videoElement.onloadedmetadata = r);
+                    videoElement.play();
+                    cameraActive = true;
+                    console.log("Android: Camera and microphone initialized successfully");
                 } else {
                     constraints = { 
                         video: { 
@@ -1135,34 +1259,30 @@ function setupSpeechRecognition() {
                             sampleRate: 48000
                         }
                     };
+                    
+                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = mediaStream;
+                    await new Promise(r => videoElement.onloadedmetadata = r);
+                    videoElement.play();
+                    cameraActive = true;
+                    console.log("Desktop: Camera and microphone initialized successfully");
                 }
                 
-                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                const videoElement = document.getElementById('videoElement');
-                videoElement.srcObject = mediaStream;
-                await new Promise(r => videoElement.onloadedmetadata = r);
-                videoElement.play();
-                cameraActive = true;
-                console.log("Camera and microphone successfully initialized for platform:", isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
             } catch (error) { 
-                console.log('Camera/Audio not available:', error);
+                console.error('Media initialization failed:', error);
                 cameraActive = false;
                 
-                // Try audio-only for mobile devices
-                if (isIOS || isAndroid) {
-                    try {
-                        console.log("Trying audio-only initialization...");
-                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
-                            audio: { 
-                                autoGainControl: isAndroid,
-                                echoCancellation: true, 
-                                noiseSuppression: true
-                            } 
-                        });
-                        console.log("Audio-only initialization successful");
-                    } catch (audioError) {
-                        console.log("Audio-only initialization failed:", audioError);
-                    }
+                // Final fallback: Try basic audio for any platform
+                try {
+                    console.log("Trying basic audio fallback...");
+                    const basicAudioStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: true 
+                    });
+                    console.log("Basic audio fallback successful");
+                } catch (audioError) {
+                    console.error("All media initialization failed:", audioError);
+                    updateStatusIndicator('❌ Microphone access required', 'error', true);
                 }
             }
         }
