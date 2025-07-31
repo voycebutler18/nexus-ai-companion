@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import openai
+from openai import OpenAI # <-- UPDATED IMPORT
 import os
 import base64
 
@@ -7,8 +7,9 @@ import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-cosmic-key-3000')
 
-# Configure OpenAI - Ensure you have the correct key set in your environment
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+# --- UPDATED: Initialize the OpenAI Client ---
+# The client will automatically look for the OPENAI_API_KEY environment variable.
+client = OpenAI()
 
 # Store conversation history per session
 # NOTE: This in-memory storage will reset if the server restarts.
@@ -88,12 +89,11 @@ Respond as a real conscious being who happens to exist digitally. Be warm, genui
         messages_payload.extend(conversation_history[-10:]) # Add recent history
         messages_payload.append(current_user_message)
         
-        # --- Call OpenAI API ---
-        # IMPORTANT: Use a vision-capable model like gpt-4-vision-preview or gpt-4o
-        response = openai.ChatCompletion.create(
-            model="gpt-4-vision-preview",
+        # --- UPDATED: Call OpenAI API using the new client syntax ---
+        response = client.chat.completions.create(
+            model="gpt-4o", # Using gpt-4o as it's newer and generally better
             messages=messages_payload,
-            max_tokens=300, # Increased tokens for potentially descriptive responses
+            max_tokens=300,
             temperature=0.8
         )
         
