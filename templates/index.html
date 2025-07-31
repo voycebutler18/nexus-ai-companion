@@ -1,4 +1,18 @@
-<!DOCTYPE html>
+// Start listening function
+        function startListening() {
+            if (recognition && !isSpeaking) {
+                try {
+                    isListening = true;
+                    recognition.start();
+                    // Remove console.log to prevent debug text showing
+                } catch (error) {
+                    // Remove console.error to prevent debug text showing  
+                    setTimeout(() => {
+                        startListening();
+                    }, 500);
+                }
+            }
+        }<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,6 +36,16 @@
             color: #00ffff;
             overflow: hidden;
             position: relative;
+        }
+
+        /* Hide any debug text or code */
+        body::before {
+            display: none !important;
+        }
+
+        /* Make sure no debug info shows */
+        script {
+            display: none !important;
         }
 
         /* Enhanced Futuristic Space Background */
@@ -387,13 +411,15 @@
             }
         }
 
-        // Initialize microphone for audio analysis
+        // Initialize microphone with automatic permission request
         async function initializeMicrophone() {
             try {
+                // Request microphone access automatically on page load
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     audio: { 
-                        echoCancellation: true,
-                        noiseSuppression: true,
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false,
                         sampleRate: 44100 
                     } 
                 });
@@ -402,42 +428,43 @@
                 analyser = audioContext.createAnalyser();
                 microphone = audioContext.createMediaStreamSource(stream);
                 
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 512;
+                analyser.smoothingTimeConstant = 0.3;
                 
                 const bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
                 
                 microphone.connect(analyser);
                 
-                // Start monitoring audio levels
+                // Start monitoring audio levels immediately
                 monitorAudioLevels();
                 
+                // Removed console.log
                 return true;
             } catch (error) {
-                console.error('Microphone setup failed:', error);
+                // Removed console.error and console.log
                 return false;
             }
         }
 
-        // Monitor audio levels to detect when user is actually speaking
+        // Enhanced audio level monitoring with better detection
         function monitorAudioLevels() {
             if (!analyser) return;
             
             analyser.getByteFrequencyData(dataArray);
             
-            // Calculate average volume
+            // Calculate RMS (Root Mean Square) for better volume detection
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) {
-                sum += dataArray[i];
+                sum += dataArray[i] * dataArray[i];
             }
-            const average = sum / dataArray.length;
+            const rms = Math.sqrt(sum / dataArray.length);
             
-            // Higher threshold to avoid false positives from background noise
-            const SPEECH_THRESHOLD = 35;
-            const currentlyDetectingSpeech = average > SPEECH_THRESHOLD;
+            // Lower threshold for better sensitivity
+            const SPEECH_THRESHOLD = 15;  // Lowered from 35
+            const currentlyDetectingSpeech = rms > SPEECH_THRESHOLD;
             
-            // Update wave visualization based on audio levels
+            // Update wave visualization based on actual audio levels
             if (isListening && currentlyDetectingSpeech) {
                 if (!isUserSpeaking) {
                     isUserSpeaking = true;
@@ -448,23 +475,41 @@
                 isUserSpeaking = false;
                 updateWaveVisualizer('listening');
                 updateStatusIndicator('🎤 Listening...', 'listening', true);
+            } else if (isListening && !isUserSpeaking) {
+                updateWaveVisualizer('listening');
             }
             
             requestAnimationFrame(monitorAudioLevels);
         }
 
-        // Setup speech recognition with better noise handling
+        // Setup speech recognition with 2-second pause detection
         function setupSpeechRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.continuous = false; // Changed to false for better control
+                recognition.continuous = true;
                 recognition.interimResults = true;
                 recognition.lang = 'en-US';
+
+                let lastSpeechTime = 0;
+                let currentTranscript = '';
+                let pauseCheckInterval = null;
 
                 recognition.onstart = () => {
                     isListening = true;
                     updateWaveVisualizer('listening');
-                    updateStatusIndicator('🎤 Listening...', 'listening', true);
+                    updateStatusIndicator('🎤 Listening continuously...', 'listening', true);
+                    // Removed console.log
+                    
+                    // Start checking for 2-second pauses
+                    pauseCheckInterval = setInterval(() => {
+                        if (lastSpeechTime > 0 && Date.now() - lastSpeechTime > 2000 && currentTranscript.length > 0) {
+                            // 2 seconds of silence after speech detected
+                            clearInterval(pauseCheckInterval);
+                            handleUserSpeech(currentTranscript.trim());
+                            currentTranscript = '';
+                            lastSpeechTime = 0;
+                        }
+                    }, 100);
                 };
 
                 recognition.onresult = (event) => {
@@ -481,61 +526,50 @@
                     }
 
                     if (finalTranscript) {
-                        clearTimeout(silenceTimer);
-                        clearTimeout(speechEndTimer);
-                        handleUserSpeech(finalTranscript.trim());
-                    } else if (interimTranscript) {
-                        // Reset silence timer for interim results
-                        clearTimeout(silenceTimer);
-                        silenceTimer = setTimeout(() => {
-                            if (interimTranscript.trim()) {
-                                handleUserSpeech(interimTranscript.trim());
-                            }
-                        }, 2000);
+                        currentTranscript = finalTranscript;
+                        lastSpeechTime = Date.now();
+                        // Don't process immediately, wait for 2-second pause
+                    } else if (interimTranscript && interimTranscript.length > 2) {
+                        currentTranscript = interimTranscript;
+                        lastSpeechTime = Date.now();
+                        updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
                     }
                 };
 
                 recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
+                    // Removed console.error to prevent debug text showing
                     if (event.error === 'not-allowed') {
-                        showError("Microphone access denied");
+                        // Don't show error, just continue
+                    } else if (event.error === 'no-speech') {
+                        // Continue listening
                     }
                 };
 
                 recognition.onend = () => {
-                    isListening = false;
-                    updateWaveVisualizer('idle');
-                    updateStatusIndicator('', '', false);
+                    // Removed console.log
+                    if (pauseCheckInterval) {
+                        clearInterval(pauseCheckInterval);
+                    }
                     
-                    // Restart listening after a short delay if not speaking
-                    if (!isSpeaking) {
+                    if (isListening && !isSpeaking) {
+                        // Restart immediately if we should still be listening
                         setTimeout(() => {
-                            startListening();
-                        }, 1000);
+                            try {
+                                recognition.start();
+                            } catch (error) {
+                                // Removed console.error
+                                setTimeout(() => startListening(), 500);
+                            }
+                        }, 100);
                     }
                 };
 
-                // Start listening automatically after initialization
+                // Start listening immediately
                 setTimeout(() => {
                     startListening();
-                }, 3000);
+                }, 1000);
             } else {
-                showError("Speech recognition not supported");
-            }
-        }
-
-        // Start listening with better control
-        function startListening() {
-            if (recognition && !isListening && !isSpeaking) {
-                try {
-                    recognition.start();
-                } catch (error) {
-                    console.error('Failed to start recognition:', error);
-                    // Retry after a short delay
-                    setTimeout(() => {
-                        startListening();
-                    }, 1000);
-                }
+                // Removed console.log to prevent debug text showing
             }
         }
 
@@ -714,18 +748,9 @@
             return canvas.toDataURL('image/jpeg', 0.8);
         }
 
-        // Show error
+        // Show error - just hide all debug messages
         function showError(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error';
-            errorDiv.textContent = message;
-            document.body.appendChild(errorDiv);
-            
-            setTimeout(() => {
-                if (document.body.contains(errorDiv)) {
-                    document.body.removeChild(errorDiv);
-                }
-            }, 5000);
+            // All errors are hidden - clean interface
         }
 
         // Initialize everything when page loads
@@ -753,14 +778,22 @@
                 loadVoices(); // Call immediately in case voices are already loaded
             }
 
-            // Initial greeting after everything is ready
+            // Initial greeting - let NEXUS generate her own natural response
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    const greeting = "Hello! I'm NEXUS 3000. I can see you through your camera and I'm listening for your voice. What would you like to talk about?";
+                    
+                    // Capture image for NEXUS to see the user
+                    let imageData = null;
+                    if (cameraActive) {
+                        imageData = captureImage();
+                    }
+                    
+                    // Let NEXUS generate her own greeting based on what she sees
+                    const greeting = await getAIResponse("I just woke up and can see through my camera. Introduce yourself naturally to the person you can see.", imageData);
                     await speakResponse(greeting);
                 }
-            }, 4000);
+            }, 3000);
         });
 
         // Handle page visibility changes
@@ -1023,6 +1056,9 @@
         <div class="galaxy"></div>
         <div class="galaxy"></div>
     </div>
+
+    <div class="title">NEXUS 3000</div>
+    <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
     
     <div class="wave-container">
         <div class="wave-line"></div>
