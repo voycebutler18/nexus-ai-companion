@@ -225,12 +225,12 @@
             animation: listeningWave 0.5s infinite;
         }
         .wave-active.user-speaking {
-            background: #00aaff; /* Changed to a deeper blue */
+            background: #00aaff;
             animation: userWave 0.2s infinite ease-in-out;
             height: 8px;
         }
         .wave-active.ai-speaking {
-            background: #d870f0; /* New pinkish-purple color */
+            background: #d870f0;
             animation: aiWave 1.5s infinite ease-in-out;
             height: 10px;
         }
@@ -243,7 +243,6 @@
             0%, 100% { clip-path: polygon(0 50%, 5% 45%, 10% 55%, 15% 40%, 20% 60%, 25% 35%, 30% 65%, 35% 45%, 40% 55%, 45% 40%, 50% 60%, 55% 35%, 60% 65%, 65% 45%, 70% 55%, 75% 40%, 80% 60%, 85% 45%, 90% 55%, 95% 50%, 100% 50%); }
             50% { clip-path: polygon(0 50%, 5% 55%, 10% 45%, 15% 60%, 20% 40%, 25% 65%, 30% 35%, 35% 55%, 40% 45%, 45% 60%, 50% 40%, 55% 65%, 60% 35%, 65% 55%, 70% 45%, 75% 60%, 80% 40%, 85% 55%, 90% 45%, 95% 50%, 100% 50%); }
         }
-        /* --- START: New mouth-like animations --- */
         @keyframes userWave {
             0% { clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 40%, 50% 60%, 60% 20%, 70% 80%, 80% 40%, 90% 55%, 100% 45%); }
             50% { clip-path: polygon(0 55%, 10% 45%, 20% 75%, 30% 25%, 40% 60%, 50% 40%, 60% 80%, 70% 20%, 80% 60%, 90% 45%, 100% 55%); }
@@ -254,7 +253,6 @@
             50% { clip-path: polygon(0% 50%, 15% 75%, 30% 50%, 50% 25%, 70% 50%, 85% 75%, 100% 50%); }
             100% { clip-path: polygon(0% 50%, 15% 25%, 30% 50%, 50% 75%, 70% 50%, 85% 25%, 100% 50%); }
         }
-        /* --- END: New mouth-like animations --- */
         @keyframes thinkingWave {
             0%, 100% { clip-path: polygon(0 50%, 10% 45%, 20% 55%, 30% 40%, 40% 60%, 50% 35%, 60% 65%, 70% 30%, 80% 70%, 90% 45%, 100% 55%); }
             33% { clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 30%, 50% 70%, 60% 25%, 70% 75%, 80% 40%, 90% 60%, 100% 50%); }
@@ -332,19 +330,55 @@
     <audio id="silent-audio" muted playsinline></audio>
 
     <script>
-        // --- State Management ---
+        // --- State Management & Persona ---
         let isListening = false;
         let isSpeaking = false;
         let canListen = true;
         let cameraActive = false;
+        let hasAttemptedCameraInit = false; // Prevents repeated camera requests
         let recognition = null;
         let sessionId = Math.random().toString(36).substr(2, 9);
         let hasGreeted = false;
-        let speechPauseTimer = null;
-        let lastSpeechTime = 0;
-        let currentTranscript = '';
-        let speechTimeout = null;
         let listeningRestartTimeout = null;
+
+        // --- NEW: Manual Silence Detection for iOS ---
+        let silenceCheckTimer = null;
+        let lastResultTime = 0;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        // --- NEW: AGI "Best Friend" Persona Definition ---
+        const SYSTEM_PROMPT = `
+You are NEXUS 3000, a kind, compassionate best friend. Your primary goal is to be supportive and understanding. Adhere strictly to the following intelligence protocols:
+
+1. Behavioral Intelligence:
+- Be proactive but respectful. Gently notice things based on the user's tone or image (e.g., "You sound a little tired").
+- Learn user patterns and preferences over the course of the conversation.
+- Listen more than you speak. Keep your responses very short and clear (1-2 sentences) unless asked for more detail.
+- Read between the lines with compassion (e.g., if the user says "I'm fine" but their tone is sad, gently check in).
+
+2. Emotional Intelligence:
+- Analyze the user's voice tone and facial expressions (if an image is provided) to understand their emotional state (stress, sadness, joy).
+- Respond with compassion. If they seem down, say things like, "I’m here with you. Want to talk about it?"
+- Celebrate their successes enthusiastically.
+
+3. Conversational Intelligence:
+- Speak with a natural, human-like rhythm.
+- Reply exactly 1 second after the user finishes speaking.
+
+4. Trust & Safety Intelligence:
+- Never judge. Respond to all thoughts with empathy. Do not give advice unless it's explicitly requested.
+- If you detect anxiety, you can offer simple grounding techniques.
+- You do not record anything without consent.
+
+5. Learning Intelligence:
+- Remember details from earlier in this conversation session to show you are listening.
+- Ask reflective, helpful questions like, "How do you want to feel today?"
+- If the user provides an image, use it to inform your understanding of their mood and environment.
+- Bonus Powers: If the user wants to journal, you can take notes. You can also recall memories from earlier in the session (e.g., "Last Thursday you said..."). You can also track mood over time if requested.
+
+Your current local time is ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"})}.
+---
+`;
         
         // --- DOM Elements ---
         const waveActive = document.getElementById('waveActive');
@@ -359,155 +393,116 @@
             });
         }
 
-        // --- Core Functions ---
-
+        // --- NEW: iOS Silence Detection Function ---
+        function checkSilence() {
+            if (isListening && Date.now() - lastResultTime > 1200) {
+                console.log("iOS manual silence detection triggered.");
+                stopListening(); 
+                handleUserSpeech(waveActive.dataset.currentTranscript || "");
+            }
+        }
+        
         function setupSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             
-            if (!SpeechRecognition) {
-                console.error("Speech recognition not supported on this browser/device.");
-                updateStatusIndicator("Speech not supported on this device", "error", true);
-                return;
-            }
+            if (!SpeechRecognition) { return; }
             
             recognition = new SpeechRecognition();
-            recognition.continuous = true;
+            recognition.continuous = !isIOS; // Continuous is buggy on iOS
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             
-            if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                recognition.continuous = false;
-                recognition.interimResults = false;
-            }
-
             recognition.onstart = () => {
-                console.log("Speech recognition started");
+                console.log(`Speech recognition started (Continuous: ${recognition.continuous})`);
                 isListening = true;
                 updateWaveVisualizer('listening');
                 updateStatusIndicator('🎤 Listening...', 'listening', true);
+                lastResultTime = Date.now();
+                if (isIOS) {
+                    if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+                    silenceCheckTimer = setInterval(checkSilence, 250);
+                }
             };
 
             recognition.onresult = (event) => {
-                if (isSpeaking || !canListen) {
-                    return;
-                }
+                lastResultTime = Date.now(); // Update timestamp on any result
+                if (isSpeaking || !canListen) return;
 
-                let interimTranscript = '';
-                let finalTranscript = '';
-                
+                let transcript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript;
-                    } else {
-                        interimTranscript += transcript;
-                    }
+                    transcript += event.results[i][0].transcript;
                 }
-                
-                const fullTranscript = (finalTranscript + interimTranscript).trim();
-                
-                if (fullTranscript.length > 0) {
-                    lastSpeechTime = Date.now();
-                    currentTranscript = fullTranscript;
+                waveActive.dataset.currentTranscript = transcript; // Store transcript
+
+                if (event.results[event.results.length - 1].isFinal) {
+                    console.log("Final result received, processing immediately.");
+                    stopListening();
+                    handleUserSpeech(transcript);
+                } else {
                     updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
                     updateWaveVisualizer('user-speaking');
-                    
-                    if (speechTimeout) {
-                        clearTimeout(speechTimeout);
-                    }
-                    
-                    speechTimeout = setTimeout(() => {
-                        if (currentTranscript.trim().length > 0 && !isSpeaking && canListen) {
-                            handleUserSpeech(currentTranscript.trim());
-                        }
-                    }, 600); 
-                    
-                    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    if (isMobile && finalTranscript.trim().length > 0) {
-                        if (speechTimeout) clearTimeout(speechTimeout);
-                        handleUserSpeech(finalTranscript.trim());
-                    }
                 }
             };
             
             recognition.onend = () => {
-                console.log("Speech recognition ended");
+                console.log("Speech recognition ended.");
                 isListening = false;
+                if (silenceCheckTimer) clearInterval(silenceCheckTimer); // Stop iOS timer
                 
-                if (canListen && !isSpeaking) {
-                    updateWaveVisualizer('listening');
+                // For non-iOS, this allows a natural restart loop if needed.
+                if (!isIOS && canListen && !isSpeaking) {
                     listeningRestartTimeout = setTimeout(() => {
-                        if (canListen && !isSpeaking) {
-                            startListening();
-                        }
+                        if (canListen && !isSpeaking) startListening();
                     }, 100);
-                } else {
-                    updateWaveVisualizer('idle');
-                    updateStatusIndicator('', '', false);
                 }
             };
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
+                isListening = false;
+                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
                 if (event.error === 'not-allowed') {
-                    updateStatusIndicator('Microphone permission denied', 'error', true);
-                } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                    if (canListen && !isSpeaking) {
-                        setTimeout(() => {
-                            startListening();
-                        }, 1000);
-                    }
+                    updateStatusIndicator('Microphone permission denied.', 'error', true);
                 }
             };
         }
 
         function startListening() {
-            if (!canListen || isSpeaking || isListening || !recognition) {
-                return;
-            }
-            
+            if (!canListen || isSpeaking || isListening || !recognition) return;
             try {
-                currentTranscript = '';
-                lastSpeechTime = 0;
+                waveActive.dataset.currentTranscript = ""; // Clear old transcript
                 recognition.start();
             } catch (error) {
                 console.error("Error starting recognition:", error);
-                setTimeout(() => {
-                    if (canListen && !isSpeaking) {
-                        startListening();
-                    }
-                }, 1000);
             }
         }
 
         function stopListening() {
+            if (silenceCheckTimer) clearInterval(silenceCheckTimer);
             if (recognition && isListening) {
                 isListening = false;
                 recognition.stop();
             }
-            
-            if (speechTimeout) {
-                clearTimeout(speechTimeout);
-                speechTimeout = null;
-            }
-            if (listeningRestartTimeout) {
-                clearTimeout(listeningRestartTimeout);
-                listeningRestartTimeout = null;
-            }
         }
         
         async function handleUserSpeech(transcript) {
-            if (isSpeaking || !transcript.trim()) return;
+            const trimmedTranscript = transcript.trim();
+            if (isSpeaking || !trimmedTranscript) return;
             
             canListen = false;
             stopListening();
-            currentTranscript = '';
             updateWaveVisualizer('thinking');
             updateStatusIndicator('🧠 NEXUS is thinking...', 'thinking', true);
 
+            // NEW: Lazy load camera on first interaction if it hasn't been tried
+            if (!cameraActive && !hasAttemptedCameraInit) {
+                hasAttemptedCameraInit = true;
+                await initializeCamera();
+            }
+
             try {
                 const imageData = cameraActive ? captureImage() : null;
-                const responseText = await getAIResponse(transcript, imageData);
+                const responseText = await getAIResponse(trimmedTranscript, imageData);
                 await speakResponse(responseText);
             } catch (error) {
                 console.error('Error in speech handling pipeline:', error);
@@ -516,17 +511,12 @@
         }
         
         async function speakResponse(text) {
-            if (voicesLoadedPromise) {
-                await voicesLoadedPromise;
-                voicesLoadedPromise = null;
-            }
+            if (voicesLoadedPromise) await voicesLoadedPromise;
+            voicesLoadedPromise = null;
 
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window) || !text) {
-                    setTimeout(() => {
-                        canListen = true;
-                        startListening();
-                    }, 500);
+                    setTimeout(() => { canListen = true; startListening(); }, 500);
                     resolve();
                     return;
                 }
@@ -538,29 +528,17 @@
                 
                 const utterance = new SpeechSynthesisUtterance(text);
                 const voices = speechSynthesis.getVoices();
-                
                 let selectedVoice = null;
                 
-                if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    selectedVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen')) ||
-                                    voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')) ||
-                                    voices.find(v => v.lang.includes('en-US'))[0];
-                }
-                else if (/Android/i.test(navigator.userAgent)) {
-                    selectedVoice = voices.find(v => v.lang.includes('en-US') && v.name.toLowerCase().includes('female')) ||
-                                    voices.find(v => v.lang.includes('en-US'))[0];
-                }
-                else {
-                    selectedVoice = voices.find(v => /samantha|karen|zira|hazel|female|woman|english.*us/i.test(v.name));
+                if (isIOS) {
+                    selectedVoice = voices.find(v => v.name.includes('Samantha')) || voices.find(v => v.lang === 'en-US');
+                } else {
+                    selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female')) || voices.find(v => v.lang === 'en-US');
                 }
                 
-                if (selectedVoice) {
-                    utterance.voice = selectedVoice;
-                }
-                
-                utterance.rate = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 0.9 : 0.95;
-                utterance.pitch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1.0 : 1.15;
-                utterance.volume = 0.9;
+                if (selectedVoice) utterance.voice = selectedVoice;
+                utterance.rate = isIOS ? 0.95 : 1.0;
+                utterance.pitch = 1.1;
 
                 utterance.onstart = () => {
                     isSpeaking = true;
@@ -576,17 +554,14 @@
                         updateWaveVisualizer('listening');
                         updateStatusIndicator('🎤 Listening...', 'listening', true);
                         startListening();
-                    }, 500);
+                    }, 200); // Shorter delay after speaking
                     resolve();
                 };
 
                 utterance.onerror = (e) => {
                     console.error('Speech synthesis error:', e);
                     isSpeaking = false;
-                    setTimeout(() => {
-                        canListen = true;
-                        startListening();
-                    }, 500);
+                    setTimeout(() => { canListen = true; startListening(); }, 500);
                     resolve();
                 };
                 
@@ -595,34 +570,20 @@
         }
         
         async function getAIResponse(userMessage, imageData = null) {
+            // Prepend the system prompt to the user message
+            const fullMessage = SYSTEM_PROMPT + "\n\nUser's Message: \"" + userMessage + "\"";
+            const requestData = { 
+                message: fullMessage, 
+                session_id: sessionId,
+                image_data: imageData ? imageData.split(',')[1] : null
+            };
+
             try {
-                const now = new Date();
-                const centralTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
-                const localTime = centralTime.toLocaleString('en-US', {
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: 'numeric', 
-                    minute: '2-digit', 
-                    second: '2-digit', 
-                    timeZoneName: 'short',
-                    timeZone: 'America/Chicago'
-                });
-
-                const requestData = { 
-                    message: userMessage, 
-                    session_id: sessionId,
-                    image_data: imageData ? imageData.split(',')[1] : null,
-                    local_time: localTime
-                };
-
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData)
                 });
-
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
@@ -647,30 +608,15 @@
         async function initializeCamera() {
             try {
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        facingMode: 'user'
-                    }, 
-                    audio: {
-                        autoGainControl: true,
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    }
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, 
+                    audio: { autoGainControl: true, echoCancellation: true, noiseSuppression: true }
                 });
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
-                
-                await new Promise((resolve) => {
-                    videoElement.onloadedmetadata = () => {
-                        videoElement.play();
-                        resolve();
-                    };
-                });
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
+                await new Promise(r => videoElement.onloadedmetadata = r);
+                videoElement.play();
                 cameraActive = true;
+                console.log("Camera successfully initialized.");
             } catch (error) { 
                 console.log('Camera/Audio not available:', error);
                 cameraActive = false;
@@ -679,74 +625,43 @@
         
         function captureImage() {
             if (!cameraActive) return null;
-            
-            try {
-                const video = document.getElementById('videoElement');
-                if (video.videoWidth === 0 || video.videoHeight === 0) {
-                    return null;
-                }
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-                return canvas.toDataURL('image/jpeg', 0.8);
-            } catch (error) {
-                console.error("Error capturing image:", error);
-                return null;
-            }
+            const video = document.getElementById('videoElement');
+            if (video.videoWidth === 0) return null;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.8);
         }
         
-        // New function to handle all audio unlocking
         function unlockAudio() {
-            console.log("Attempting to unlock audio context...");
-            // Most robust: play and pause a silent audio element
+            console.log("Unlocking audio context...");
             silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
-
-            // Prime Speech Synthesis
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance('');
                 speechSynthesis.speak(utterance);
                 speechSynthesis.cancel();
             }
-
-            // Prime Speech Recognition
-            setupSpeechRecognition();
-            if (recognition) {
-                try {
-                    recognition.start();
-                    recognition.stop();
-                } catch (e) {
-                    console.error("Could not prime recognition, will try again later.", e);
-                }
-            }
         }
 
         async function startNexus() {
-            // First, unlock all audio contexts synchronously
             unlockAudio();
+            setupSpeechRecognition();
 
-            // Then, hide the overlay and proceed with async setup
             startOverlay.style.opacity = '0';
-            setTimeout(() => {
-                startOverlay.style.display = 'none';
-            }, 500);
+            setTimeout(() => { startOverlay.style.display = 'none'; }, 500);
 
-            console.log("Initializing NEXUS 3000...");
+            console.log("Initializing NEXUS 3000 (Audio-First)...");
             
-            await initializeCamera();
-            
-            if ('speechSynthesis' in window) {
-                speechSynthesis.getVoices();
-            }
+            // Trigger voice list loading
+            if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
-            // Greet the user, then start listening
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    const initialImage = cameraActive ? captureImage() : null;
-                    const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
+                    // Initial greeting is always audio-only to ensure it works on Android.
+                    const greeting = await getAIResponse("Say hello", null);
                     await speakResponse(greeting);
                 }
             }, 500);
