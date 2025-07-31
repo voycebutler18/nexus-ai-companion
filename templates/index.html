@@ -897,29 +897,60 @@ function setupSpeechRecognition() {
                         const audioUrl = URL.createObjectURL(audioBlob);
                         const audio = new Audio(audioUrl);
                         
+                        // Platform-specific audio settings
+                        if (isIOS) {
+                            audio.preload = 'auto';
+                            audio.volume = 1.0;
+                        } else if (isAndroid) {
+                            audio.preload = 'metadata';
+                            audio.volume = 0.9;
+                        }
+                        
+                        audio.oncanplaythrough = () => {
+                            console.log("Nova audio ready, playing...");
+                            audio.play().catch(e => {
+                                console.error('Audio play failed:', e);
+                                fallbackToSystemVoice(text, resolve);
+                            });
+                        };
+                        
                         audio.onloadeddata = () => {
-                            console.log("Nova audio loaded, playing...");
-                            audio.play();
+                            console.log("Nova audio loaded");
+                            if (isIOS || isAndroid) {
+                                // Mobile devices - try to play immediately
+                                audio.play().catch(e => {
+                                    console.error('Mobile audio play failed:', e);
+                                    fallbackToSystemVoice(text, resolve);
+                                });
+                            }
                         };
                         
                         audio.onended = () => {
                             console.log("Nova speech synthesis ended");
                             isSpeaking = false;
                             URL.revokeObjectURL(audioUrl);
+                            
+                            // Platform-specific restart delays
+                            const restartDelay = isIOS ? 800 : isAndroid ? 600 : 300;
+                            
                             setTimeout(() => {
                                 canListen = true;
                                 updateWaveVisualizer('listening');
                                 updateStatusIndicator('🎤 Listening...', 'listening', true);
                                 updateRobotState('listening');
                                 startListening();
-                            }, 300);
+                            }, restartDelay);
                             resolve();
                         };
                         
                         audio.onerror = (e) => {
                             console.error('Nova audio playback error:', e);
+                            URL.revokeObjectURL(audioUrl);
                             fallbackToSystemVoice(text, resolve);
                         };
+                        
+                        // Load the audio
+                        audio.load();
                         
                     } else {
                         console.log("Nova API failed, falling back to system voice");
@@ -1062,24 +1093,80 @@ function setupSpeechRecognition() {
         async function initializeCamera() {
             try {
                 console.log("Requesting camera and microphone permissions...");
-                const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, 
-                    audio: { 
-                        autoGainControl: true, 
-                        echoCancellation: true, 
-                        noiseSuppression: true,
-                        sampleRate: 48000
-                    }
-                });
+                
+                // Platform-specific media constraints
+                let constraints;
+                if (isIOS) {
+                    constraints = { 
+                        video: { 
+                            width: { ideal: 720 }, 
+                            height: { ideal: 480 }, 
+                            facingMode: 'user' 
+                        }, 
+                        audio: { 
+                            autoGainControl: false,  // iOS works better without AGC
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        }
+                    };
+                } else if (isAndroid) {
+                    constraints = { 
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 }, 
+                            facingMode: 'user' 
+                        }, 
+                        audio: { 
+                            autoGainControl: true,   // Android needs AGC
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            sampleRate: 48000
+                        }
+                    };
+                } else {
+                    constraints = { 
+                        video: { 
+                            width: { ideal: 1280 }, 
+                            height: { ideal: 720 }, 
+                            facingMode: 'user' 
+                        }, 
+                        audio: { 
+                            autoGainControl: true, 
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            sampleRate: 48000
+                        }
+                    };
+                }
+                
+                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = mediaStream;
                 await new Promise(r => videoElement.onloadedmetadata = r);
                 videoElement.play();
                 cameraActive = true;
-                console.log("Camera and microphone successfully initialized.");
+                console.log("Camera and microphone successfully initialized for platform:", isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
             } catch (error) { 
                 console.log('Camera/Audio not available:', error);
                 cameraActive = false;
+                
+                // Try audio-only for mobile devices
+                if (isIOS || isAndroid) {
+                    try {
+                        console.log("Trying audio-only initialization...");
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: { 
+                                autoGainControl: isAndroid,
+                                echoCancellation: true, 
+                                noiseSuppression: true
+                            } 
+                        });
+                        console.log("Audio-only initialization successful");
+                    } catch (audioError) {
+                        console.log("Audio-only initialization failed:", audioError);
+                    }
+                }
             }
         }
         
@@ -1096,9 +1183,23 @@ function setupSpeechRecognition() {
         }
         
         function unlockAudio() {
-            console.log("Unlocking audio context...");
+            console.log("Unlocking audio context for platform:", isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
             try {
-                silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                // Platform-specific audio unlocking
+                if (isIOS) {
+                    // iOS requires user interaction for audio
+                    const silentAudio = new Audio();
+                    silentAudio.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADATI2MDF8CAAB//uQRAAAAP8AAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABdgAAmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm+7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u////////////////////////////////////8AAAAATGF2YzU5LjE2AAAAAAAAAAAAAAAAAAAAAAAAGgUZAAAAAAAAAAF2AAAAAAAAAAAAAAAAd//ugRAAP8AAAf4AAAAgAAA0gAAAABAgAAAAAAAAAAAAAAAAAAAAABmltaGVhZHI=';
+                    silentAudio.volume = 0;
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                } else if (isAndroid) {
+                    // Android audio context unlocking
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                } else {
+                    // Desktop
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                }
+                
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance('');
                     utterance.volume = 0;
