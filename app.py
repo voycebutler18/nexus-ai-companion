@@ -72,7 +72,7 @@ def generate_nova_speech_async(text):
             voice="nova",
             input=text,
             response_format="mp3",
-            speed=1.1  # Slightly faster speech
+            speed=0.85  # Slower speech - was 1.1, now 0.85
         )
         
         audio_bytes = response.content
