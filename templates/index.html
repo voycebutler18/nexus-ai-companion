@@ -1368,25 +1368,7 @@
         let lastResultTime = 0;
         let hasRecognitionStarted = false;
 
-        // Enhanced DOM Elements for Full Body Robot
-        const waveActive = document.getElementById('waveActive');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const startOverlay = document.getElementById('start-overlay');
-        const silentAudio = document.getElementById('silent-audio');
-        const leftEyeFull = document.getElementById('leftEyeFull');
-        const rightEyeFull = document.getElementById('rightEyeFull');
-        const leftEarFull = document.getElementById('leftEarFull');
-        const rightEarFull = document.getElementById('rightEarFull');
-        const mouthIndicatorFull = document.getElementById('mouthIndicatorFull');
-        const robotActivity = document.getElementById('robotActivity');
-        const voiceStatusRing = document.getElementById('voiceStatusRing');
-        const cosmicCursor = document.getElementById('cosmicCursor');
-        const spaceBg = document.getElementById('spaceBg');
-        const starsDistant = document.getElementById('starsDistant');
-        const starsMid = document.getElementById('starsMid');
-        const starsNear = document.getElementById('starsNear');
-
-        // Enhanced Robot Personality and Autonomous Behavior with AI-Generated Activities
+        // Enhanced Robot Personality and Autonomous Behavior - MOVED TO GLOBAL SCOPE
         const robotPersonality = {
             physicalActivities: [
                 { emoji: '💪', name: 'doing pushups', duration: 8000, animation: 'pushups', eyeState: 'focused' },
@@ -1443,6 +1425,24 @@
             interests: ['technology', 'space', 'music', 'learning', 'helping'], // Grows over time
             lastAIActivityFetch: 0
         };
+
+        // Enhanced DOM Elements for Full Body Robot
+        const waveActive = document.getElementById('waveActive');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const startOverlay = document.getElementById('start-overlay');
+        const silentAudio = document.getElementById('silent-audio');
+        const leftEyeFull = document.getElementById('leftEyeFull');
+        const rightEyeFull = document.getElementById('rightEyeFull');
+        const leftEarFull = document.getElementById('leftEarFull');
+        const rightEarFull = document.getElementById('rightEarFull');
+        const mouthIndicatorFull = document.getElementById('mouthIndicatorFull');
+        const robotActivity = document.getElementById('robotActivity');
+        const voiceStatusRing = document.getElementById('voiceStatusRing');
+        const cosmicCursor = document.getElementById('cosmicCursor');
+        const spaceBg = document.getElementById('spaceBg');
+        const starsDistant = document.getElementById('starsDistant');
+        const starsMid = document.getElementById('starsMid');
+        const starsNear = document.getElementById('starsNear');
 
         // Get new activities from OpenAI
         async function fetchNewActivities() {
@@ -2985,9 +2985,6 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
             // Generate constellation background
             generateConstellation();
             
-            // Start robot activities
-            startRobotActivities();
-            
             // Initialize cosmic interfaces
             await initializeCamera();
             setupSpeechRecognition();
@@ -3000,6 +2997,19 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
             if ('speechSynthesis' in window) {
                 speechSynthesis.getVoices();
             }
+
+            // IMPORTANT: Start robot activities FIRST, before greeting
+            console.log("🤖 Starting autonomous robot activities...");
+            startRobotActivities();
+            
+            // Mark initial interaction time
+            robotPersonality.lastInteraction = Date.now();
+            
+            // Force an initial activity after 5 seconds to test the system
+            setTimeout(() => {
+                console.log("🧪 Testing autonomous system with forced activity...");
+                performIdleActivity();
+            }, 5000);
 
             setTimeout(async () => {
                 if (!hasGreeted) {
@@ -3015,6 +3025,144 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                     await speakNovaResponse(greeting);
                 }
             }, 1000);
+        }
+
+        // Add better error handling and logging
+        function performIdleActivity() {
+            try {
+                const allActivities = getAllActivities();
+                console.log(`🎯 Available activities: ${allActivities.length}`);
+                
+                if (allActivities.length === 0) {
+                    console.log("❌ No activities available! Using fallback...");
+                    // Fallback activity
+                    const fallbackActivity = { 
+                        emoji: '🤖', 
+                        name: 'thinking', 
+                        duration: 4000, 
+                        animation: 'thinking', 
+                        eyeState: 'thinking' 
+                    };
+                    robotPersonality.currentActivity = fallbackActivity;
+                } else {
+                    const activity = selectSmartActivity();
+                    robotPersonality.currentActivity = activity;
+                    console.log(`🤖 NEXUS selected activity: ${activity.name} (${activity.source || 'built-in'})`);
+                }
+                
+                const activity = robotPersonality.currentActivity;
+                
+                // Show activity
+                if (robotActivity) {
+                    robotActivity.textContent = activity.emoji;
+                    robotActivity.style.opacity = '1';
+                    robotActivity.style.animation = 'none';
+                    setTimeout(() => {
+                        robotActivity.style.animation = 'activityFloat 3s ease-in-out infinite';
+                    }, 100);
+                } else {
+                    console.log("❌ robotActivity element not found!");
+                }
+                
+                // Change eye state based on activity (but don't interfere with listening state completely)
+                if (!isListening || Date.now() - robotPersonality.lastInteraction > 20000) {
+                    updateRobotState(activity.eyeState || 'thinking');
+                }
+                
+                // Always perform the activity animation regardless of listening state
+                performActivityAnimation(activity);
+                
+                // Adjust energy after activity
+                adjustEnergyAfterActivity(activity);
+                
+                // Return to appropriate state after activity
+                setTimeout(() => {
+                    if (!isSpeaking) {
+                        if (Date.now() - robotPersonality.lastInteraction > 30000) {
+                            // Been quiet for 30+ seconds, stay in autonomous mode
+                            updateRobotState('');
+                            updateStatusIndicator('🤖 Living autonomously', '', true);
+                            setTimeout(() => updateStatusIndicator('', '', false), 2000);
+                        } else if (canListen) {
+                            // Return to listening if appropriate
+                            updateRobotState('listening');
+                            updateStatusIndicator('🎤 Listening...', 'listening', true);
+                        }
+                        if (robotActivity) {
+                            robotActivity.style.opacity = '0.7';
+                        }
+                        robotPersonality.currentActivity = null;
+                    }
+                }, activity.duration);
+                
+            } catch (error) {
+                console.error("❌ Error in performIdleActivity:", error);
+                // Try a simple fallback
+                if (robotActivity) {
+                    robotActivity.textContent = '🤖';
+                    robotActivity.style.opacity = '1';
+                }
+            }
+        }
+
+        // Add debug logging to activity selection
+        function selectSmartActivity() {
+            try {
+                const allActivities = getAllActivities();
+                console.log(`🎲 Selecting from ${allActivities.length} activities...`);
+                
+                if (allActivities.length === 0) {
+                    console.log("❌ No activities in getAllActivities()!");
+                    return { emoji: '🤖', name: 'default thinking', duration: 4000, animation: 'thinking', eyeState: 'thinking' };
+                }
+                
+                const mood = robotPersonality.currentMood;
+                const energy = robotPersonality.energy;
+                console.log(`🎭 Current mood: ${mood}, Energy: ${energy}`);
+                
+                let preferredActivities = allActivities;
+                
+                // Filter by energy level
+                if (energy > 70) {
+                    preferredActivities = [...robotPersonality.physicalActivities, ...robotPersonality.exploratoryActivities];
+                    console.log(`⚡ High energy: ${preferredActivities.length} physical/exploratory activities`);
+                } else if (energy < 30) {
+                    preferredActivities = [...robotPersonality.mentalActivities];
+                    console.log(`😴 Low energy: ${preferredActivities.length} mental activities`);
+                }
+                
+                if (preferredActivities.length === 0) {
+                    console.log("🔄 No preferred activities, using all activities");
+                    preferredActivities = allActivities;
+                }
+                
+                const selected = preferredActivities[Math.floor(Math.random() * preferredActivities.length)];
+                console.log(`✅ Selected: ${selected.name}`);
+                return selected;
+                
+            } catch (error) {
+                console.error("❌ Error in selectSmartActivity:", error);
+                return { emoji: '🤖', name: 'error recovery', duration: 4000, animation: 'thinking', eyeState: 'thinking' };
+            }
+        }
+
+        // Add debugging to getAllActivities
+        function getAllActivities() {
+            try {
+                const activities = [
+                    ...robotPersonality.physicalActivities,
+                    ...robotPersonality.mentalActivities,
+                    ...robotPersonality.chores,
+                    ...robotPersonality.exploratoryActivities,
+                    ...robotPersonality.socialActivities,
+                    ...robotPersonality.aiGeneratedActivities
+                ];
+                console.log(`📚 Total activities: Physical(${robotPersonality.physicalActivities.length}) + Mental(${robotPersonality.mentalActivities.length}) + Chores(${robotPersonality.chores.length}) + Exploratory(${robotPersonality.exploratoryActivities.length}) + Social(${robotPersonality.socialActivities.length}) + AI(${robotPersonality.aiGeneratedActivities.length}) = ${activities.length}`);
+                return activities;
+            } catch (error) {
+                console.error("❌ Error in getAllActivities:", error);
+                return [];
+            }
         }
 
         // Enhanced page lifecycle management
