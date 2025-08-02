@@ -695,8 +695,8 @@
             justify-content: center;
             z-index: 9999;
             backdrop-filter: blur(15px);
-            cursor: pointer;
             transition: opacity 0.5s ease;
+            pointer-events: auto;
         }
         
         #start-button {
@@ -717,6 +717,27 @@
             letter-spacing: 4px;
             position: relative;
             overflow: hidden;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            z-index: 10000;
+        }
+        
+        #start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 80px rgba(0, 255, 255, 0.7), 
+                inset 0 0 40px rgba(0, 255, 255, 0.2);
+            border-color: #00aaff;
+        }
+        
+        #start-button:active {
+            transform: scale(0.98);
+            box-shadow: 
+                0 0 40px rgba(0, 255, 255, 0.8), 
+                inset 0 0 20px rgba(0, 255, 255, 0.3);
         }
         
         #start-button::before {
@@ -1614,6 +1635,8 @@
                 }, 2000);
             }
         }
+        // Get new activities from OpenAI
+        async function fetchNewActivities() {
             const now = Date.now();
             // Only fetch new activities every 5 minutes to avoid spam
             if (now - robotPersonality.lastAIActivityFetch < 300000) return;
@@ -1633,11 +1656,11 @@
                 
                 Make them unique, creative, and robot-appropriate. No violence or inappropriate content.`;
 
-                const response = await getAIResponse(prompt);
+                const responseText = await getAIResponse(prompt);
                 
                 // Try to parse the AI response as JSON
                 try {
-                    const newActivities = JSON.parse(response);
+                    const newActivities = JSON.parse(responseText);
                     if (Array.isArray(newActivities)) {
                         newActivities.forEach(activity => {
                             activity.animation = 'ai_generated';
@@ -1660,14 +1683,21 @@
 
         // Enhanced activity selection with AI integration
         function getAllActivities() {
-            return [
-                ...robotPersonality.physicalActivities,
-                ...robotPersonality.mentalActivities,
-                ...robotPersonality.chores,
-                ...robotPersonality.exploratoryActivities,
-                ...robotPersonality.socialActivities,
-                ...robotPersonality.aiGeneratedActivities
-            ];
+            try {
+                const activities = [
+                    ...robotPersonality.physicalActivities,
+                    ...robotPersonality.mentalActivities,
+                    ...robotPersonality.chores,
+                    ...robotPersonality.exploratoryActivities,
+                    ...robotPersonality.socialActivities,
+                    ...robotPersonality.aiGeneratedActivities
+                ];
+                console.log(`📚 Total activities: Physical(${robotPersonality.physicalActivities.length}) + Mental(${robotPersonality.mentalActivities.length}) + Chores(${robotPersonality.chores.length}) + Exploratory(${robotPersonality.exploratoryActivities.length}) + Social(${robotPersonality.socialActivities.length}) + AI(${robotPersonality.aiGeneratedActivities.length}) = ${activities.length}`);
+                return activities;
+            } catch (error) {
+                console.error("❌ Error in getAllActivities:", error);
+                return [];
+            }
         }
 
         // Intelligent activity selection based on mood, energy, and time
@@ -3352,16 +3382,53 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
         // Initialize when page loads
         window.addEventListener('load', () => {
             console.log(`Cosmic platform detected: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'}`);
-            startOverlay.addEventListener('click', startNexus, { once: true });
             
-            // Add some cosmic flair to the start button
+            // Multiple ways to ensure the button is clickable
             const startButton = document.getElementById('start-button');
-            startButton.addEventListener('mouseenter', () => {
-                startButton.style.transform = 'scale(1.05)';
-            });
-            startButton.addEventListener('mouseleave', () => {
-                startButton.style.transform = 'scale(1)';
-            });
+            const startOverlay = document.getElementById('start-overlay');
+            
+            if (startButton && startOverlay) {
+                console.log("✅ Start button and overlay found");
+                
+                // Add click handlers to both button and overlay
+                startButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("🚀 Start button clicked!");
+                    startNexus();
+                });
+                
+                startOverlay.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("🚀 Start overlay clicked!");
+                    startNexus();
+                });
+                
+                // Add some visual feedback
+                startButton.addEventListener('mouseenter', () => {
+                    startButton.style.transform = 'scale(1.05)';
+                    console.log("🎯 Button hover detected");
+                });
+                
+                startButton.addEventListener('mouseleave', () => {
+                    startButton.style.transform = 'scale(1)';
+                });
+                
+                // Add keyboard support
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        if (startOverlay.style.display !== 'none') {
+                            console.log("⌨️ Keyboard activation!");
+                            startNexus();
+                        }
+                    }
+                });
+                
+                console.log("🎮 All event listeners added successfully");
+            } else {
+                console.error("❌ Could not find start button or overlay!");
+            }
         });
 
         // Enhanced error recovery
