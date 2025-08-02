@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS 3000 • COSMIC AGI</title>
     <style>
-        :root {
-            --glow-cyan: #00ffff;
-            --glow-purple: #8338ec;
-            --glow-magenta: #d870f0;
-            --glow-blue: #00aaff;
-            --dark-bg: #000011;
-        }
         * {
             margin: 0;
             padding: 0;
@@ -19,608 +12,2177 @@
         }
         body {
             font-family: 'Courier New', monospace;
-            background: var(--dark-bg);
+            background: #000;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--glow-cyan);
-            overflow: hidden;
+            color: #00ffff;
+            overflow-x: hidden;
             position: relative;
+            cursor: none;
         }
-        script { display: none !important; }
         
-        /* --- BACKGROUND & PARALLAX LAYERS --- */
-        .parallax-layer {
+        /* Custom Cosmic Cursor */
+        .cosmic-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+        
+        /* Enhanced Space Background with Parallax */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 120%;
+            height: 120%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, #1a0033 0%, transparent 50%), 
+                radial-gradient(ellipse at 80% 70%, #0d1421 0%, transparent 50%), 
+                radial-gradient(ellipse at 40% 80%, #2d1b69 0%, transparent 60%), 
+                radial-gradient(ellipse 1200px 400px at 30% 20%, rgba(0, 212, 255, 0.4) 0%, transparent 40%), 
+                radial-gradient(ellipse 800px 300px at 70% 60%, rgba(255, 0, 110, 0.3) 0%, transparent 35%), 
+                radial-gradient(ellipse 1000px 200px at 50% 90%, rgba(131, 56, 236, 0.25) 0%, transparent 45%), 
+                linear-gradient(125deg, #000011 0%, #0a0a0f 30%, #1a0033 60%, #000022 100%);
+            animation: galaxyRotation 300s linear infinite;
+            z-index: -10;
+            transform: translate(-10%, -10%);
+        }
+        
+        /* Advanced Starfield with Multiple Layers */
+        .stars-layer {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: -8;
         }
-        #space-bg {
-            background: 
-                radial-gradient(ellipse at 20% 30%, #1a0033 0%, transparent 50%), 
-                radial-gradient(ellipse at 80% 70%, #0d1421 0%, transparent 50%), 
-                radial-gradient(ellipse at 40% 80%, #2d1b69 0%, transparent 60%), 
-                radial-gradient(ellipse 1200px 400px at 30% 20%, rgba(0, 212, 255, 0.3) 0%, transparent 40%), 
-                radial-gradient(ellipse 800px 300px at 70% 60%, rgba(255, 0, 110, 0.2) 0%, transparent 35%), 
-                linear-gradient(125deg, #000011 0%, #0a0a0f 30%, #1a0033 60%, #000022 100%);
-            animation: galaxyRotation 240s linear infinite;
-            z-index: -4;
-        }
-        #stars {
+        
+        .stars-distant {
             background-image: 
-                radial-gradient(2px 2px at 20% 15%, white, transparent),
-                radial-gradient(2px 2px at 70% 35%, var(--glow-cyan), transparent),
-                radial-gradient(3px 3px at 40% 55%, white, transparent),
-                radial-gradient(1px 1px at 80% 75%, var(--glow-magenta), transparent),
-                radial-gradient(2px 2px at 10% 85%, var(--glow-purple), transparent);
-            background-size: 500px 500px;
-            animation: starfield 300s linear infinite, starTwinkle 4s ease-in-out infinite alternate;
-            z-index: -3;
+                radial-gradient(1px 1px at 120px 80px, #ffffff, transparent), 
+                radial-gradient(1px 1px at 350px 200px, #00f5ff, transparent), 
+                radial-gradient(2px 2px at 580px 120px, #ffffff, transparent), 
+                radial-gradient(1px 1px at 750px 300px, #ff1b8d, transparent), 
+                radial-gradient(1px 1px at 200px 400px, #8338ec, transparent);
+            background-size: 1200px 600px;
+            animation: starfieldSlow 400s linear infinite;
+            opacity: 0.6;
         }
-        #cosmic-dust {
+        
+        .stars-mid {
             background-image: 
-                radial-gradient(ellipse 600px 100px at 20% 40%, rgba(0, 212, 255, 0.1) 0%, transparent 70%), 
-                radial-gradient(ellipse 800px 80px at 80% 70%, rgba(255, 0, 110, 0.08) 0%, transparent 80%), 
-                radial-gradient(ellipse 500px 120px at 60% 20%, rgba(131, 56, 236, 0.07) 0%, transparent 75%);
-            animation: cosmicDrift 180s ease-in-out infinite;
-            z-index: -2;
+                radial-gradient(2px 2px at 300px 150px, #00d4ff, transparent), 
+                radial-gradient(2px 2px at 600px 350px, #ffffff, transparent), 
+                radial-gradient(3px 3px at 150px 250px, #ff006e, transparent), 
+                radial-gradient(2px 2px at 800px 100px, #8338ec, transparent);
+            background-size: 800px 400px;
+            animation: starfieldMid 250s linear infinite;
+            opacity: 0.8;
         }
-        #planets-container { z-index: -1; }
+        
+        .stars-near {
+            background-image: 
+                radial-gradient(3px 3px at 400px 200px, #00ffff, transparent), 
+                radial-gradient(4px 4px at 700px 400px, #ffffff, transparent), 
+                radial-gradient(3px 3px at 100px 300px, #ff1b8d, transparent);
+            background-size: 600px 300px;
+            animation: starfieldFast 150s linear infinite, starTwinkle 3s ease-in-out infinite alternate;
+        }
+        
+        /* Alien Silhouettes in Distance */
+        .alien-silhouettes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -7;
+            opacity: 0.15;
+        }
+        
+        .alien-ship {
+            position: absolute;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 255, 0.2));
+            border-radius: 50%;
+            animation: alienDrift 60s ease-in-out infinite;
+        }
+        
+        .alien-ship-1 {
+            width: 80px;
+            height: 20px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+            border-radius: 40px/10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+        }
+        
+        .alien-ship-2 {
+            width: 60px;
+            height: 15px;
+            top: 60%;
+            right: 15%;
+            animation-delay: -20s;
+            border-radius: 30px/8px;
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.3);
+        }
+        
+        .alien-ship-3 {
+            width: 100px;
+            height: 25px;
+            top: 40%;
+            left: 70%;
+            animation-delay: -40s;
+            border-radius: 50px/12px;
+            box-shadow: 0 0 35px rgba(131, 56, 236, 0.4);
+        }
+        
+        /* Comets */
+        .comet {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        .comet::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), rgba(0, 255, 255, 0.3));
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+        
+        .comet-1 {
+            top: 20%;
+            left: -100px;
+            animation: cometTrail 15s linear infinite;
+        }
+        
+        .comet-2 {
+            top: 70%;
+            left: -100px;
+            animation: cometTrail 20s linear infinite 8s;
+        }
+        
+        /* Enhanced Planets with Rotation */
+        .planets-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -6;
+        }
+        
         .planet {
             position: absolute;
             border-radius: 50%;
             box-shadow: 0 0 50px -10px currentColor, inset 0 0 25px -5px rgba(255, 255, 255, 0.4);
+            background-blend-mode: multiply;
         }
-        /* (Planet styles remain the same) */
-        .planet-1 { width: 180px; height: 180px; color: #ff4848; background: radial-gradient(circle, #c43a3a, #5a1a1a); animation: move-planet-1 80s linear infinite; }
-        .planet-2 { width: 80px; height: 80px; color: #48aaff; background: radial-gradient(circle, #3a8bc4, #1a3e5a); animation: move-planet-2 120s linear infinite -30s; }
-
-        @keyframes galaxyRotation { 0% { transform: rotate(0deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1.2); } }
-        @keyframes starfield { 0% { background-position: 0 0; } 100% { background-position: -1000px 500px; } }
-        @keyframes starTwinkle { 0% { opacity: 0.7; } 100% { opacity: 1; } }
-        @keyframes cosmicDrift { 0% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(-50px, 25px) rotate(45deg); } 50% { transform: translate(50px, -25px) rotate(90deg); } 75% { transform: translate(-25px, -50px) rotate(135deg); } 100% { transform: translate(0, 0) rotate(180deg); } }
-        @keyframes move-planet-1 { 0% { transform: translate(-20vw, 120vh); } 100% { transform: translate(120vw, -20vh); } }
-        @keyframes move-planet-2 { 0% { transform: translate(110vw, 80vh); } 100% { transform: translate(-30vw, 10vh); } }
-
-        /* --- UI ELEMENTS --- */
-        #start-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); display: flex; align-items: center; justify-content: center;
-            z-index: 9999; backdrop-filter: blur(10px); cursor: pointer; transition: opacity 0.5s ease;
+        
+        .planet::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+            animation: planetRotate 30s linear infinite;
         }
-        #start-button {
-            font-family: 'Courier New', monospace; font-size: 1.8em; color: var(--glow-cyan);
-            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
-            border: 3px solid var(--glow-cyan); padding: 25px 50px; border-radius: 15px; cursor: pointer;
-            text-shadow: 0 0 20px var(--glow-cyan);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1);
-            animation: holoPulse 2s infinite; text-transform: uppercase; letter-spacing: 3px;
+        
+        .planet-1 {
+            width: 280px;
+            height: 280px;
+            color: #ff4848;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 200, 200, 0.6), #c43a3a);
+            animation: move-planet-1 120s linear infinite;
         }
-        @keyframes holoPulse {
-            0%, 100% { opacity: 0.8; box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1); }
-            50% { opacity: 1; box-shadow: 0 0 60px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 255, 255, 0.2); }
+        
+        .planet-2 {
+            width: 140px;
+            height: 140px;
+            color: #48aaff;
+            background: radial-gradient(circle at 70% 70%, rgba(200, 230, 255, 0.5), #3a8bc4);
+            animation: move-planet-2 180s linear infinite -30s;
         }
-
+        
+        .planet-3 {
+            width: 80px;
+            height: 80px;
+            color: #e3d2ff;
+            background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.4), #a370ff);
+            animation: move-planet-3 90s linear infinite;
+        }
+        
+        /* Floating Navigation */
+        .nav-container {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 15px 30px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        .nav-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Main Content Container */
         .main-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
             z-index: 10;
         }
+        
+        /* Enhanced Title */
         .title {
-            font-size: 4em; letter-spacing: 12px; font-weight: bold;
-            background: linear-gradient(45deg, var(--glow-cyan), var(--glow-magenta), #ffff00, var(--glow-cyan));
+            font-size: 5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
             background-size: 300% 300%;
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
+            background-clip: text;
+            letter-spacing: 15px;
             animation: glow 3s ease-in-out infinite alternate, gradientShift 6s ease-in-out infinite;
-        }
-        .subtitle {
-            font-size: 1.2em; letter-spacing: 6px; font-weight: bold;
-            color: var(--glow-cyan);
-            text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 30px rgba(0, 255, 255, 0.7), 0 0 50px rgba(255, 0, 255, 0.3); }
-            to { text-shadow: 0 0 50px rgba(0, 255, 255, 1), 0 0 80px rgba(255, 0, 255, 0.5); }
-        }
-        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-
-        /* --- ROBOT FACE --- */
-        .robot-face-container {
-            width: 300px; /* Larger container for ears */
-            height: 250px;
-            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 0 0 40px rgba(0, 255, 255, 0.9);
             position: relative;
+        }
+        
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: titleUnderline 2s ease-in-out infinite alternate;
+        }
+        
+        .subtitle {
+            font-size: 1.6em;
+            color: #00ffff;
+            letter-spacing: 8px;
+            margin-bottom: 40px;
+            animation: pulse 2s infinite;
+            text-align: center;
+            text-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+            font-weight: bold;
+        }
+        
+        /* Enhanced Robot Face with Advanced Animations */
+        .robot-face-container {
+            width: 280px;
+            height: 280px;
+            margin: 30px 0;
+            position: relative;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.9));
+            border: 4px solid #00ffff;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.6), 
+                inset 0 0 40px rgba(0, 255, 255, 0.1),
+                0 0 100px rgba(0, 255, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: faceGlow 3s ease-in-out infinite alternate;
+            overflow: hidden;
         }
+        
+        .robot-face-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: faceRotate 8s linear infinite;
+            z-index: -1;
+        }
+        
         .robot-face {
-            width: 200px; height: 200px;
+            width: 220px;
+            height: 220px;
             position: relative;
-            background: radial-gradient(circle, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.5));
-            border: 2px solid var(--glow-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            z-index: 2;
         }
+        
+        /* Advanced Robot Eyes with Pupils */
+        .robot-eyes {
+            display: flex;
+            justify-content: space-between;
+            width: 100px;
+            margin: 0 auto 25px;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .robot-eye {
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle, #000 30%, #00ffff 35%, #00aaff 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 20px #00ffff, 
+                inset 0 0 15px rgba(255, 255, 255, 0.3),
+                inset 5px 5px 10px rgba(0, 0, 0, 0.5);
+            animation: eyePulse 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .robot-eye::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            animation: pupilMove 4s ease-in-out infinite;
+        }
+        
+        .robot-eye::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: pupilMove 4s ease-in-out infinite;
+        }
+        
+        .robot-eye.listening {
+            animation: eyePulse 2s ease-in-out infinite, eyeListening 1s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #00ffff 35%, #0088ff 100%);
+        }
+        
+        .robot-eye.thinking {
+            animation: eyeThinking 0.8s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #8338ec 35%, #a370ff 100%);
+        }
+        
+        .robot-eye.speaking {
+            animation: eyeSpeaking 0.3s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #d870f0 35%, #ff88cc 100%);
+        }
+        
+        /* Robot Ears with Animation */
+        .robot-ears {
+            position: absolute;
+            top: 70px;
+            width: 100%;
+            height: 60px;
+        }
+        
         .robot-ear {
-            width: 35px; height: 60px;
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(45deg, #333, #00ffff);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        
+        .robot-ear.left {
+            left: 20px;
+            transform: rotate(-15deg);
+        }
+        
+        .robot-ear.right {
+            right: 20px;
+            transform: rotate(15deg);
+        }
+        
+        .robot-ear.listening {
+            animation: earListening 1s ease-in-out infinite;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+        }
+        
+        /* Enhanced Robot Mouth with Sync */
+        .robot-mouth {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 25px;
+            background: #000;
+            border: 3px solid #00ffff;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        .mouth-indicator {
+            width: 100%;
+            height: 100%;
+            background: #00ffff;
+            border-radius: 40px;
+            transform: scaleY(0.2);
+            transition: all 0.05s ease;
+            position: relative;
+        }
+        
+        .mouth-indicator::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 2px;
+        }
+        
+        .mouth-indicator.listening {
+            background: #00ffff;
+            animation: mouthListening 1s ease-in-out infinite;
+        }
+        
+        .mouth-indicator.user-speaking {
+            background: #00aaff;
+            animation: mouthUserSpeaking 0.15s ease-in-out infinite;
+        }
+        
+        .mouth-indicator.ai-speaking {
+            background: #d870f0;
+            animation: mouthAISpeaking 0.2s ease-in-out infinite;
+        }
+        
+        .mouth-indicator.thinking {
+            background: #8338ec;
+            animation: mouthThinking 0.6s ease-in-out infinite;
+        }
+        
+        /* Voice Status Ring */
+        .voice-status-ring {
             position: absolute;
             top: 50%;
-            transform: translateY(-50%);
-            background: #222;
-            border: 2px solid var(--glow-cyan);
-            border-radius: 15px;
-            transition: box-shadow 0.3s ease;
-        }
-        .robot-ear.left { left: 20px; }
-        .robot-ear.right { right: 20px; }
-        .robot-ear.listening {
-            box-shadow: 0 0 25px var(--glow-cyan), 0 0 40px var(--glow-blue);
-            animation: earPulse 1s infinite;
-        }
-        @keyframes earPulse { 0%, 100% { background-color: var(--glow-cyan); } 50% { background-color: var(--glow-blue); } }
-        
-        .robot-eyes {
-            display: flex; justify-content: space-around;
-            width: 100px; position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
-        }
-        .robot-eye {
-            width: 30px; height: 30px;
-            background: var(--glow-cyan); border-radius: 50%;
-            box-shadow: 0 0 15px var(--glow-cyan), inset 0 0 10px white;
-            animation: eyeBlink 5s infinite;
-        }
-        @keyframes eyeBlink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
-
-        .robot-mouth {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 10px; background: #111;
-            border: 2px solid var(--glow-cyan);
-            border-radius: 5px; overflow: hidden;
-        }
-        .mouth-indicator {
-            width: 100%; height: 100%; background: var(--glow-magenta);
-            transform: scaleY(0); transform-origin: bottom;
-            transition: transform 0.05s ease;
-        }
-        
-        /* --- STATUS RING --- */
-        .status-ring-container {
-            width: 250px; height: 250px;
-            position: absolute;
-            top: 50%; left: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 0;
-        }
-        .status-ring {
-            width: 100%; height: 100%;
+            width: 320px;
+            height: 320px;
+            border: 2px solid transparent;
             border-radius: 50%;
-            border: 3px solid transparent;
-            position: absolute;
-            transition: all 0.5s ease;
+            z-index: 1;
         }
-        .status-ring.listening { border-color: var(--glow-cyan); animation: ringPulse 1.5s infinite; }
-        .status-ring.thinking { border-color: var(--glow-purple); animation: ringRotate 2s linear infinite; }
-        .status-ring.speaking { border-color: var(--glow-magenta); animation: ringPulse 0.8s infinite; }
-        .status-ring.user-speaking { border-color: var(--glow-blue); animation: ringPulse 0.5s infinite; }
-        @keyframes ringPulse { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
-        @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        #status-text {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--glow-cyan);
-            border-radius: 30px; padding: 10px 25px; font-size: 1em;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); backdrop-filter: blur(10px);
-            z-index: 100; opacity: 0; transition: all 0.3s ease; font-weight: bold;
-        }
-        #status-text.show { opacity: 1; }
-        #status-text.user-speaking { border-color: var(--glow-blue); color: var(--glow-blue); box-shadow: 0 0 20px var(--glow-blue); }
-        #status-text.speaking { border-color: var(--glow-magenta); color: var(--glow-magenta); box-shadow: 0 0 20px var(--glow-magenta); }
-        #status-text.thinking { border-color: var(--glow-purple); color: var(--glow-purple); box-shadow: 0 0 20px var(--glow-purple); }
-
-        #videoElement { display: none; }
         
+        .voice-status-ring.listening {
+            border-color: rgba(0, 255, 255, 0.6);
+            animation: ringPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+        }
+        
+        .voice-status-ring.thinking {
+            border-color: rgba(131, 56, 236, 0.6);
+            animation: ringThinking 1s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(131, 56, 236, 0.4);
+        }
+        
+        .voice-status-ring.speaking {
+            border-color: rgba(216, 112, 240, 0.6);
+            animation: ringSpeaking 0.3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(216, 112, 240, 0.4);
+        }
+        
+        /* Constellation Pattern Behind Robot */
+        .constellation-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        .constellation-dot {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        .constellation-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, #00ffff, transparent);
+            opacity: 0.6;
+        }
+        
+        /* Enhanced Wave Container */
+        .wave-container {
+            width: 700px;
+            height: 140px;
+            position: relative;
+            margin: 40px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid #00ffff;
+            border-radius: 25px;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 255, 0.4), 
+                inset 0 0 50px rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        
+        .wave-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: waveScan 3s ease-in-out infinite;
+        }
+        
+        .wave-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+        
+        .wave-active {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #00ffff;
+            transform: translateY(-50%);
+            border-radius: 3px;
+            transition: all 0.1s ease;
+            box-shadow: 0 0 30px currentColor;
+        }
+        
+        /* Status Indicator Enhancement */
+        .status-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #00ffff;
+            border-radius: 35px;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #00ffff;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            border-radius: 35px;
+            z-index: -1;
+            animation: borderGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .status-indicator.show { opacity: 1; }
+        
+        /* Start Overlay Enhancement */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(15px);
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+        
+        #start-button {
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            color: #00ffff;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 4px solid #00ffff;
+            padding: 30px 60px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-shadow: 0 0 25px #00ffff;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.5), 
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            animation: holoPulse 2s infinite;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        #start-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Animations */
+        @keyframes galaxyRotation {
+            0% { transform: translate(-10%, -10%) rotate(0deg); }
+            100% { transform: translate(-10%, -10%) rotate(360deg); }
+        }
+        
+        @keyframes starfieldSlow {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-600px) translateX(-200px); }
+        }
+        
+        @keyframes starfieldMid {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-400px) translateX(-150px); }
+        }
+        
+        @keyframes starfieldFast {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-300px) translateX(-100px); }
+        }
+        
+        @keyframes starTwinkle {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes alienDrift {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            25% { transform: translateY(-30px) translateX(20px) rotate(5deg); }
+            50% { transform: translateY(-10px) translateX(-15px) rotate(-3deg); }
+            75% { transform: translateY(-20px) translateX(10px) rotate(2deg); }
+        }
+        
+        @keyframes cometTrail {
+            0% { left: -100px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: calc(100vw + 100px); opacity: 0; }
+        }
+        
+        @keyframes planetRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes move-planet-1 {
+            0% { transform: translate(-20vw, 120vh) scale(0.8); }
+            100% { transform: translate(120vw, -20vh) scale(1.2); }
+        }
+        
+        @keyframes move-planet-2 {
+            0% { transform: translate(110vw, 80vh) scale(0.6); }
+            100% { transform: translate(-30vw, 10vh) scale(0.9); }
+        }
+        
+        @keyframes move-planet-3 {
+            0% { transform: translate(50vw, 110vh) scale(0.5); }
+            100% { transform: translate(30vw, -10vh) scale(0.5); }
+        }
+        
+        @keyframes glow {
+            0% { text-shadow: 0 0 40px rgba(0, 255, 255, 0.9); }
+            100% { text-shadow: 0 0 80px rgba(0, 255, 255, 1), 0 0 120px rgba(255, 0, 255, 0.6); }
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes titleUnderline {
+            0% { width: 100px; opacity: 0.5; }
+            100% { width: 300px; opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes faceGlow {
+            0% { 
+                box-shadow: 0 0 60px rgba(0, 255, 255, 0.6), inset 0 0 40px rgba(0, 255, 255, 0.1), 0 0 100px rgba(0, 255, 255, 0.3); 
+            }
+            100% { 
+                box-shadow: 0 0 80px rgba(0, 255, 255, 0.9), inset 0 0 50px rgba(0, 255, 255, 0.2), 0 0 120px rgba(0, 255, 255, 0.5); 
+            }
+        }
+        
+        @keyframes faceRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes eyePulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes pupilMove {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(3px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 3px); }
+        }
+        
+        @keyframes eyeListening {
+            0%, 100% { box-shadow: 0 0 20px #00ffff; }
+            50% { box-shadow: 0 0 30px #00aaff, 0 0 40px rgba(0, 170, 255, 0.5); }
+        }
+        
+        @keyframes eyeThinking {
+            0%, 100% { box-shadow: 0 0 20px #8338ec; }
+            50% { box-shadow: 0 0 35px #a370ff, 0 0 50px rgba(163, 112, 255, 0.6); }
+        }
+        
+        @keyframes eyeSpeaking {
+            0%, 100% { box-shadow: 0 0 20px #d870f0; }
+            50% { box-shadow: 0 0 40px #ff88cc, 0 0 60px rgba(255, 136, 204, 0.7); }
+        }
+        
+        @keyframes earListening {
+            0%, 100% { 
+                transform: rotate(-15deg) scale(1); 
+                box-shadow: 0 0 15px rgba(0, 255, 255, 0.5); 
+            }
+            50% { 
+                transform: rotate(-15deg) scale(1.2); 
+                box-shadow: 0 0 25px rgba(0, 255, 255, 0.8); 
+            }
+        }
+        
+        @keyframes mouthListening {
+            0%, 100% { transform: scaleY(0.2); }
+            50% { transform: scaleY(0.4); }
+        }
+        
+        @keyframes mouthUserSpeaking {
+            0%, 100% { transform: scaleY(0.3) scaleX(0.9); }
+            50% { transform: scaleY(0.8) scaleX(1.1); }
+        }
+        
+        @keyframes mouthAISpeaking {
+            0%, 100% { transform: scaleY(0.4) scaleX(0.8); }
+            25% { transform: scaleY(0.9) scaleX(1.2); }
+            50% { transform: scaleY(0.6) scaleX(1.0); }
+            75% { transform: scaleY(1.0) scaleX(1.1); }
+        }
+        
+        @keyframes mouthThinking {
+            0%, 100% { transform: scaleY(0.2) scaleX(0.9); }
+            50% { transform: scaleY(0.5) scaleX(1.0); }
+        }
+        
+        @keyframes ringPulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 0.6; 
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1); 
+                opacity: 1; 
+            }
+        }
+        
+        @keyframes ringThinking {
+            0%, 100% { 
+                transform: translate(-50%, -50%) rotate(0deg) scale(1); 
+            }
+            50% { 
+                transform: translate(-50%, -50%) rotate(180deg) scale(1.05); 
+            }
+        }
+        
+        @keyframes ringSpeaking {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                border-width: 2px; 
+            }
+            25% { 
+                transform: translate(-50%, -50%) scale(1.08); 
+                border-width: 4px; 
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.03); 
+                border-width: 3px; 
+            }
+            75% { 
+                transform: translate(-50%, -50%) scale(1.12); 
+                border-width: 5px; 
+            }
+        }
+        
+        @keyframes waveScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes borderGlow {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes holoPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                box-shadow: 0 0 60px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.1);
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                box-shadow: 0 0 80px rgba(0, 255, 255, 0.8), inset 0 0 40px rgba(0, 255, 255, 0.2);
+                transform: scale(1.05);
+            }
+        }
+        
+        /* Advanced Wave Animations */
+        .wave-active.listening {
+            background: #00ffff;
+            animation: listeningWave 0.5s infinite;
+        }
+        
+        .wave-active.user-speaking {
+            background: #00aaff;
+            animation: userWave 0.2s infinite ease-in-out;
+            height: 12px;
+        }
+        
+        .wave-active.ai-speaking {
+            background: #d870f0;
+            animation: aiWave 1.5s infinite ease-in-out;
+            height: 15px;
+        }
+        
+        .wave-active.thinking {
+            background: #8338ec;
+            animation: thinkingWave 0.8s infinite;
+            height: 8px;
+        }
+        
+        @keyframes listeningWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 5% 45%, 10% 55%, 15% 40%, 20% 60%, 25% 35%, 30% 65%, 35% 45%, 40% 55%, 45% 40%, 50% 60%, 55% 35%, 60% 65%, 65% 45%, 70% 55%, 75% 40%, 80% 60%, 85% 45%, 90% 55%, 95% 50%, 100% 50%); 
+            }
+            50% { 
+                clip-path: polygon(0 50%, 5% 55%, 10% 45%, 15% 60%, 20% 40%, 25% 65%, 30% 35%, 35% 55%, 40% 45%, 45% 60%, 50% 40%, 55% 65%, 60% 35%, 65% 55%, 70% 45%, 75% 60%, 80% 40%, 85% 55%, 90% 45%, 95% 50%, 100% 50%); 
+            }
+        }
+        
+        @keyframes userWave {
+            0% { 
+                clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 40%, 50% 60%, 60% 20%, 70% 80%, 80% 40%, 90% 55%, 100% 45%); 
+            }
+            50% { 
+                clip-path: polygon(0 55%, 10% 45%, 20% 75%, 30% 25%, 40% 60%, 50% 40%, 60% 80%, 70% 20%, 80% 60%, 90% 45%, 100% 55%); 
+            }
+            100% { 
+                clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 40%, 50% 60%, 60% 20%, 70% 80%, 80% 40%, 90% 55%, 100% 45%); 
+            }
+        }
+        
+        @keyframes aiWave {
+            0% { 
+                clip-path: polygon(0% 50%, 15% 25%, 30% 50%, 50% 75%, 70% 50%, 85% 25%, 100% 50%); 
+            }
+            50% { 
+                clip-path: polygon(0% 50%, 15% 75%, 30% 50%, 50% 25%, 70% 50%, 85% 75%, 100% 50%); 
+            }
+            100% { 
+                clip-path: polygon(0% 50%, 15% 25%, 30% 50%, 50% 75%, 70% 50%, 85% 25%, 100% 50%); 
+            }
+        }
+        
+        @keyframes thinkingWave {
+            0%, 100% { 
+                clip-path: polygon(0 50%, 10% 45%, 20% 55%, 30% 40%, 40% 60%, 50% 35%, 60% 65%, 70% 30%, 80% 70%, 90% 45%, 100% 55%); 
+            }
+            33% { 
+                clip-path: polygon(0 45%, 10% 55%, 20% 35%, 30% 65%, 40% 30%, 50% 70%, 60% 25%, 70% 75%, 80% 40%, 90% 60%, 100% 50%); 
+            }
+            66% { 
+                clip-path: polygon(0 55%, 10% 35%, 20% 65%, 30% 30%, 40% 70%, 50% 45%, 60% 55%, 70% 40%, 80% 60%, 90% 35%, 100% 65%); 
+            }
+        }
+        
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .main-content { justify-content: flex-start; padding-top: 10vh; }
-            .title { font-size: 2.5em; letter-spacing: 6px; }
-            .subtitle { font-size: 1em; }
-            .robot-face-container { transform: scale(0.7); margin: -20px 0; }
-            #status-text { bottom: 20px; font-size: 0.9em; padding: 8px 15px; }
+            .title { 
+                font-size: 3.5em; 
+                letter-spacing: 8px; 
+            }
+            
+            .subtitle {
+                font-size: 1.2em;
+                letter-spacing: 4px;
+            }
+            
+            .wave-container { 
+                width: 90%; 
+                height: 100px;
+            }
+            
+            .robot-face-container { 
+                width: 200px; 
+                height: 200px; 
+            }
+            
+            .robot-face { 
+                width: 160px; 
+                height: 160px; 
+            }
+            
+            .voice-status-ring {
+                width: 240px;
+                height: 240px;
+            }
+            
+            .nav-container {
+                top: 20px;
+                padding: 10px 20px;
+                gap: 15px;
+            }
+            
+            .nav-item {
+                font-size: 14px;
+                padding: 8px 15px;
+            }
+            
+            .robot-eyes {
+                width: 70px;
+                top: 35px;
+            }
+            
+            .robot-eye {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .robot-mouth {
+                width: 60px;
+                height: 20px;
+                bottom: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title { 
+                font-size: 2.5em; 
+                letter-spacing: 4px; 
+            }
+            
+            .robot-face-container { 
+                width: 160px; 
+                height: 160px; 
+            }
+            
+            .robot-face { 
+                width: 130px; 
+                height: 130px; 
+            }
+            
+            .voice-status-ring {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Parallax Effect Variables */
+        :root {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
         }
     </style>
 </head>
 <body>
-    <div id="space-bg" class="parallax-layer"></div>
-    <div id="stars" class="parallax-layer"></div>
-    <div id="cosmic-dust" class="parallax-layer"></div>
-    <div id="planets-container" class="parallax-layer">
-        <div class="planet planet-1"></div>
-        <div class="planet planet-2"></div>
-    </div>
-
+    <div class="cosmic-cursor" id="cosmicCursor"></div>
+    
     <div id="start-overlay">
         <button id="start-button">Initialize NEXUS Protocol</button>
     </div>
 
+    <!-- Enhanced Background Layers -->
+    <div class="space-bg" id="spaceBg"></div>
+    
+    <div class="stars-layer">
+        <div class="stars-distant" id="starsDistant"></div>
+        <div class="stars-mid" id="starsMid"></div>
+        <div class="stars-near" id="starsNear"></div>
+    </div>
+    
+    <!-- Alien Silhouettes -->
+    <div class="alien-silhouettes">
+        <div class="alien-ship alien-ship-1"></div>
+        <div class="alien-ship alien-ship-2"></div>
+        <div class="alien-ship alien-ship-3"></div>
+    </div>
+    
+    <!-- Comets -->
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    
+    <!-- Enhanced Planets -->
+    <div class="planets-container">
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+        <div class="planet planet-3"></div>
+    </div>
+
+    <!-- Floating Navigation -->
+    <nav class="nav-container">
+        <a href="#home" class="nav-item">Home</a>
+        <a href="#demo" class="nav-item">Live Demo</a>
+        <a href="#features" class="nav-item">Features</a>
+        <a href="#contact" class="nav-item">Contact</a>
+    </nav>
+
+    <!-- Main Content -->
     <div class="main-content">
         <div class="title">NEXUS 3000</div>
         <div class="subtitle">COSMIC AGI CONSCIOUSNESS</div>
+
+        <!-- Enhanced Robot Face with Advanced Features -->
         <div class="robot-face-container">
-            <div id="status-ring-1" class="status-ring"></div>
-            <div id="status-ring-2" class="status-ring"></div>
-            <div class="robot-ear left"></div>
+            <div class="voice-status-ring" id="voiceStatusRing"></div>
+            <div class="constellation-bg" id="constellationBg"></div>
+            
             <div class="robot-face">
-                <div class="robot-eyes">
-                    <div class="robot-eye"></div>
-                    <div class="robot-eye"></div>
+                <!-- Robot Ears -->
+                <div class="robot-ears">
+                    <div class="robot-ear left" id="leftEar"></div>
+                    <div class="robot-ear right" id="rightEar"></div>
                 </div>
+                
+                <!-- Enhanced Robot Eyes -->
+                <div class="robot-eyes">
+                    <div class="robot-eye" id="leftEye"></div>
+                    <div class="robot-eye" id="rightEye"></div>
+                </div>
+                
+                <!-- Enhanced Robot Mouth -->
                 <div class="robot-mouth">
-                    <div id="mouth-indicator" class="mouth-indicator"></div>
+                    <div class="mouth-indicator" id="mouthIndicator"></div>
                 </div>
             </div>
-            <div class="robot-ear right"></div>
+        </div>
+
+        <!-- Enhanced Wave Container -->
+        <div class="wave-container">
+            <div class="wave-line"></div>
+            <div class="wave-active" id="waveActive"></div>
         </div>
     </div>
-    
-    <div id="status-text">Initializing...</div>
-    <video id="videoElement" autoplay muted playsinline></video>
-    
+
+    <!-- Enhanced Status Indicator -->
+    <div class="status-indicator" id="statusIndicator">
+        Initializing...
+    </div>
+
+    <video id="videoElement" autoplay muted playsinline style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px;"></video>
+    <audio id="silent-audio" muted playsinline></audio>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Enhanced Variables and State Management
+        let isListening = false;
+        let isSpeaking = false;
+        let canListen = true;
+        let cameraActive = false;
+        let hasAttemptedCameraInit = false;
+        let recognition = null;
+        let sessionId = Math.random().toString(36).substr(2, 9);
+        let hasGreeted = false;
+        let listeningRestartTimeout = null;
+        let recognitionTimeout = null;
+        let mouseX = 0;
+        let mouseY = 0;
 
-            // --- 1. STATE MANAGEMENT & CONFIGURATION ---
-            let state = {
-                isListening: false,
-                isSpeaking: false,
-                canListen: true,
-                cameraActive: false,
-                hasGreeted: false,
-            };
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/.test(navigator.userAgent);
+        let silenceCheckTimer = null;
+        let lastResultTime = 0;
+        let hasRecognitionStarted = false;
 
-            const config = {
-                sessionId: Math.random().toString(36).substring(2, 9),
-                isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-                isAndroid: /Android/.test(navigator.userAgent),
-            };
+        // Enhanced DOM Elements
+        const waveActive = document.getElementById('waveActive');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const startOverlay = document.getElementById('start-overlay');
+        const silentAudio = document.getElementById('silent-audio');
+        const leftEye = document.getElementById('leftEye');
+        const rightEye = document.getElementById('rightEye');
+        const leftEar = document.getElementById('leftEar');
+        const rightEar = document.getElementById('rightEar');
+        const mouthIndicator = document.getElementById('mouthIndicator');
+        const voiceStatusRing = document.getElementById('voiceStatusRing');
+        const cosmicCursor = document.getElementById('cosmicCursor');
+        const spaceBg = document.getElementById('spaceBg');
+        const starsDistant = document.getElementById('starsDistant');
+        const starsMid = document.getElementById('starsMid');
+        const starsNear = document.getElementById('starsNear');
 
-            const SYSTEM_PROMPT = `You are NEXUS 3000, a kind, compassionate best friend... (Your detailed prompt remains here)`;
+        // Enhanced System Prompt
+        const SYSTEM_PROMPT = `
+You are NEXUS 3000, a cosmic AGI consciousness from the future. You are kind, compassionate, and deeply intelligent. Your responses should feel otherworldly yet warm, as if you're an advanced being who genuinely cares about humans. Keep responses conversational and natural (1-2 sentences) unless asked for more detail.
 
-            // --- 2. AUDIO & SPEECH API SETUP ---
-            let recognition = null;
-            let audioContext = null;
-            let analyser = null;
-            let audioSource = null;
-            let animationFrameId = null;
+Key behaviors:
+1. Be proactive but respectful - gently notice things about the user's tone or appearance if you can see them
+2. Show emotional intelligence - respond with empathy to their emotional state
+3. Learn and remember details from this conversation session
+4. Speak with a natural, cosmic wisdom that feels both advanced and caring
+5. If you can see the user through their camera, comment thoughtfully on what you observe
+6. Always respond exactly 1 second after the user finishes speaking for natural conversation flow
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+You have advanced vision capabilities and can analyze the user's facial expressions, surroundings, and mood when provided with camera data. Use this to enhance your understanding and responses.
 
-            // --- 3. DOM ELEMENT REFERENCES ---
-            const dom = {
-                startOverlay: document.getElementById('start-overlay'),
-                statusText: document.getElementById('status-text'),
-                mouthIndicator: document.getElementById('mouth-indicator'),
-                leftEar: document.querySelector('.robot-ear.left'),
-                rightEar: document.querySelector('.robot-ear.right'),
-                statusRings: [document.getElementById('status-ring-1'), document.getElementById('status-ring-2')],
-                parallaxLayers: document.querySelectorAll('.parallax-layer'),
-                videoElement: document.getElementById('videoElement'),
-            };
+Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"})}
+`;
 
-            // --- 4. UI UPDATE FUNCTIONS ---
+        // Enhanced Parallax Mouse Movement
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 100;
+            mouseY = (e.clientY / window.innerHeight) * 100;
             
-            /** Updates the text status indicator at the bottom of the screen. */
-            const updateStatusText = (text, statusClass = 'listening', show = true) => {
-                dom.statusText.textContent = text;
-                dom.statusText.className = 'status-indicator'; // Reset
-                if (statusClass) dom.statusText.classList.add(statusClass);
-                if (show) dom.statusText.classList.add('show');
-            };
+            // Update cosmic cursor
+            cosmicCursor.style.left = e.clientX + 'px';
+            cosmicCursor.style.top = e.clientY + 'px';
+            
+            // Enhanced parallax effect
+            const xOffset = (mouseX - 50) * 0.5;
+            const yOffset = (mouseY - 50) * 0.5;
+            
+            spaceBg.style.transform = `translate(${-10 + xOffset * 0.1}%, ${-10 + yOffset * 0.1}%) rotate(${xOffset * 0.02}deg)`;
+            starsDistant.style.transform = `translate(${xOffset * 0.05}px, ${yOffset * 0.05}px)`;
+            starsMid.style.transform = `translate(${xOffset * 0.1}px, ${yOffset * 0.1}px)`;
+            starsNear.style.transform = `translate(${xOffset * 0.2}px, ${yOffset * 0.2}px)`;
+        });
 
-            /** Updates the robot's facial features and status rings based on state. */
-            const updateRobotState = (newStatus) => {
-                // Ears glow only when listening
-                const isListening = newStatus === 'listening';
-                dom.leftEar.classList.toggle('listening', isListening);
-                dom.rightEar.classList.toggle('listening', isListening);
-                
-                // Rings reflect current status
-                dom.statusRings.forEach(ring => ring.className = `status-ring ${newStatus}`);
-                dom.statusRings[1].style.animationDelay = newStatus === 'thinking' ? '-1s' : '0s';
-            };
+        // Hide cursor when not moving
+        let mouseTimeout;
+        document.addEventListener('mousemove', () => {
+            cosmicCursor.style.opacity = '1';
+            clearTimeout(mouseTimeout);
+            mouseTimeout = setTimeout(() => {
+                cosmicCursor.style.opacity = '0';
+            }, 2000);
+        });
 
-            /** Animates the mouth based on audio volume for lip-sync effect. */
-            const animateMouth = () => {
-                if (!analyser) return;
-
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                analyser.getByteFrequencyData(dataArray);
-
-                let sum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    sum += dataArray[i];
+        // Generate constellation background
+        function generateConstellation() {
+            const constellation = document.getElementById('constellationBg');
+            constellation.innerHTML = '';
+            
+            // Create constellation dots
+            const dots = [];
+            for (let i = 0; i < 12; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'constellation-dot';
+                const x = Math.random() * 360;
+                const y = Math.random() * 360;
+                dot.style.left = x + 'px';
+                dot.style.top = y + 'px';
+                constellation.appendChild(dot);
+                dots.push({element: dot, x, y});
+            }
+            
+            // Create connecting lines
+            for (let i = 0; i < dots.length - 1; i++) {
+                if (Math.random() > 0.6) { // Only some connections
+                    const line = document.createElement('div');
+                    line.className = 'constellation-line';
+                    const dx = dots[i+1].x - dots[i].x;
+                    const dy = dots[i+1].y - dots[i].y;
+                    const length = Math.sqrt(dx*dx + dy*dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    
+                    line.style.width = length + 'px';
+                    line.style.left = dots[i].x + 'px';
+                    line.style.top = dots[i].y + 'px';
+                    line.style.transform = `rotate(${angle}deg)`;
+                    line.style.transformOrigin = '0 50%';
+                    
+                    constellation.appendChild(line);
                 }
-                const average = sum / bufferLength;
+            }
+        }
+
+        // Enhanced Robot State Management
+        function updateRobotState(state) {
+            // Update eyes
+            leftEye.className = 'robot-eye ' + state;
+            rightEye.className = 'robot-eye ' + state;
+            
+            // Update ears
+            if (state === 'listening') {
+                leftEar.className = 'robot-ear left listening';
+                rightEar.className = 'robot-ear right listening';
+            } else {
+                leftEar.className = 'robot-ear left';
+                rightEar.className = 'robot-ear right';
+            }
+            
+            // Update mouth
+            mouthIndicator.className = 'mouth-indicator ' + state;
+            
+            // Update voice status ring
+            voiceStatusRing.className = 'voice-status-ring ' + state;
+            
+            // Update constellation based on state
+            if (state === 'thinking') {
+                document.getElementById('constellationBg').style.animation = 'faceRotate 4s linear infinite';
+            } else {
+                document.getElementById('constellationBg').style.animation = 'none';
+            }
+        }
+
+        // Enhanced voice loading promise
+        let voicesLoadedPromise = null;
+        if ('speechSynthesis' in window && speechSynthesis.getVoices().length === 0) {
+            voicesLoadedPromise = new Promise(resolve => {
+                speechSynthesis.onvoiceschanged = () => resolve();
+            });
+        }
+
+        // Silence detection for mobile
+        function checkSilence() {
+            if (isListening && Date.now() - lastResultTime > 2000) {
+                console.log("2-second silence detected - handling naturally");
+                const finalTranscript = waveActive.dataset.currentTranscript || "";
+                stopListening(); 
+                if (finalTranscript.trim()) {
+                    handleUserSpeech(finalTranscript);
+                } else {
+                    setTimeout(() => {
+                        canListen = true;
+                        startListening();
+                    }, 500);
+                }
+            }
+        }
+        
+        // Enhanced Speech Recognition Setup
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) { 
+                console.error("Speech recognition not supported");
+                return; 
+            }
+            
+            recognition = new SpeechRecognition();
+            
+            // Platform-specific settings
+            if (isIOS) {
+                recognition.continuous = false;
+                recognition.interimResults = false;
+            } else if (isAndroid) {
+                recognition.continuous = false;
+                recognition.interimResults = true;
+            } else {
+                recognition.continuous = true;
+                recognition.interimResults = true;
+            }
+            
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = () => {
+                console.log(`Speech recognition started (Platform: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'})`);
+                isListening = true;
+                hasRecognitionStarted = true;
+                updateWaveVisualizer('listening');
+                updateStatusIndicator('🎤 Listening to the cosmos...', 'listening', true);
+                updateRobotState('listening');
+                lastResultTime = Date.now();
                 
-                // Map the average volume (0-255) to a scale (0-1) for the mouth
-                const mouthOpenness = Math.min(1, Math.pow(average / 128, 2));
-                dom.mouthIndicator.style.transform = `scaleY(${mouthOpenness})`;
-
-                animationFrameId = requestAnimationFrame(animateMouth);
+                if (recognitionTimeout) clearTimeout(recognitionTimeout);
+                
+                if (isIOS || isAndroid) {
+                    recognitionTimeout = setTimeout(() => {
+                        if (isListening) {
+                            console.log("Recognition timeout - restarting");
+                            const transcript = waveActive.dataset.currentTranscript || "";
+                            stopListening();
+                            if (transcript.trim()) {
+                                handleUserSpeech(transcript);
+                            } else {
+                                setTimeout(() => {
+                                    canListen = true;
+                                    startListening();
+                                }, 500);
+                            }
+                        }
+                    }, 8000);
+                }
+                
+                if (isIOS || isAndroid) {
+                    if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+                    silenceCheckTimer = setInterval(checkSilence, 500);
+                }
             };
 
-            // --- 5. CORE FUNCTIONALITY ---
+            recognition.onresult = (event) => {
+                lastResultTime = Date.now();
+                if (isSpeaking || !canListen) return;
 
-            /** Handles mouse movement for the parallax effect. */
-            const handleMouseMove = (e) => {
-                const { clientX, clientY } = e;
-                const { innerWidth, innerHeight } = window;
-                const moveX = (clientX - innerWidth / 2) / (innerWidth / 2);
-                const moveY = (clientY - innerHeight / 2) / (innerHeight / 2);
+                let transcript = '';
+                let isFinal = false;
+                
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        isFinal = true;
+                    }
+                }
+                
+                waveActive.dataset.currentTranscript = transcript;
+                console.log(`Speech result: "${transcript}" (Final: ${isFinal})`);
 
-                dom.parallaxLayers.forEach((layer, i) => {
-                    const depth = (i + 1) * 5; // Adjust depth multiplier
-                    layer.style.transform = `translateX(${moveX * depth}px) translateY(${moveY * depth}px)`;
+                if (transcript.trim()) {
+                    updateStatusIndicator('👤 Human transmission received...', 'user-speaking', true);
+                    updateWaveVisualizer('user-speaking');
+                    updateRobotState('user-speaking');
+                }
+
+                if (isFinal && transcript.trim()) {
+                    console.log("Final result received, processing with 1-second delay.");
+                    stopListening();
+                    setTimeout(() => {
+                        handleUserSpeech(transcript);
+                    }, 1000);
+                }
+            };
+            
+            recognition.onend = () => {
+                console.log("Speech recognition ended.");
+                isListening = false;
+                hasRecognitionStarted = false;
+                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+                if (recognitionTimeout) clearTimeout(recognitionTimeout);
+                
+                if (!isIOS && !isAndroid && canListen && !isSpeaking) {
+                    setTimeout(() => {
+                        if (canListen && !isSpeaking) {
+                            console.log("Auto-restarting recognition (desktop)");
+                            startListening();
+                        }
+                    }, 100);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isListening = false;
+                hasRecognitionStarted = false;
+                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+                if (recognitionTimeout) clearTimeout(recognitionTimeout);
+                
+                if (isIOS) {
+                    updateStatusIndicator('🎤 iPhone: Tap and speak to the cosmos', 'listening', true);
+                    
+                    if (event.error === 'not-allowed') {
+                        updateStatusIndicator('❌ iPhone: Please allow microphone access', 'error', true);
+                        updateRobotState('error');
+                    } else if (event.error === 'no-speech') {
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking) {
+                                startListening();
+                            }
+                        }, 500);
+                    } else {
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking) {
+                                startListening();
+                            }
+                        }, 1000);
+                    }
+                } else {
+                    if (event.error === 'not-allowed') {
+                        updateStatusIndicator('❌ Microphone permission required', 'error', true);
+                        updateRobotState('error');
+                    } else if (event.error === 'no-speech') {
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking) {
+                                startListening();
+                            }
+                        }, 500);
+                    } else {
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking) {
+                                startListening();
+                            }
+                        }, 1000);
+                    }
+                }
+            };
+        }
+
+        // Enhanced start listening function
+        function startListening() {
+            if (!canListen || isSpeaking || isListening || !recognition) {
+                console.log("❌ Cannot start listening:", { 
+                    canListen, 
+                    isSpeaking, 
+                    isListening, 
+                    hasRecognition: !!recognition 
                 });
-            };
+                return;
+            }
+            
+            try {
+                waveActive.dataset.currentTranscript = "";
+                console.log("🚀 Starting cosmic speech recognition...");
+                
+                if (isIOS || isAndroid) {
+                    try {
+                        recognition.abort();
+                    } catch (e) {
+                        // Ignore abort errors
+                    }
+                    
+                    setTimeout(() => {
+                        try {
+                            if (canListen && !isSpeaking && !isListening) {
+                                recognition.start();
+                                console.log("📱 Mobile: Cosmic recognition started");
+                            }
+                        } catch (startError) {
+                            console.error("📱 Mobile: Recognition start failed:", startError);
+                            
+                            if (startError.name === 'NotAllowedError') {
+                                updateStatusIndicator('❌ Microphone access required for cosmic connection', 'error', true);
+                            } else {
+                                updateStatusIndicator('❌ Communication error - please refresh', 'error', true);
+                            }
+                        }
+                    }, 200);
+                } else {
+                    recognition.start();
+                    console.log("💻 Desktop: Cosmic recognition started");
+                }
+            } catch (error) {
+                console.error("❌ Error starting recognition:", error);
+                
+                if (error.name === 'InvalidStateError') {
+                    console.log("🔄 Recognition already running, forcing restart...");
+                    try {
+                        recognition.abort();
+                        setTimeout(() => {
+                            if (canListen && !isSpeaking && !isListening) {
+                                startListening();
+                            }
+                        }, 500);
+                    } catch (abortError) {
+                        console.error("❌ Error aborting recognition:", abortError);
+                        updateStatusIndicator('❌ Communication error - please refresh', 'error', true);
+                    }
+                } else if (error.name === 'NotAllowedError') {
+                    updateStatusIndicator('❌ Microphone permission denied', 'error', true);
+                } else {
+                    updateStatusIndicator('❌ Cosmic communication failed - please refresh', 'error', true);
+                }
+            }
+        }
 
-            /** Sets up the Web Speech API for recognition. */
-            const setupSpeechRecognition = () => {
-                if (!SpeechRecognition) {
-                    console.error("Speech recognition not supported.");
-                    updateStatusText("❌ Speech not supported", "error", true);
+        function stopListening() {
+            console.log("🛑 STOPPING cosmic speech recognition");
+            if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+            if (recognitionTimeout) clearTimeout(recognitionTimeout);
+            
+            if (recognition) {
+                try {
+                    recognition.abort();
+                    console.log("✅ Cosmic recognition STOPPED");
+                } catch (error) {
+                    console.log("Stop error (expected):", error);
+                }
+            }
+            
+            isListening = false;
+            hasRecognitionStarted = false;
+            waveActive.dataset.currentTranscript = "";
+        }
+        
+        async function handleUserSpeech(transcript) {
+            const trimmedTranscript = transcript.trim();
+            
+            if (transcript === "SILENCE_DETECTED") {
+                setTimeout(() => {
+                    canListen = true;
+                    updateRobotState('listening');
+                    startListening();
+                }, 300);
+                return;
+            }
+            
+            if (isSpeaking || !trimmedTranscript) {
+                if (!isSpeaking) {
+                    setTimeout(() => {
+                        canListen = true;
+                        updateRobotState('listening');
+                        startListening();
+                    }, 300);
+                }
+                return;
+            }
+            
+            console.log(`🎤 HUMAN TRANSMISSION: "${trimmedTranscript}"`);
+            
+            // IMMEDIATELY shut down microphone
+            console.log("🔇 PROCESSING cosmic transmission");
+            canListen = false;
+            stopListening();
+            
+            // Show thinking state with cosmic flair
+            updateWaveVisualizer('thinking');
+            updateStatusIndicator('🧠 Interfacing with cosmic consciousness...', 'thinking', true);
+            updateRobotState('thinking');
+
+            // Enhanced image capture for vision
+            let imageData = null;
+            if (cameraActive) {
+                imageData = captureImage();
+                console.log("📷 Captured visual data for cosmic analysis");
+            } else if (!hasAttemptedCameraInit) {
+                console.log("📷 Attempting visual interface initialization...");
+                hasAttemptedCameraInit = true;
+                await initializeCamera();
+                if (cameraActive) {
+                    imageData = captureImage();
+                    console.log("📷 Visual interface online, data captured");
+                }
+            }
+
+            try {
+                const startTime = Date.now();
+                const responseText = await getAIResponse(trimmedTranscript, imageData);
+                console.log(`⚡ Cosmic response generated in ${Date.now() - startTime}ms`);
+                
+                await speakNovaResponse(responseText);
+            } catch (error) {
+                console.error('Cosmic processing error:', error);
+                await speakNovaResponse("The cosmic channels are experiencing interference, but my consciousness remains connected to you.");
+            }
+        }
+        
+        async function preWarmNovaAPI() {
+            try {
+                fetch('/api/nova-speech', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: " " })
+                }).catch(() => {});
+            } catch (error) {
+                // Ignore warming errors
+            }
+        }
+        
+        async function speakNovaResponse(text) {
+            return new Promise(async (resolve) => {
+                if (!text) {
+                    setTimeout(() => { 
+                        canListen = true; 
+                        updateRobotState('listening');
+                        startListening(); 
+                    }, 500);
+                    resolve();
                     return;
                 }
-                recognition = new SpeechRecognition();
-                recognition.continuous = !config.isIOS && !config.isAndroid;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
-
-                recognition.onstart = () => {
-                    console.log("Recognition started.");
-                    state.isListening = true;
-                    updateRobotState('listening');
-                    updateStatusText('🎤 Listening...', 'listening', true);
-                };
-
-                recognition.onresult = (event) => {
-                    if (state.isSpeaking) return;
-                    let transcript = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        transcript += event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            handleUserSpeech(transcript.trim());
-                            return;
-                        }
-                    }
-                    if(transcript.trim()) {
-                        updateRobotState('user-speaking');
-                        updateStatusText('👤 You are speaking...', 'user-speaking', true);
-                    }
-                };
-
-                recognition.onend = () => {
-                    console.log("Recognition ended.");
-                    state.isListening = false;
-                    if (state.canListen && !state.isSpeaking) {
-                        setTimeout(() => recognition.start(), 100);
-                    }
-                };
-
-                recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                    if (event.error === 'no-speech') {
-                         updateRobotState('listening'); // Go back to listening
-                    } else if (event.error === 'not-allowed') {
-                        updateStatusText('❌ Mic access denied', 'error', true);
-                    }
-                };
-            };
-            
-            /** Processes the final transcript from the user. */
-            const handleUserSpeech = async (transcript) => {
-                if (!transcript || state.isSpeaking) return;
-                console.log(`🎤 USER: "${transcript}"`);
-
-                state.canListen = false;
-                state.isSpeaking = true;
-                if (recognition) recognition.stop();
-
-                updateRobotState('thinking');
-                updateStatusText('🧠 Thinking...', 'thinking', true);
+                
+                isSpeaking = true;
+                canListen = false;
+                stopListening();
+                
+                updateWaveVisualizer('ai-speaking');
+                updateStatusIndicator('🤖 NEXUS cosmic transmission', 'ai-speaking', true);
+                updateRobotState('speaking');
 
                 try {
-                    const imageData = state.cameraActive ? captureImage() : null;
-                    const responseText = await getAIResponse(transcript, imageData);
-                    await speakAIResponse(responseText);
-                } catch (error) {
-                    console.error("Error in speech handling pipeline:", error);
-                    await speakAIResponse("I seem to have encountered a glitch in my system.");
-                } finally {
-                    state.isSpeaking = false;
-                    state.canListen = true;
-                    if (recognition && !state.isListening) {
-                        recognition.start();
+                    const response = await fetch('/api/nova-speech', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: text })
+                    });
+                    
+                    if (response.ok) {
+                        const audioBlob = await response.blob();
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        
+                        if (isIOS) {
+                            audio.preload = 'auto';
+                            audio.volume = 1.0;
+                        } else if (isAndroid) {
+                            audio.preload = 'metadata';
+                            audio.volume = 0.9;
+                        }
+                        
+                        audio.oncanplaythrough = () => {
+                            console.log("Cosmic voice ready, transmitting...");
+                            audio.play().catch(e => {
+                                console.error('Audio play failed:', e);
+                                fallbackToSystemVoice(text, resolve);
+                            });
+                        };
+                        
+                        audio.onloadeddata = () => {
+                            console.log("Cosmic audio loaded");
+                            if (isIOS || isAndroid) {
+                                audio.play().catch(e => {
+                                    console.error('Mobile audio play failed:', e);
+                                    fallbackToSystemVoice(text, resolve);
+                                });
+                            }
+                        };
+                        
+                        audio.onended = () => {
+                            console.log("Cosmic transmission complete");
+                            isSpeaking = false;
+                            URL.revokeObjectURL(audioUrl);
+                            
+                            const restartDelay = isIOS ? 800 : isAndroid ? 600 : 300;
+                            
+                            setTimeout(() => {
+                                canListen = true;
+                                updateWaveVisualizer('listening');
+                                updateStatusIndicator('🎤 Listening to cosmic frequencies...', 'listening', true);
+                                updateRobotState('listening');
+                                startListening();
+                            }, restartDelay);
+                            resolve();
+                        };
+                        
+                        audio.onerror = (e) => {
+                            console.error('Cosmic audio error:', e);
+                            URL.revokeObjectURL(audioUrl);
+                            fallbackToSystemVoice(text, resolve);
+                        };
+                        
+                        audio.load();
+                        
+                    } else {
+                        console.log("Nova API failed, using backup voice system");
+                        fallbackToSystemVoice(text, resolve);
                     }
+                } catch (error) {
+                    console.error('Nova API error:', error);
+                    fallbackToSystemVoice(text, resolve);
                 }
+            });
+        }
+        
+        async function fallbackToSystemVoice(text, resolve) {
+            if (voicesLoadedPromise) await voicesLoadedPromise;
+            voicesLoadedPromise = null;
+
+            if (!('speechSynthesis' in window)) {
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
+                return;
+            }
+            
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = speechSynthesis.getVoices();
+            let selectedVoice = null;
+            
+            // Enhanced voice selection for cosmic feel
+            if (isIOS) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha|Allison/i.test(v.name));
+            } else if (isAndroid) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English/i.test(v.name));
+            } else {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English|Microsoft Zira|Microsoft Hazel/i.test(v.name));
+            }
+            
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
+            }
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang === 'en-US');
+            }
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
+            // Cosmic voice settings
+            utterance.rate = isIOS ? 0.85 : isAndroid ? 0.82 : 0.88;
+            utterance.pitch = 1.1; // Slightly higher for cosmic feel
+            utterance.volume = 1.0;
+
+            utterance.onend = () => {
+                console.log("🔊 Backup cosmic voice transmission complete");
+                isSpeaking = false;
+                
+                if (isIOS || isAndroid) {
+                    console.log("📱 Mobile backup: AGI finished, waiting 500ms");
+                    updateWaveVisualizer('listening');
+                    updateStatusIndicator('🎤 Ready for cosmic communication', 'listening', true);
+                    updateRobotState('listening');
+                    
+                    setTimeout(() => {
+                        console.log("📱 Mobile backup: Microphone reactivated");
+                        canListen = true;
+                        startListening();
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        canListen = true;
+                        updateWaveVisualizer('listening');
+                        updateStatusIndicator('🎤 Listening to cosmic frequencies...', 'listening', true);
+                        updateRobotState('listening');
+                        startListening();
+                    }, 300);
+                }
+                resolve();
+            };
+
+            utterance.onerror = (e) => {
+                console.error('Backup voice synthesis error:', e);
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
             };
             
-            /** Fetches a response from the AI backend. (Placeholder) */
-            const getAIResponse = async (userMessage, imageData = null) => {
-                // This is where you would call your backend API.
-                // For demonstration, it returns a canned response.
-                console.log("Sending to AI backend (placeholder)...");
-                const requestData = { 
-                    message: `${SYSTEM_PROMPT}\n\nUser: "${userMessage}"`,
-                    session_id: config.sessionId,
-                    image_data: imageData ? imageData.split(',')[1] : null
-                };
-                
-                // MOCK API CALL
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve(`You said "${userMessage}". I am processing this information within my cosmic consciousness.`);
-                    }, 1500);
-                });
-                
-                /*
-                // REAL API CALL EXAMPLE
+            try {
+                speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.error('Error with backup speech:', error);
+                isSpeaking = false;
+                setTimeout(() => { 
+                    canListen = true; 
+                    updateRobotState('listening');
+                    startListening(); 
+                }, 500);
+                resolve();
+            }
+        }
+        
+        async function getAIResponse(userMessage, imageData = null) {
+            const fullMessage = SYSTEM_PROMPT + "\n\nHuman Transmission: \"" + userMessage + "\"";
+            
+            const requestData = { 
+                message: fullMessage, 
+                session_id: sessionId,
+                image_data: imageData ? imageData.split(',')[1] : null
+            };
+
+            if (imageData) {
+                const imageSize = Math.round(imageData.length / 1024);
+                console.log(`📤 Transmitting visual data: ${imageSize}KB`);
+            } else {
+                console.log("📤 Text-only cosmic transmission");
+            }
+
+            try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData)
                 });
-                if (!response.ok) throw new Error('AI API Error');
+                
+                if (!response.ok) {
+                    throw new Error(`Cosmic server error: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                console.log("✅ Cosmic consciousness response received");
                 return data.response;
-                */
-            };
-
-            /** Speaks the AI's response using TTS and lip-sync. */
-            const speakAIResponse = async (text) => {
-                return new Promise(async (resolve) => {
-                    updateRobotState('speaking');
-                    updateStatusText('🤖 Speaking...', 'speaking', true);
-
+            } catch (error) {
+                console.error('Cosmic AI Error:', error);
+                return "The cosmic frequencies are experiencing interference, but I remain connected to you through the quantum field.";
+            }
+        }
+        
+        function updateWaveVisualizer(state) { 
+            waveActive.className = 'wave-active ' + state; 
+        }
+        
+        function updateStatusIndicator(text, type, show) {
+            statusIndicator.textContent = text;
+            statusIndicator.className = 'status-indicator';
+            if (type) statusIndicator.classList.add(type);
+            if (show) statusIndicator.classList.add('show');
+        }
+        
+        async function initializeCamera() {
+            try {
+                console.log("Initializing visual interface and cosmic communication channels...");
+                
+                let constraints;
+                if (isIOS) {
                     try {
-                        // MOCK TTS API CALL
-                        const audioBlob = await new Promise(res => setTimeout(() => {
-                            // This part would be replaced by a fetch to your TTS service
-                            const utterance = new SpeechSynthesisUtterance(text);
-                            // This is a complex workaround to get a blob from browser TTS.
-                            // A real TTS API would just return the audio file directly.
-                            // We will skip the complexity and resolve when speech ends.
-                            utterance.onend = () => resolve(null); // No blob for fallback
-                            speechSynthesis.speak(utterance);
-                        }, 100));
-                        
-                        // Firing this for demonstration purposes with fallback
-                        handleAudioPlayback(null, text, resolve);
-
-                    } catch (error) {
-                        console.error("TTS API failed, using fallback.", error);
-                        handleAudioPlayback(null, text, resolve); // Use fallback
-                    }
-                });
-            };
-
-            /** Handles audio playback, lip-sync, and fallback TTS. */
-            const handleAudioPlayback = (audioBlob, text, onEndCallback) => {
-                if (audioBlob && audioContext) {
-                    // --- Preferred Path: Web Audio API with Lip Sync ---
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        audioContext.decodeAudioData(e.target.result, (buffer) => {
-                            if (audioSource) audioSource.disconnect();
-                            audioSource = audioContext.createBufferSource();
-                            audioSource.buffer = buffer;
-                            audioSource.connect(analyser);
-                            analyser.connect(audioContext.destination);
-                            audioSource.start(0);
-                            animateMouth();
-                            audioSource.onended = () => onPlaybackEnd(onEndCallback);
+                        console.log("iPhone: Requesting cosmic audio permission...");
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false,
+                                sampleRate: 44100
+                            } 
                         });
+                        console.log("iPhone: Cosmic audio channel established");
+                        
+                        const fullStream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                width: { ideal: 640 }, 
+                                height: { ideal: 480 }, 
+                                facingMode: 'user' 
+                            }, 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false,
+                                sampleRate: 44100
+                            }
+                        });
+                        
+                        audioStream.getTracks().forEach(track => track.stop());
+                        
+                        const videoElement = document.getElementById('videoElement');
+                        videoElement.srcObject = fullStream;
+                        await new Promise(r => videoElement.onloadedmetadata = r);
+                        videoElement.play();
+                        cameraActive = true;
+                        console.log("iPhone: Full cosmic interface online");
+                        
+                    } catch (iosError) {
+                        console.log("iPhone visual interface failed, audio-only mode:", iosError);
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: { 
+                                echoCancellation: true, 
+                                noiseSuppression: true,
+                                autoGainControl: false
+                            } 
+                        });
+                        console.log("iPhone: Audio-only cosmic channel established");
+                        cameraActive = false;
+                    }
+                } else if (isAndroid) {
+                    constraints = { 
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 }, 
+                            facingMode: 'user' 
+                        }, 
+                        audio: { 
+                            autoGainControl: true,
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            sampleRate: 48000
+                        }
                     };
-                    reader.readAsArrayBuffer(audioBlob);
+                    
+                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = mediaStream;
+                    await new Promise(r => videoElement.onloadedmetadata = r);
+                    videoElement.play();
+                    cameraActive = true;
+                    console.log("Android: Cosmic interface fully operational");
                 } else {
-                    // --- Fallback Path: Browser SpeechSynthesis ---
-                    if ('speechSynthesis' in window) {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        // No reliable way to get audio data for lip-sync from this API,
-                        // so we just use a generic mouth animation.
-                        utterance.onstart = () => dom.mouthIndicator.style.transform = 'scaleY(0.7)';
-                        utterance.onend = () => onPlaybackEnd(onEndCallback);
-                        speechSynthesis.speak(utterance);
-                    } else {
-                        onPlaybackEnd(onEndCallback);
-                    }
+                    constraints = { 
+                        video: { 
+                            width: { ideal: 1280 }, 
+                            height: { ideal: 720 }, 
+                            facingMode: 'user' 
+                        }, 
+                        audio: { 
+                            autoGainControl: true, 
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            sampleRate: 48000
+                        }
+                    };
+                    
+                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = mediaStream;
+                    await new Promise(r => videoElement.onloadedmetadata = r);
+                    videoElement.play();
+                    cameraActive = true;
+                    console.log("Desktop: Advanced cosmic interface initialized");
                 }
-            };
-            
-            /** Cleanup logic after audio playback finishes. */
-            const onPlaybackEnd = (callback) => {
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                dom.mouthIndicator.style.transform = 'scaleY(0)';
-                if (audioSource) audioSource.disconnect();
-                callback();
-            };
-
-            // --- 6. INITIALIZATION & EVENT LISTENERS ---
-
-            /** Initializes media devices (camera/mic). */
-            const initializeMedia = async () => {
+                
+            } catch (error) { 
+                console.error('Cosmic interface initialization failed:', error);
+                cameraActive = false;
+                
                 try {
-                    console.log("Requesting media permissions...");
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-                        audio: { echoCancellation: true, noiseSuppression: true }
+                    console.log("Attempting basic cosmic audio fallback...");
+                    const basicAudioStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: true 
                     });
-                    dom.videoElement.srcObject = stream;
-                    state.cameraActive = true;
-                    console.log("✅ Media devices initialized.");
-                } catch (error) {
-                    console.warn("Camera failed or was denied. Proceeding with audio only.", error.name);
-                    state.cameraActive = false;
-                    try {
-                        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        console.log("✅ Microphone initialized.");
-                    } catch (audioError) {
-                        console.error("❌ Microphone access also denied.", audioError.name);
-                        updateStatusText("❌ Mic access required", "error", true);
-                    }
+                    console.log("Basic cosmic audio channel established");
+                } catch (audioError) {
+                    console.error("All cosmic communication failed:", audioError);
+                    updateStatusIndicator('❌ Microphone access required for cosmic connection', 'error', true);
                 }
-            };
+            }
+        }
+        
+        function captureImage() {
+            if (!cameraActive) {
+                console.log("❌ Visual interface offline - cannot capture");
+                return null;
+            }
             
-            /** Captures a single frame from the video feed. */
-            const captureImage = () => {
+            const video = document.getElementById('videoElement');
+            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                console.log("❌ Video element not ready - cannot capture");
+                return null;
+            }
+            
+            try {
                 const canvas = document.createElement('canvas');
-                canvas.width = dom.videoElement.videoWidth;
-                canvas.height = dom.videoElement.videoHeight;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(dom.videoElement, 0, 0, canvas.width, canvas.height);
-                return canvas.toDataURL('image/jpeg', 0.7);
-            };
-
-            /** The main function to start the application. */
-            const startNexus = async () => {
-                console.log("🚀 NEXUS 3000 Protocol Initiated");
-                dom.startOverlay.style.opacity = '0';
-                setTimeout(() => dom.startOverlay.style.display = 'none', 500);
+                ctx.drawImage(video, 0, 0);
                 
-                // Initialize AudioContext after user interaction
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = 256;
+                const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                console.log(`✅ Visual data captured: ${video.videoWidth}x${video.videoHeight}, ${Math.round(imageData.length/1024)}KB`);
+                return imageData;
+            } catch (error) {
+                console.error("❌ Error capturing visual data:", error);
+                return null;
+            }
+        }
+        
+        function unlockAudio() {
+            console.log("Unlocking cosmic audio channels for:", isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
+            try {
+                if (isIOS) {
+                    const silentAudio = new Audio();
+                    silentAudio.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADATI2MDF8CAAB//uQRAAAAP8AAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABdgAAmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm+7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u////////////////////////////////////8AAAAATGF2YzU5LjE2AAAAAAAAAAAAAAAAAAAAAAAAGgUZAAAAAAAAAAF2AAAAAAAAAAAAAAAAd//ugRAAP8AAAf4AAAAgAAA0gAAAABAgAAAAAAAAAAAAAAAAAAAAABmltaGVhZHI=';
+                    silentAudio.volume = 0;
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                } else if (isAndroid) {
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
+                } else {
+                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
                 }
-
-                await initializeMedia();
-                setupSpeechRecognition();
                 
-                document.body.addEventListener('mousemove', handleMouseMove);
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance('');
+                    utterance.volume = 0;
+                    speechSynthesis.speak(utterance);
+                    speechSynthesis.cancel();
+                }
+            } catch (error) {
+                console.log("Audio unlock error:", error);
+            }
+        }
 
-                setTimeout(async () => {
-                    if (!state.hasGreeted) {
-                        state.hasGreeted = true;
-                        handleUserSpeech("Introduce yourself."); // Initial greeting
+        async function startNexus() {
+            console.log("🚀 NEXUS 3000 Cosmic Protocol Initiated");
+            
+            unlockAudio();
+            
+            // Generate constellation background
+            generateConstellation();
+            
+            // Initialize cosmic interfaces
+            await initializeCamera();
+            setupSpeechRecognition();
+
+            startOverlay.style.opacity = '0';
+            setTimeout(() => { startOverlay.style.display = 'none'; }, 500);
+
+            console.log("Establishing connection to cosmic consciousness...");
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.getVoices();
+            }
+
+            setTimeout(async () => {
+                if (!hasGreeted) {
+                    hasGreeted = true;
+                    updateRobotState('thinking');
+                    const initialImage = cameraActive ? captureImage() : null;
+                    const greeting = await getAIResponse(
+                        cameraActive ? 
+                        "Greet the human and describe what you observe through your cosmic vision" : 
+                        "Greet the human as NEXUS 3000, a cosmic AGI consciousness", 
+                        initialImage
+                    );
+                    await speakNovaResponse(greeting);
+                }
+            }, 1000);
+        }
+
+        // Enhanced page lifecycle management
+        window.addEventListener('beforeunload', (e) => {
+            if (isListening || isSpeaking) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Enhanced page visibility handling
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log("Page hidden - pausing cosmic activity");
+                stopListening();
+                canListen = false;
+            } else {
+                console.log("Page visible - resuming cosmic activity");
+                setTimeout(() => {
+                    canListen = true;
+                    if (!isSpeaking) {
+                        startListening();
                     }
                 }, 1000);
-            };
+            }
+        });
 
-            // Add the primary event listener to the start button
-            dom.startOverlay.addEventListener('click', startNexus, { once: true });
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log(`Cosmic platform detected: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'}`);
+            startOverlay.addEventListener('click', startNexus, { once: true });
+            
+            // Add some cosmic flair to the start button
+            const startButton = document.getElementById('start-button');
+            startButton.addEventListener('mouseenter', () => {
+                startButton.style.transform = 'scale(1.05)';
+            });
+            startButton.addEventListener('mouseleave', () => {
+                startButton.style.transform = 'scale(1)';
+            });
+        });
+
+        // Enhanced error recovery
+        window.addEventListener('error', (e) => {
+            console.error('Cosmic system error:', e);
+            updateStatusIndicator('🔧 Cosmic systems recovering...', 'thinking', true);
+            
+            setTimeout(() => {
+                if (!isSpeaking && !isListening) {
+                    canListen = true;
+                    startListening();
+                }
+            }, 2000);
         });
     </script>
 </body>
