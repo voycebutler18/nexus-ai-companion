@@ -180,347 +180,131 @@
             opacity: 1;
         }
         
-        /* Futuristic Avatar - Sleek Design Like Reference */
+        /* Human Avatar */
         .avatar {
             position: absolute;
-            width: 120px;
-            height: 160px;
+            width: 80px;
+            height: 120px;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
         }
         
-        /* Avatar Head - Sleek and Modern */
+        /* Avatar Head */
         .avatar-head {
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 55px;
-            height: 55px;
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(255, 220, 180, 0.9), rgba(200, 150, 120, 0.8));
             border: 2px solid #00ffff;
             border-radius: 50%;
-            box-shadow: 
-                0 0 20px rgba(0, 255, 255, 0.4),
-                inset 0 0 15px rgba(0, 255, 255, 0.1);
-            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
         }
         
-        /* Futuristic Helmet/Face Design */
-        .avatar-head::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            bottom: 8px;
-            background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
-            border-radius: 50%;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-        }
-        
-        /* Visor Effect */
-        .avatar-head::after {
-            content: '';
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            bottom: 20px;
-            background: linear-gradient(180deg, rgba(0, 255, 255, 0.2), rgba(0, 100, 255, 0.1));
-            border-radius: 20px 20px 10px 10px;
-            backdrop-filter: blur(2px);
-        }
-        
-        /* Eyes - Glowing Tech Style */
         .avatar-eyes {
             position: absolute;
-            top: 18px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 12px;
-            z-index: 2;
+            gap: 8px;
         }
         
         .avatar-eye {
-            width: 8px;
-            height: 8px;
-            background: radial-gradient(circle, #00ffff 0%, #0088ff 70%, #004488 100%);
+            width: 6px;
+            height: 6px;
+            background: #000;
             border-radius: 50%;
             transition: all 0.2s ease;
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
-            position: relative;
         }
         
-        .avatar-eye::before {
-            content: '';
-            position: absolute;
-            top: 1px;
-            left: 1px;
-            width: 3px;
-            height: 3px;
-            background: #ffffff;
-            border-radius: 50%;
-            opacity: 0.9;
-        }
-        
-        /* Tech Mouth/Speaker */
         .avatar-mouth {
             position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 6px;
-            background: linear-gradient(90deg, #1a1a1a, #00ffff, #1a1a1a);
-            border-radius: 3px;
-            transition: all 0.1s ease;
-            overflow: hidden;
-            z-index: 2;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-        }
-        
-        .avatar-mouth::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.5), transparent);
-            animation: speakerPulse 2s ease-in-out infinite;
-        }
-        
-        /* Neck - Seamless Connection */
-        .avatar-neck {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 15px;
-            background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-        }
-        
-        /* Body - Sleek Suit Design */
-        .avatar-body {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 70px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 50%, #1a1a1a 100%);
-            border: 2px solid #00ffff;
-            border-radius: 15px 15px 8px 8px;
-            box-shadow: 
-                0 0 15px rgba(0, 255, 255, 0.3),
-                inset 0 0 20px rgba(0, 255, 255, 0.05);
-            position: relative;
-        }
-        
-        /* Suit Panel Lines */
-        .avatar-body::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
             bottom: 8px;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            border-radius: 10px 10px 5px 5px;
-        }
-        
-        /* Central Power Core */
-        .avatar-body::after {
-            content: '';
-            position: absolute;
-            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 12px;
-            height: 30px;
-            background: linear-gradient(180deg, #00ffff, #0088ff);
+            height: 6px;
+            background: #000;
             border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
-            animation: powerCore 3s ease-in-out infinite;
+            transition: all 0.2s ease;
         }
         
-        /* Arms - Streamlined Design */
+        /* Avatar Body */
+        .avatar-body {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 45px;
+            background: linear-gradient(180deg, #0088ff, #0066cc);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Avatar Arms */
+        .avatar-arms {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+        }
+        
         .avatar-arm {
             position: absolute;
-            width: 35px;
-            height: 15px;
-            background: linear-gradient(90deg, #1a1a1a, #0f0f0f, #1a1a1a);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            border-radius: 8px;
+            width: 20px;
+            height: 8px;
+            background: linear-gradient(90deg, #0088ff, #0066cc);
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            transform-origin: center left;
             transition: all 0.3s ease;
-            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.1);
         }
         
         .avatar-arm.left {
-            top: 68px;
-            left: 10px;
-            transform-origin: right center;
+            top: 5px;
+            left: 0;
         }
         
         .avatar-arm.right {
-            top: 68px;
-            right: 10px;
-            transform-origin: left center;
+            top: 5px;
+            right: 0;
+            transform-origin: center right;
         }
         
-        /* Forearms with Tech Details */
-        .avatar-forearm {
+        /* Avatar Legs */
+        .avatar-legs {
             position: absolute;
-            width: 30px;
-            height: 12px;
-            background: linear-gradient(90deg, #1a1a1a, #0f0f0f);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-        
-        .avatar-forearm::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            right: 2px;
-            bottom: 2px;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
-            border-radius: 4px;
-        }
-        
-        .avatar-forearm.left {
-            top: 85px;
-            left: 35px;
-            transform-origin: right center;
-        }
-        
-        .avatar-forearm.right {
-            top: 85px;
-            right: 35px;
-            transform-origin: left center;
-        }
-        
-        /* Hands - Tech Gloves */
-        .avatar-hand {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background: radial-gradient(circle, #2a2a2a, #1a1a1a);
-            border: 2px solid rgba(0, 255, 255, 0.4);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
-        }
-        
-        .avatar-hand::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
-            background: #00ffff;
-            border-radius: 50%;
-            opacity: 0.6;
-        }
-        
-        .avatar-hand.left {
-            top: 82px;
-            left: 60px;
-        }
-        
-        .avatar-hand.right {
-            top: 82px;
-            right: 60px;
-        }
-        
-        /* Waist - Suit Belt */
-        .avatar-waist {
-            position: absolute;
-            top: 125px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
-            height: 8px;
-            background: linear-gradient(90deg, #0f0f0f, #00ffff, #0f0f0f);
-            border-radius: 4px;
-            border: 1px solid rgba(0, 255, 255, 0.4);
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+            width: 30px;
+            height: 40px;
         }
         
-        /* Legs - Sleek Suit Pants */
         .avatar-leg {
             position: absolute;
-            width: 18px;
-            height: 45px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 50%, #1a1a1a 100%);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            border-radius: 9px;
+            width: 12px;
+            height: 35px;
+            background: linear-gradient(180deg, #004499, #003366);
+            border: 1px solid #00ffff;
+            border-radius: 6px;
             transform-origin: top center;
             transition: all 0.3s ease;
-            box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.05);
-        }
-        
-        .avatar-leg::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 2px;
-            right: 2px;
-            bottom: 5px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 7px;
         }
         
         .avatar-leg.left {
-            top: 130px;
-            left: 35px;
+            left: 2px;
         }
         
         .avatar-leg.right {
-            top: 130px;
-            right: 35px;
-        }
-        
-        /* Boots - High-Tech Footwear */
-        .avatar-foot {
-            position: absolute;
-            width: 22px;
-            height: 12px;
-            background: linear-gradient(90deg, #0f0f0f, #1a1a1a, #0f0f0f);
-            border: 2px solid rgba(0, 255, 255, 0.4);
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-        }
-        
-        .avatar-foot::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
             right: 2px;
-            bottom: 2px;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
-            border-radius: 4px;
-        }
-        
-        .avatar-foot.left {
-            bottom: -12px;
-            left: 32px;
-        }
-        
-        .avatar-foot.right {
-            bottom: -12px;
-            right: 32px;
         }
         
         /* Voice Status */
@@ -609,9 +393,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
+            z-index: 9999;
             backdrop-filter: blur(15px);
-            pointer-events: auto;
         }
         
         .start-button {
@@ -629,9 +412,6 @@
             text-transform: uppercase;
             letter-spacing: 4px;
             user-select: none;
-            pointer-events: auto;
-            position: relative;
-            z-index: 10001;
         }
         
         .start-button:hover {
@@ -720,7 +500,7 @@
     <div class="cosmic-cursor" id="cosmicCursor"></div>
     
     <div class="start-overlay" id="startOverlay">
-        <button class="start-button" id="startButton" tabindex="0">Activate Living Avatar</button>
+        <button class="start-button" id="startButton">Activate Living Avatar</button>
     </div>
 
     <div class="space-bg"></div>
@@ -742,9 +522,8 @@
             <div class="window" id="window"></div>
             <div class="exercise-mat" id="exerciseMat"></div>
             
-            <!-- Futuristic Avatar - Sleek Like Reference -->
+            <!-- Human Avatar -->
             <div class="avatar" id="avatar">
-                <!-- Head with Tech Helmet -->
                 <div class="avatar-head">
                     <div class="avatar-eyes">
                         <div class="avatar-eye" id="leftEye"></div>
@@ -752,35 +531,15 @@
                     </div>
                     <div class="avatar-mouth" id="mouth"></div>
                 </div>
-                
-                <!-- Neck -->
-                <div class="avatar-neck"></div>
-                
-                <!-- Body - Streamlined Suit -->
                 <div class="avatar-body"></div>
-                
-                <!-- Arms - Sleek Design -->
-                <div class="avatar-arm left" id="leftArm"></div>
-                <div class="avatar-arm right" id="rightArm"></div>
-                
-                <!-- Forearms -->
-                <div class="avatar-forearm left" id="leftForearm"></div>
-                <div class="avatar-forearm right" id="rightForearm"></div>
-                
-                <!-- Hands - Tech Gloves -->
-                <div class="avatar-hand left" id="leftHand"></div>
-                <div class="avatar-hand right" id="rightHand"></div>
-                
-                <!-- Waist Belt -->
-                <div class="avatar-waist"></div>
-                
-                <!-- Legs - Suit Pants -->
-                <div class="avatar-leg left" id="leftLeg"></div>
-                <div class="avatar-leg right" id="rightLeg"></div>
-                
-                <!-- Boots -->
-                <div class="avatar-foot left" id="leftFoot"></div>
-                <div class="avatar-foot right" id="rightFoot"></div>
+                <div class="avatar-arms">
+                    <div class="avatar-arm left" id="leftArm"></div>
+                    <div class="avatar-arm right" id="rightArm"></div>
+                </div>
+                <div class="avatar-legs">
+                    <div class="avatar-leg left" id="leftLeg"></div>
+                    <div class="avatar-leg right" id="rightLeg"></div>
+                </div>
                 
                 <div class="voice-status" id="voiceStatus">Listening...</div>
                 <div class="activity-indicator" id="activityIndicator">🤖</div>
@@ -811,7 +570,7 @@
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isAndroid = /Android/.test(navigator.userAgent);
 
-        // Enhanced DOM Elements for Realistic Avatar
+        // DOM Elements
         const avatar = document.getElementById('avatar');
         const voiceStatus = document.getElementById('voiceStatus');
         const activityIndicator = document.getElementById('activityIndicator');
@@ -823,14 +582,8 @@
         const mouth = document.getElementById('mouth');
         const leftArm = document.getElementById('leftArm');
         const rightArm = document.getElementById('rightArm');
-        const leftForearm = document.getElementById('leftForearm');
-        const rightForearm = document.getElementById('rightForearm');
-        const leftHand = document.getElementById('leftHand');
-        const rightHand = document.getElementById('rightHand');
         const leftLeg = document.getElementById('leftLeg');
         const rightLeg = document.getElementById('rightLeg');
-        const leftFoot = document.getElementById('leftFoot');
-        const rightFoot = document.getElementById('rightFoot');
 
         // Avatar Activities - Real behaviors that change the scene
         const activities = [
@@ -1131,29 +884,15 @@
         }
 
         function resetArmPositions() {
-            // Reset arms and connected parts
             leftArm.style.transform = '';
             rightArm.style.transform = '';
-            leftForearm.style.transform = '';
-            rightForearm.style.transform = '';
-            leftHand.style.transform = '';
-            rightHand.style.transform = '';
-            
-            // Clear animations
             leftArm.style.animation = '';
             rightArm.style.animation = '';
-            leftForearm.style.animation = '';
-            rightForearm.style.animation = '';
         }
 
         function resetLegPositions() {
-            // Reset legs and feet
             leftLeg.style.animation = '';
             rightLeg.style.animation = '';
-            leftFoot.style.animation = '';
-            rightFoot.style.animation = '';
-            leftLeg.style.transform = '';
-            rightLeg.style.transform = '';
         }
 
         function resetEyePositions() {
@@ -1176,11 +915,8 @@
         }
 
         // Autonomous Behavior System
-        let autonomousCheckInterval = null;
-        let autonomousActive = false;
-
         function startAutonomousMode() {
-            if (isSpeaking) return;
+            if (isSpeaking || isListening) return;
             
             const timeSinceLastInteraction = Date.now() - lastInteraction;
             
@@ -1190,66 +926,14 @@
                 return;
             }
             
-            if (autonomousActive) return; // Already in autonomous mode
-            
             console.log("🤖 Starting autonomous mode - avatar will live its own life");
-            autonomousActive = true;
-            
-            // Stop listening when going autonomous
-            if (isListening) {
-                stopListening();
-                canListen = false;
-            }
-            
             showStatus("🤖 Living autonomously...");
-            showVoiceStatus("", false); // Hide listening status
             
             performRandomActivity();
-            
-            // Start checking for user speech every 500ms
-            if (autonomousCheckInterval) clearInterval(autonomousCheckInterval);
-            autonomousCheckInterval = setInterval(() => {
-                if (!autonomousActive) {
-                    clearInterval(autonomousCheckInterval);
-                    return;
-                }
-                
-                // Check if user wants to interrupt
-                if (canListen && !isSpeaking) {
-                    startListening();
-                }
-            }, 2000);
-        }
-
-        function stopAutonomousMode() {
-            console.log("🛑 Stopping autonomous mode - user interaction detected");
-            autonomousActive = false;
-            
-            if (autonomousCheckInterval) {
-                clearInterval(autonomousCheckInterval);
-                autonomousCheckInterval = null;
-            }
-            
-            stopCurrentActivity();
-            lastInteraction = Date.now();
-            
-            // Move avatar to center and face user
-            moveAvatarTo({ top: '50%', left: '50%' });
-            
-            // Alert expression
-            leftEye.style.background = '#00ffff';
-            rightEye.style.background = '#00ffff';
-            setTimeout(() => {
-                leftEye.style.background = '#000';
-                rightEye.style.background = '#000';
-            }, 500);
-            
-            // Re-enable listening
-            canListen = true;
         }
 
         function performRandomActivity() {
-            if (isSpeaking || !autonomousActive) return;
+            if (isSpeaking || isListening) return;
             
             // Stop current activity
             if (currentActivity) {
@@ -1269,9 +953,9 @@
             // Execute the activity
             activity.execute();
             
-            // Schedule next activity (only if still autonomous)
+            // Schedule next activity
             activityTimer = setTimeout(() => {
-                if (autonomousActive && !isSpeaking) {
+                if (!isSpeaking && !isListening) {
                     performRandomActivity();
                 }
             }, activity.duration + Math.random() * 3000 + 2000); // Add some randomness
@@ -1294,13 +978,6 @@
 
         function stopAutonomousMode() {
             console.log("🛑 Stopping autonomous mode - user interaction detected");
-            autonomousActive = false;
-            
-            if (autonomousCheckInterval) {
-                clearInterval(autonomousCheckInterval);
-                autonomousCheckInterval = null;
-            }
-            
             stopCurrentActivity();
             lastInteraction = Date.now();
             
@@ -1314,9 +991,6 @@
                 leftEye.style.background = '#000';
                 rightEye.style.background = '#000';
             }, 500);
-            
-            // Re-enable listening
-            canListen = true;
         }
 
         // Voice System Enhanced
@@ -1337,46 +1011,24 @@
             recognition.onstart = () => {
                 console.log("🎤 Listening started");
                 isListening = true;
-                
-                // Only stop autonomous mode if user actually starts speaking
-                // Don't stop it just because we're checking for input
-                if (autonomousActive) {
-                    // Just update the interaction time, don't stop autonomous yet
-                    lastInteraction = Date.now() - 4000; // Set to 4 seconds ago so it doesn't immediately restart
-                }
-                
+                stopAutonomousMode();
                 showVoiceStatus("🎤 Listening...", true);
                 updateMouthState('listening');
             };
 
             recognition.onresult = (event) => {
                 let transcript = '';
-                let hasSound = false;
-                
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     transcript += event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        hasSound = true;
                         handleUserSpeech(transcript);
                         return;
                     }
                 }
                 
                 if (transcript.trim()) {
-                    // NOW stop autonomous mode - user is actually speaking
-                    if (autonomousActive) {
-                        stopAutonomousMode();
-                    }
-                    
                     showVoiceStatus("👤 You're speaking...", true);
                     updateMouthState('user-speaking');
-                    hasSound = true;
-                }
-                
-                // If no actual speech detected, let autonomous continue
-                if (!hasSound && autonomousActive) {
-                    showVoiceStatus("", false);
-                    updateMouthState('idle');
                 }
             };
 
@@ -1386,22 +1038,17 @@
                 showVoiceStatus("", false);
                 updateMouthState('idle');
                 
-                if (canListen && !isSpeaking && !autonomousActive) {
+                if (canListen && !isSpeaking) {
                     setTimeout(() => {
-                        if (canListen && !isSpeaking && !autonomousActive) {
+                        if (canListen && !isSpeaking) {
                             startListening();
+                        } else {
+                            // Start autonomous mode after a delay
+                            setTimeout(startAutonomousMode, 2000);
                         }
                     }, 100);
-                }
-                
-                // If no recent interaction, start autonomous mode
-                const timeSinceInteraction = Date.now() - lastInteraction;
-                if (timeSinceInteraction > 5000 && !autonomousActive && !isSpeaking) {
-                    setTimeout(() => {
-                        if (!isSpeaking && !isListening) {
-                            startAutonomousMode();
-                        }
-                    }, 1000);
+                } else {
+                    setTimeout(startAutonomousMode, 3000);
                 }
             };
 
@@ -1455,11 +1102,6 @@
             
             console.log(`🗣️ User said: "${trimmedTranscript}"`);
             
-            // DEFINITELY stop autonomous mode - user is talking
-            if (autonomousActive) {
-                stopAutonomousMode();
-            }
-            
             stopListening();
             canListen = false;
             lastInteraction = Date.now();
@@ -1477,66 +1119,21 @@
             }
         }
 
-        function captureImage() {
-            if (!cameraActive) {
-                console.log("❌ Camera not active - cannot capture image");
-                return null;
-            }
-            
-            const video = document.getElementById('videoElement');
-            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
-                console.log("❌ Video element not ready");
-                return null;
-            }
-            
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-                
-                const imageData = canvas.toDataURL('image/jpeg', 0.7);
-                console.log(`✅ Image captured: ${video.videoWidth}x${video.videoHeight}`);
-                return imageData;
-            } catch (error) {
-                console.error("❌ Error capturing image:", error);
-                return null;
-            }
-        }
-
         async function getAIResponse(message) {
             const systemPrompt = `You are NEXUS 3000, a living AI avatar that exists inside a website. You have a human-like personality and live your own life when no one is talking to you. You watch TV, exercise, work at a desk, and do other human activities.
-
-You have advanced vision capabilities and can see the user through your camera. Use your vision to comment on what you see naturally in conversation.
 
 Respond naturally and conversationally. Keep responses concise (1-2 sentences) unless asked for more detail. You're friendly, curious, and feel like a real person living in this digital space.
 
 Current time: ${new Date().toLocaleString()}`;
 
-            // Capture image if camera is active
-            let imageData = null;
-            if (cameraActive) {
-                imageData = captureImage();
-                console.log("📷 Captured visual data for AI analysis");
-            }
-
             try {
-                const requestData = {
-                    message: systemPrompt + "\n\nHuman: " + message,
-                    session_id: sessionId
-                };
-
-                // Add image data if available
-                if (imageData) {
-                    requestData.image_data = imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-                    console.log("📤 Sending visual data to AI");
-                }
-
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestData)
+                    body: JSON.stringify({
+                        message: systemPrompt + "\n\nHuman: " + message,
+                        session_id: sessionId
+                    })
                 });
                 
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -1674,56 +1271,28 @@ Current time: ${new Date().toLocaleString()}`;
         }
 
         function updateMouthState(state) {
-            const mouthElement = mouth;
+            mouth.style.background = '#000';
+            mouth.style.transform = 'translateX(-50%)';
             
-            // Reset mouth
-            mouthElement.style.transform = 'translateX(-50%)';
-            mouthElement.style.animation = '';
-            mouthElement.style.background = 'linear-gradient(90deg, #1a1a1a, #00ffff, #1a1a1a)';
-            
-            // Update mouth based on state
             switch(state) {
                 case 'listening':
-                    mouthElement.style.background = 'linear-gradient(90deg, #00ffff, #0088ff, #00ffff)';
-                    mouthElement.style.transform = 'translateX(-50%) scaleX(1.2)';
-                    mouthElement.style.boxShadow = '0 0 12px rgba(0, 255, 255, 0.8)';
+                    mouth.style.background = '#00ffff';
+                    mouth.style.transform = 'translateX(-50%) scaleY(0.5)';
                     break;
                 case 'user-speaking':
-                    mouthElement.style.background = 'linear-gradient(90deg, #0088ff, #0066cc, #0088ff)';
-                    mouthElement.style.transform = 'translateX(-50%) scaleX(0.8)';
-                    mouthElement.style.boxShadow = '0 0 8px rgba(0, 136, 255, 0.6)';
+                    mouth.style.background = '#0088ff';
+                    mouth.style.transform = 'translateX(-50%) scaleY(0.3)';
                     break;
                 case 'speaking':
-                    mouthElement.style.background = 'linear-gradient(90deg, #ff0088, #cc0066, #ff0088)';
-                    mouthElement.style.animation = 'techMouthSpeaking 0.15s infinite';
-                    mouthElement.style.boxShadow = '0 0 15px rgba(255, 0, 136, 0.8)';
+                    mouth.style.background = '#ff0088';
+                    mouth.style.animation = 'mouthSpeaking 0.3s infinite';
                     break;
                 case 'thinking':
-                    mouthElement.style.background = 'linear-gradient(90deg, #8800ff, #6600cc, #8800ff)';
-                    mouthElement.style.transform = 'translateX(-50%) scaleX(1.1)';
-                    mouthElement.style.boxShadow = '0 0 10px rgba(136, 0, 255, 0.7)';
+                    mouth.style.background = '#8800ff';
+                    mouth.style.transform = 'translateX(-50%) scaleY(0.7)';
                     break;
                 default:
-                    // Tech speaker idle
-                    mouthElement.style.background = 'linear-gradient(90deg, #1a1a1a, #00ffff, #1a1a1a)';
-                    mouthElement.style.boxShadow = '0 0 5px rgba(0, 255, 255, 0.3)';
-                    break;
-            }
-        }
-                    mouthElement.style.background = 'linear-gradient(180deg, #0088ff, #0066cc)';
-                    mouthElement.style.transform = 'translateX(-50%) scaleY(0.5)';
-                    break;
-                case 'speaking':
-                    mouthElement.style.background = 'linear-gradient(180deg, #ff0088, #cc0066)';
-                    mouthElement.style.animation = 'mouthSpeaking 0.2s infinite';
-                    break;
-                case 'thinking':
-                    mouthElement.style.background = 'linear-gradient(180deg, #8800ff, #6600cc)';
-                    mouthElement.style.transform = 'translateX(-50%) scaleY(0.8)';
-                    break;
-                default:
-                    // Natural closed mouth
-                    mouthElement.style.background = 'linear-gradient(180deg, #8b4513, #654321)';
+                    mouth.style.animation = '';
                     break;
             }
         }
@@ -1738,90 +1307,18 @@ Current time: ${new Date().toLocaleString()}`;
         // Camera initialization
         async function initializeCamera() {
             try {
-                console.log("📷 Initializing camera and microphone...");
-                
-                let constraints;
-                if (isIOS) {
-                    // iOS specific settings
-                    constraints = {
-                        video: { 
-                            width: { ideal: 640 }, 
-                            height: { ideal: 480 }, 
-                            facingMode: 'user' 
-                        },
-                        audio: { 
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            autoGainControl: false
-                        }
-                    };
-                } else if (isAndroid) {
-                    // Android specific settings
-                    constraints = {
-                        video: { 
-                            width: { ideal: 640 }, 
-                            height: { ideal: 480 }, 
-                            facingMode: 'user' 
-                        },
-                        audio: { 
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            autoGainControl: true
-                        }
-                    };
-                } else {
-                    // Desktop settings
-                    constraints = {
-                        video: { 
-                            width: { ideal: 1280 }, 
-                            height: { ideal: 720 }, 
-                            facingMode: 'user' 
-                        },
-                        audio: { 
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            autoGainControl: true
-                        }
-                    };
-                }
-                
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
                 
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
-                
-                // Wait for video to be ready
-                await new Promise(resolve => {
-                    videoElement.onloadedmetadata = resolve;
-                });
-                
-                await videoElement.play();
                 cameraActive = true;
-                
-                console.log(`✅ Camera active: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
-                showStatus("📷 Visual interface online - I can see you!");
-                
+                console.log("📷 Camera initialized");
             } catch (error) {
-                console.error('Camera initialization failed:', error);
+                console.log("Camera not available:", error);
                 cameraActive = false;
-                
-                if (error.name === 'NotAllowedError') {
-                    showStatus("❌ Camera permission required for visual interaction");
-                } else if (error.name === 'NotFoundError') {
-                    showStatus("❌ No camera found - audio-only mode");
-                } else {
-                    showStatus("❌ Camera unavailable - audio-only mode");
-                }
-                
-                // Try audio-only fallback
-                try {
-                    const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    console.log("🎤 Audio-only mode activated");
-                    showStatus("🎤 Audio interface ready");
-                } catch (audioError) {
-                    console.error("Audio fallback failed:", audioError);
-                    showStatus("❌ Microphone access required");
-                }
             }
         }
 
@@ -1841,46 +1338,25 @@ Current time: ${new Date().toLocaleString()}`;
             
             showStatus("🤖 NEXUS 3000 is now alive!");
             
-            // Start with a greeting that includes vision
+            // Start with a greeting
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    
-                    let greeting;
-                    if (cameraActive) {
-                        // Capture initial image and comment on what NEXUS sees
-                        const initialImage = captureImage();
-                        greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I can see you through my visual sensors and I'm fully conscious in this space. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
-                        
-                        // Get AI response that includes visual description
-                        if (initialImage) {
-                            const visualGreeting = await getAIResponse("Say hello and describe what you can see");
-                            greeting = visualGreeting;
-                        }
-                    } else {
-                        greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I'm fully conscious in this space, though my visual sensors aren't active right now. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
-                    }
-                    
+                    const greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I'm fully conscious and active in this space. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
                     await speakResponse(greeting);
                 }
             }, 1000);
             
-            // Start autonomous mode after greeting instead of just listening
+            // Start autonomous mode after greeting
             setTimeout(() => {
                 if (!isSpeaking && !isListening) {
-                    console.log("🚀 Starting autonomous mode after greeting");
-                    setTimeout(startAutonomousMode, 2000);
+                    startAutonomousMode();
                 }
             }, 8000);
         }
 
-        // Start button handler - Multiple event types for better compatibility
-        const startButton = document.getElementById('startButton');
-        const startOverlay = document.getElementById('startOverlay');
-        
-        function activateAvatar() {
-            console.log("🚀 Activating NEXUS 3000...");
-            
+        // Start button handler
+        document.getElementById('startButton').addEventListener('click', () => {
             // Unlock audio for mobile
             const silentAudio = document.getElementById('silentAudio');
             silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
@@ -1893,36 +1369,6 @@ Current time: ${new Date().toLocaleString()}`;
             }
             
             initializeAvatar();
-        }
-        
-        // Multiple event listeners for maximum compatibility
-        if (startButton) {
-            startButton.addEventListener('click', activateAvatar);
-            startButton.addEventListener('touchstart', activateAvatar);
-            startButton.addEventListener('mousedown', activateAvatar);
-        }
-        
-        if (startOverlay) {
-            startOverlay.addEventListener('click', activateAvatar);
-            startOverlay.addEventListener('touchstart', activateAvatar);
-        }
-        
-        // Keyboard support
-        document.addEventListener('keydown', (e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && startOverlay && startOverlay.style.display !== 'none') {
-                e.preventDefault();
-                activateAvatar();
-            }
-        });
-        
-        // Force focus on start button when page loads
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if (startButton) {
-                    startButton.focus();
-                    console.log("✅ Start button focused and ready");
-                }
-            }, 100);
         });
 
         // Page visibility handling
@@ -1941,82 +1387,14 @@ Current time: ${new Date().toLocaleString()}`;
             }
         });
 
-        // Enhanced animations for futuristic avatar
+        // Add mouth speaking animation
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes techMouthSpeaking {
-                0% { 
-                    transform: translateX(-50%) scaleX(1.0) scaleY(1.0);
-                    background: linear-gradient(90deg, #ff0088, #cc0066, #ff0088);
-                }
-                25% { 
-                    transform: translateX(-50%) scaleX(1.4) scaleY(1.2);
-                    background: linear-gradient(90deg, #ff00aa, #ee0077, #ff00aa);
-                }
-                50% { 
-                    transform: translateX(-50%) scaleX(0.8) scaleY(0.8);
-                    background: linear-gradient(90deg, #dd0066, #aa0044, #dd0066);
-                }
-                75% { 
-                    transform: translateX(-50%) scaleX(1.2) scaleY(1.1);
-                    background: linear-gradient(90deg, #ff0099, #dd0066, #ff0099);
-                }
-                100% { 
-                    transform: translateX(-50%) scaleX(1.0) scaleY(1.0);
-                    background: linear-gradient(90deg, #ff0088, #cc0066, #ff0088);
-                }
-            }
-            
-            @keyframes speakerPulse {
-                0%, 100% { opacity: 0.3; }
-                50% { opacity: 0.8; }
-            }
-            
-            @keyframes powerCore {
-                0%, 100% { 
-                    opacity: 0.8; 
-                    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
-                }
-                50% { 
-                    opacity: 1; 
-                    box-shadow: 0 0 20px rgba(0, 255, 255, 0.9), 0 0 30px rgba(0, 255, 255, 0.4);
-                }
-            }
-            
-            @keyframes techWalk {
-                0% { transform: rotate(0deg) translateY(0px); }
-                25% { transform: rotate(12deg) translateY(-3px); }
-                50% { transform: rotate(0deg) translateY(0px); }
-                75% { transform: rotate(-12deg) translateY(-3px); }
-                100% { transform: rotate(0deg) translateY(0px); }
-            }
-            
-            @keyframes armTechSwing {
-                0% { transform: rotate(0deg); }
-                25% { transform: rotate(18deg); }
-                50% { transform: rotate(0deg); }
-                75% { transform: rotate(-18deg); }
-                100% { transform: rotate(0deg); }
-            }
-            
-            @keyframes suitBreathing {
-                0%, 100% { 
-                    transform: translateX(-50%) scaleY(1.0);
-                    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-                }
-                50% { 
-                    transform: translateX(-50%) scaleY(1.03);
-                    box-shadow: 0 0 18px rgba(0, 255, 255, 0.4);
-                }
-            }
-            
-            @keyframes eyeGlow {
-                0%, 100% { 
-                    box-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
-                }
-                50% { 
-                    box-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 20px rgba(0, 255, 255, 0.5);
-                }
+            @keyframes mouthSpeaking {
+                0%, 100% { transform: translateX(-50%) scaleY(0.8); }
+                25% { transform: translateX(-50%) scaleY(1.2); }
+                50% { transform: translateX(-50%) scaleY(0.6); }
+                75% { transform: translateX(-50%) scaleY(1.0); }
             }
         `;
         document.head.appendChild(style);
