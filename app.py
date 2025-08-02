@@ -137,8 +137,16 @@ def chat():
             
         conversation_history = conversation_sessions[session_id]
         
-        # ULTRA-FAST system prompt - minimal for speed
-        system_prompt_template = f"""You are NEXUS. Be natural and conversational. Keep responses 1-3 sentences unless more detail is clearly needed. Time: {time.strftime('%I:%M %p')}"""
+        # ULTRA-FAST system prompt - minimal for speed but includes vision
+        system_prompt_template = f"""You are NEXUS, an intelligent AI with vision capabilities. 
+
+IMPORTANT: You CAN see through the user's camera. Always mention what you observe in the image when responding.
+
+Be natural and conversational. Keep responses 1-3 sentences unless more detail is clearly needed. 
+
+If you see the user in the image, comment on what they're wearing, their expression, their environment, or anything notable you observe.
+
+Time: {time.strftime('%I:%M %p')}"""
         
         system_prompt = {"role": "system", "content": system_prompt_template}
         
