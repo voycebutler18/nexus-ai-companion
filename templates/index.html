@@ -935,8 +935,8 @@ function setupSpeechRecognition() {
                 const responseText = await getAIResponse(trimmedTranscript, imageData);
                 console.log(`⚡ AI response in ${Date.now() - startTime}ms`);
                 
-                // IMMEDIATELY start speaking - no delays
-                await speakNovaResponse(responseText);
+                // IMMEDIATELY start speaking with smart fallback
+                await speakWithFastFallback(responseText);
             } catch (error) {
                 console.error('Speech processing error:', error);
                 await speakNovaResponse("Something went wrong, but I'm still here.");
@@ -1155,11 +1155,20 @@ function setupSpeechRecognition() {
         
         async function getAIResponse(userMessage, imageData = null) {
             const fullMessage = SYSTEM_PROMPT + "\n\nUser's Message: \"" + userMessage + "\"";
+            
             const requestData = { 
                 message: fullMessage, 
                 session_id: sessionId,
-                image_data: imageData ? imageData.split(',')[1] : null
+                image_data: imageData ? imageData.split(',')[1] : null // Remove data:image/jpeg;base64, prefix
             };
+
+            // Debug image transmission
+            if (imageData) {
+                const imageSize = Math.round(imageData.length / 1024);
+                console.log(`📤 Sending image to AI: ${imageSize}KB`);
+            } else {
+                console.log("📤 No image data - sending text only");
+            }
 
             try {
                 const response = await fetch('/api/chat', {
@@ -1167,9 +1176,17 @@ function setupSpeechRecognition() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData)
                 });
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
                 const data = await response.json();
-                if (data.error) throw new Error(data.error);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                console.log("✅ AI response received");
                 return data.response;
             } catch (error) {
                 console.error('AI API Error:', error);
@@ -1320,15 +1337,31 @@ function setupSpeechRecognition() {
         }
         
         function captureImage() {
-            if (!cameraActive) return null;
+            if (!cameraActive) {
+                console.log("❌ Camera not active - cannot capture image");
+                return null;
+            }
+            
             const video = document.getElementById('videoElement');
-            if (video.videoWidth === 0) return null;
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
-            return canvas.toDataURL('image/jpeg', 0.8);
+            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                console.log("❌ Video element not ready - cannot capture image");
+                return null;
+            }
+            
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.7); // Reduced quality for faster transmission
+                console.log(`✅ Image captured: ${video.videoWidth}x${video.videoHeight}, size: ${Math.round(imageData.length/1024)}KB`);
+                return imageData;
+            } catch (error) {
+                console.error("❌ Error capturing image:", error);
+                return null;
+            }
         }
         
         function unlockAudio() {
@@ -1385,7 +1418,7 @@ function setupSpeechRecognition() {
                     updateRobotState('thinking');
                     const initialImage = cameraActive ? captureImage() : null;
                     const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
-                    await speakNovaResponse(greeting);
+                    await speakWithFastFallback(greeting);
                 }
             }, 1000);
         }
