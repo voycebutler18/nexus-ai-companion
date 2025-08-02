@@ -935,8 +935,7 @@ function setupSpeechRecognition() {
                 const responseText = await getAIResponse(trimmedTranscript, imageData);
                 console.log(`⚡ AI response in ${Date.now() - startTime}ms`);
                 
-                // IMMEDIATELY start speaking with smart fallback
-                await speakWithFastFallback(responseText);
+                await speakNovaResponse(responseText);
             } catch (error) {
                 console.error('Speech processing error:', error);
                 await speakNovaResponse("Something went wrong, but I'm still here.");
@@ -1418,7 +1417,7 @@ function setupSpeechRecognition() {
                     updateRobotState('thinking');
                     const initialImage = cameraActive ? captureImage() : null;
                     const greeting = await getAIResponse(cameraActive ? "Say hello and describe what you see" : "Say hello", initialImage);
-                    await speakWithFastFallback(greeting);
+                    await speakNovaResponse(greeting);
                 }
             }, 1000);
         }
