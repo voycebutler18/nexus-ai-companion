@@ -1876,7 +1876,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 isListening = true;
                 hasRecognitionStarted = true;
                 updateWaveVisualizer('listening');
-                updateStatusIndicator('🎤 Listening to the cosmos...', 'listening', true);
+                updateStatusIndicator('🎤 Listening...', 'listening', true);
                 updateRobotState('listening');
                 lastResultTime = Date.now();
                 
@@ -1924,7 +1924,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 console.log(`Speech result: "${transcript}" (Final: ${isFinal})`);
 
                 if (transcript.trim()) {
-                    updateStatusIndicator('👤 Human transmission received...', 'user-speaking', true);
+                    updateStatusIndicator('👤 You are speaking...', 'user-speaking', true);
                     updateWaveVisualizer('user-speaking');
                     updateRobotState('user-speaking');
                 }
@@ -1963,7 +1963,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 if (recognitionTimeout) clearTimeout(recognitionTimeout);
                 
                 if (isIOS) {
-                    updateStatusIndicator('🎤 iPhone: Tap and speak to the cosmos', 'listening', true);
+                    updateStatusIndicator('🎤 iPhone: Tap and speak', 'listening', true);
                     
                     if (event.error === 'not-allowed') {
                         updateStatusIndicator('❌ iPhone: Please allow microphone access', 'error', true);
@@ -2035,7 +2035,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                             console.error("📱 Mobile: Recognition start failed:", startError);
                             
                             if (startError.name === 'NotAllowedError') {
-                                updateStatusIndicator('❌ Microphone access required for cosmic connection', 'error', true);
+                                updateStatusIndicator('❌ Please allow microphone access', 'error', true);
                             } else {
                                 updateStatusIndicator('❌ Communication error - please refresh', 'error', true);
                             }
@@ -2120,7 +2120,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
             
             // Show thinking state with cosmic flair
             updateWaveVisualizer('thinking');
-            updateStatusIndicator('🧠 Interfacing with cosmic consciousness...', 'thinking', true);
+            updateStatusIndicator('🧠 Processing...', 'thinking', true);
             updateRobotState('thinking');
 
             // Enhanced image capture for vision
@@ -2179,7 +2179,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 stopListening();
                 
                 updateWaveVisualizer('ai-speaking');
-                updateStatusIndicator('🤖 NEXUS cosmic transmission', 'ai-speaking', true);
+                updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
                 updateRobotState('speaking');
 
                 try {
@@ -2230,7 +2230,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                             setTimeout(() => {
                                 canListen = true;
                                 updateWaveVisualizer('listening');
-                                updateStatusIndicator('🎤 Listening to cosmic frequencies...', 'listening', true);
+                                updateStatusIndicator('🎤 Listening...', 'listening', true);
                                 updateRobotState('listening');
                                 startListening();
                             }, restartDelay);
@@ -2398,6 +2398,7 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
             waveActive.className = 'wave-active ' + state; 
         }
         
+        // Enhanced status messages  
         function updateStatusIndicator(text, type, show) {
             statusIndicator.textContent = text;
             statusIndicator.className = 'status-indicator';
