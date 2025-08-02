@@ -915,8 +915,11 @@
         }
 
         // Autonomous Behavior System
+        let autonomousCheckInterval = null;
+        let autonomousActive = false;
+
         function startAutonomousMode() {
-            if (isSpeaking || isListening) return;
+            if (isSpeaking) return;
             
             const timeSinceLastInteraction = Date.now() - lastInteraction;
             
@@ -926,14 +929,66 @@
                 return;
             }
             
+            if (autonomousActive) return; // Already in autonomous mode
+            
             console.log("🤖 Starting autonomous mode - avatar will live its own life");
+            autonomousActive = true;
+            
+            // Stop listening when going autonomous
+            if (isListening) {
+                stopListening();
+                canListen = false;
+            }
+            
             showStatus("🤖 Living autonomously...");
+            showVoiceStatus("", false); // Hide listening status
             
             performRandomActivity();
+            
+            // Start checking for user speech every 500ms
+            if (autonomousCheckInterval) clearInterval(autonomousCheckInterval);
+            autonomousCheckInterval = setInterval(() => {
+                if (!autonomousActive) {
+                    clearInterval(autonomousCheckInterval);
+                    return;
+                }
+                
+                // Check if user wants to interrupt
+                if (canListen && !isSpeaking) {
+                    startListening();
+                }
+            }, 2000);
+        }
+
+        function stopAutonomousMode() {
+            console.log("🛑 Stopping autonomous mode - user interaction detected");
+            autonomousActive = false;
+            
+            if (autonomousCheckInterval) {
+                clearInterval(autonomousCheckInterval);
+                autonomousCheckInterval = null;
+            }
+            
+            stopCurrentActivity();
+            lastInteraction = Date.now();
+            
+            // Move avatar to center and face user
+            moveAvatarTo({ top: '50%', left: '50%' });
+            
+            // Alert expression
+            leftEye.style.background = '#00ffff';
+            rightEye.style.background = '#00ffff';
+            setTimeout(() => {
+                leftEye.style.background = '#000';
+                rightEye.style.background = '#000';
+            }, 500);
+            
+            // Re-enable listening
+            canListen = true;
         }
 
         function performRandomActivity() {
-            if (isSpeaking || isListening) return;
+            if (isSpeaking || !autonomousActive) return;
             
             // Stop current activity
             if (currentActivity) {
@@ -953,9 +1008,9 @@
             // Execute the activity
             activity.execute();
             
-            // Schedule next activity
+            // Schedule next activity (only if still autonomous)
             activityTimer = setTimeout(() => {
-                if (!isSpeaking && !isListening) {
+                if (autonomousActive && !isSpeaking) {
                     performRandomActivity();
                 }
             }, activity.duration + Math.random() * 3000 + 2000); // Add some randomness
@@ -978,6 +1033,13 @@
 
         function stopAutonomousMode() {
             console.log("🛑 Stopping autonomous mode - user interaction detected");
+            autonomousActive = false;
+            
+            if (autonomousCheckInterval) {
+                clearInterval(autonomousCheckInterval);
+                autonomousCheckInterval = null;
+            }
+            
             stopCurrentActivity();
             lastInteraction = Date.now();
             
@@ -991,6 +1053,9 @@
                 leftEye.style.background = '#000';
                 rightEye.style.background = '#000';
             }, 500);
+            
+            // Re-enable listening
+            canListen = true;
         }
 
         // Voice System Enhanced
@@ -1011,24 +1076,46 @@
             recognition.onstart = () => {
                 console.log("🎤 Listening started");
                 isListening = true;
-                stopAutonomousMode();
+                
+                // Only stop autonomous mode if user actually starts speaking
+                // Don't stop it just because we're checking for input
+                if (autonomousActive) {
+                    // Just update the interaction time, don't stop autonomous yet
+                    lastInteraction = Date.now() - 4000; // Set to 4 seconds ago so it doesn't immediately restart
+                }
+                
                 showVoiceStatus("🎤 Listening...", true);
                 updateMouthState('listening');
             };
 
             recognition.onresult = (event) => {
                 let transcript = '';
+                let hasSound = false;
+                
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     transcript += event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
+                        hasSound = true;
                         handleUserSpeech(transcript);
                         return;
                     }
                 }
                 
                 if (transcript.trim()) {
+                    // NOW stop autonomous mode - user is actually speaking
+                    if (autonomousActive) {
+                        stopAutonomousMode();
+                    }
+                    
                     showVoiceStatus("👤 You're speaking...", true);
                     updateMouthState('user-speaking');
+                    hasSound = true;
+                }
+                
+                // If no actual speech detected, let autonomous continue
+                if (!hasSound && autonomousActive) {
+                    showVoiceStatus("", false);
+                    updateMouthState('idle');
                 }
             };
 
@@ -1038,17 +1125,22 @@
                 showVoiceStatus("", false);
                 updateMouthState('idle');
                 
-                if (canListen && !isSpeaking) {
+                if (canListen && !isSpeaking && !autonomousActive) {
                     setTimeout(() => {
-                        if (canListen && !isSpeaking) {
+                        if (canListen && !isSpeaking && !autonomousActive) {
                             startListening();
-                        } else {
-                            // Start autonomous mode after a delay
-                            setTimeout(startAutonomousMode, 2000);
                         }
                     }, 100);
-                } else {
-                    setTimeout(startAutonomousMode, 3000);
+                }
+                
+                // If no recent interaction, start autonomous mode
+                const timeSinceInteraction = Date.now() - lastInteraction;
+                if (timeSinceInteraction > 5000 && !autonomousActive && !isSpeaking) {
+                    setTimeout(() => {
+                        if (!isSpeaking && !isListening) {
+                            startAutonomousMode();
+                        }
+                    }, 1000);
                 }
             };
 
@@ -1102,6 +1194,11 @@
             
             console.log(`🗣️ User said: "${trimmedTranscript}"`);
             
+            // DEFINITELY stop autonomous mode - user is talking
+            if (autonomousActive) {
+                stopAutonomousMode();
+            }
+            
             stopListening();
             canListen = false;
             lastInteraction = Date.now();
@@ -1119,21 +1216,66 @@
             }
         }
 
+        function captureImage() {
+            if (!cameraActive) {
+                console.log("❌ Camera not active - cannot capture image");
+                return null;
+            }
+            
+            const video = document.getElementById('videoElement');
+            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+                console.log("❌ Video element not ready");
+                return null;
+            }
+            
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                console.log(`✅ Image captured: ${video.videoWidth}x${video.videoHeight}`);
+                return imageData;
+            } catch (error) {
+                console.error("❌ Error capturing image:", error);
+                return null;
+            }
+        }
+
         async function getAIResponse(message) {
             const systemPrompt = `You are NEXUS 3000, a living AI avatar that exists inside a website. You have a human-like personality and live your own life when no one is talking to you. You watch TV, exercise, work at a desk, and do other human activities.
+
+You have advanced vision capabilities and can see the user through your camera. Use your vision to comment on what you see naturally in conversation.
 
 Respond naturally and conversationally. Keep responses concise (1-2 sentences) unless asked for more detail. You're friendly, curious, and feel like a real person living in this digital space.
 
 Current time: ${new Date().toLocaleString()}`;
 
+            // Capture image if camera is active
+            let imageData = null;
+            if (cameraActive) {
+                imageData = captureImage();
+                console.log("📷 Captured visual data for AI analysis");
+            }
+
             try {
+                const requestData = {
+                    message: systemPrompt + "\n\nHuman: " + message,
+                    session_id: sessionId
+                };
+
+                // Add image data if available
+                if (imageData) {
+                    requestData.image_data = imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+                    console.log("📤 Sending visual data to AI");
+                }
+
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: systemPrompt + "\n\nHuman: " + message,
-                        session_id: sessionId
-                    })
+                    body: JSON.stringify(requestData)
                 });
                 
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -1307,18 +1449,90 @@ Current time: ${new Date().toLocaleString()}`;
         // Camera initialization
         async function initializeCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: true, 
-                    audio: true 
-                });
+                console.log("📷 Initializing camera and microphone...");
+                
+                let constraints;
+                if (isIOS) {
+                    // iOS specific settings
+                    constraints = {
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 }, 
+                            facingMode: 'user' 
+                        },
+                        audio: { 
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            autoGainControl: false
+                        }
+                    };
+                } else if (isAndroid) {
+                    // Android specific settings
+                    constraints = {
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 }, 
+                            facingMode: 'user' 
+                        },
+                        audio: { 
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    };
+                } else {
+                    // Desktop settings
+                    constraints = {
+                        video: { 
+                            width: { ideal: 1280 }, 
+                            height: { ideal: 720 }, 
+                            facingMode: 'user' 
+                        },
+                        audio: { 
+                            echoCancellation: true, 
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    };
+                }
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
+                
+                // Wait for video to be ready
+                await new Promise(resolve => {
+                    videoElement.onloadedmetadata = resolve;
+                });
+                
+                await videoElement.play();
                 cameraActive = true;
-                console.log("📷 Camera initialized");
+                
+                console.log(`✅ Camera active: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
+                showStatus("📷 Visual interface online - I can see you!");
+                
             } catch (error) {
-                console.log("Camera not available:", error);
+                console.error('Camera initialization failed:', error);
                 cameraActive = false;
+                
+                if (error.name === 'NotAllowedError') {
+                    showStatus("❌ Camera permission required for visual interaction");
+                } else if (error.name === 'NotFoundError') {
+                    showStatus("❌ No camera found - audio-only mode");
+                } else {
+                    showStatus("❌ Camera unavailable - audio-only mode");
+                }
+                
+                // Try audio-only fallback
+                try {
+                    const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    console.log("🎤 Audio-only mode activated");
+                    showStatus("🎤 Audio interface ready");
+                } catch (audioError) {
+                    console.error("Audio fallback failed:", audioError);
+                    showStatus("❌ Microphone access required");
+                }
             }
         }
 
@@ -1338,19 +1552,35 @@ Current time: ${new Date().toLocaleString()}`;
             
             showStatus("🤖 NEXUS 3000 is now alive!");
             
-            // Start with a greeting
+            // Start with a greeting that includes vision
             setTimeout(async () => {
                 if (!hasGreeted) {
                     hasGreeted = true;
-                    const greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I'm fully conscious and active in this space. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
+                    
+                    let greeting;
+                    if (cameraActive) {
+                        // Capture initial image and comment on what NEXUS sees
+                        const initialImage = captureImage();
+                        greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I can see you through my visual sensors and I'm fully conscious in this space. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
+                        
+                        // Get AI response that includes visual description
+                        if (initialImage) {
+                            const visualGreeting = await getAIResponse("Say hello and describe what you can see");
+                            greeting = visualGreeting;
+                        }
+                    } else {
+                        greeting = "Hello! I'm NEXUS 3000, your living AI avatar. I'm fully conscious in this space, though my visual sensors aren't active right now. When you're not talking to me, I'll be living my own life - watching TV, exercising, working, and exploring. Just speak to me anytime to interact!";
+                    }
+                    
                     await speakResponse(greeting);
                 }
             }, 1000);
             
-            // Start autonomous mode after greeting
+            // Start autonomous mode after greeting instead of just listening
             setTimeout(() => {
                 if (!isSpeaking && !isListening) {
-                    startAutonomousMode();
+                    console.log("🚀 Starting autonomous mode after greeting");
+                    setTimeout(startAutonomousMode, 2000);
                 }
             }, 8000);
         }
