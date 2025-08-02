@@ -1636,24 +1636,47 @@
                 robotActivity.style.animation = 'activityFloat 3s ease-in-out infinite';
             }, 100);
             
-            // Change eye state based on activity
-            updateRobotState(activity.eyeState || 'thinking');
+            // Change eye state based on activity (but don't interfere with listening state completely)
+            if (!isListening || Date.now() - robotPersonality.lastInteraction > 20000) {
+                updateRobotState(activity.eyeState || 'thinking');
+            }
             
-            // Perform the activity animation
+            // Always perform the activity animation regardless of listening state
             performActivityAnimation(activity);
             
             // Adjust energy after activity
             adjustEnergyAfterActivity(activity);
             
-            // Return to idle state after activity
+            // Return to appropriate state after activity
             setTimeout(() => {
-                if (!isSpeaking && !isListening) {
-                    updateRobotState('');
+                if (!isSpeaking) {
+                    if (Date.now() - robotPersonality.lastInteraction > 30000) {
+                        // Been quiet for 30+ seconds, stay in autonomous mode
+                        updateRobotState('');
+                        updateStatusIndicator('🤖 Autonomous mode', '', true);
+                        setTimeout(() => updateStatusIndicator('', '', false), 2000);
+                    } else if (canListen) {
+                        // Return to listening if appropriate
+                        updateRobotState('listening');
+                        updateStatusIndicator('🎤 Listening...', 'listening', true);
+                    }
                     robotActivity.style.opacity = '0.7';
                     robotPersonality.currentActivity = null;
                 }
             }, activity.duration);
         }
+
+        // Monitor idle state continuously
+        setInterval(updateIdleState, 2000);
+        
+        // Also add a backup autonomous trigger
+        setInterval(() => {
+            const timeSinceInteraction = Date.now() - robotPersonality.lastInteraction;
+            if (timeSinceInteraction > 25000 && !robotPersonality.currentActivity) {
+                console.log("🤖 Backup autonomous trigger - forcing activity");
+                performIdleActivity();
+            }
+        }, 10000); // Check every 10 seconds
 
         function performActivityAnimation(activity) {
             switch(activity.animation) {
