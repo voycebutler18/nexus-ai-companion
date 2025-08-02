@@ -1444,8 +1444,176 @@
         const starsMid = document.getElementById('starsMid');
         const starsNear = document.getElementById('starsNear');
 
-        // Get new activities from OpenAI
-        async function fetchNewActivities() {
+        // Simple, bulletproof autonomous system
+        let autonomousInterval = null;
+        let moodInterval = null;
+        let activityIndex = 0;
+
+        // Simple activity list that always works
+        const simpleActivities = [
+            { emoji: '💪', name: 'doing pushups', duration: 6000 },
+            { emoji: '📺', name: 'watching TV', duration: 8000 },
+            { emoji: '🧹', name: 'cleaning', duration: 5000 },
+            { emoji: '🎵', name: 'humming', duration: 4000 },
+            { emoji: '🔧', name: 'tinkering', duration: 7000 },
+            { emoji: '🌌', name: 'stargazing', duration: 9000 },
+            { emoji: '🕺', name: 'dancing', duration: 6000 },
+            { emoji: '🍳', name: 'cooking', duration: 8000 }
+        ];
+
+        function startSimpleAutonomy() {
+            console.log("🚀 Starting SIMPLE autonomous system...");
+            
+            // Clear any existing intervals
+            if (autonomousInterval) clearInterval(autonomousInterval);
+            if (moodInterval) clearInterval(moodInterval);
+            
+            // Start autonomous activities every 10 seconds
+            autonomousInterval = setInterval(() => {
+                if (!isSpeaking) {
+                    doSimpleActivity();
+                }
+            }, 10000);
+            
+            // Start mood changes every 30 seconds
+            moodInterval = setInterval(() => {
+                if (!isSpeaking) {
+                    doMoodChange();
+                }
+            }, 30000);
+            
+            // Force first activity after 5 seconds
+            setTimeout(() => {
+                console.log("🧪 FORCING first activity...");
+                doSimpleActivity();
+            }, 5000);
+        }
+
+        function doSimpleActivity() {
+            try {
+                const activity = simpleActivities[activityIndex];
+                activityIndex = (activityIndex + 1) % simpleActivities.length;
+                
+                console.log(`🤖 NEXUS is ${activity.name}!`);
+                
+                // Show the activity emoji
+                const activityElement = document.getElementById('robotActivity');
+                if (activityElement) {
+                    activityElement.textContent = activity.emoji;
+                    activityElement.style.opacity = '1';
+                    activityElement.style.animation = 'activityFloat 3s ease-in-out infinite';
+                }
+                
+                // Do the animation
+                doSimpleAnimation(activity);
+                
+                // Return to normal after duration
+                setTimeout(() => {
+                    if (activityElement) {
+                        activityElement.style.opacity = '0.7';
+                    }
+                }, activity.duration);
+                
+            } catch (error) {
+                console.error("❌ Error in doSimpleActivity:", error);
+            }
+        }
+
+        function doSimpleAnimation(activity) {
+            try {
+                const container = document.querySelector('.robot-body-container');
+                const leftEye = document.getElementById('leftEyeFull');
+                const rightEye = document.getElementById('rightEyeFull');
+                const torso = document.querySelector('.robot-torso');
+                const arms = document.querySelectorAll('.robot-arm');
+                
+                if (!container) {
+                    console.log("❌ Could not find robot container");
+                    return;
+                }
+                
+                console.log(`🎬 Animating: ${activity.name}`);
+                
+                switch(activity.name) {
+                    case 'doing pushups':
+                        let pushupCount = 0;
+                        const pushupTimer = setInterval(() => {
+                            if (torso) {
+                                torso.style.transform = pushupCount % 2 === 0 ? 'translateY(8px)' : 'translateY(0px)';
+                            }
+                            pushupCount++;
+                            if (pushupCount >= 8) {
+                                clearInterval(pushupTimer);
+                                if (torso) torso.style.transform = '';
+                            }
+                        }, 600);
+                        break;
+                        
+                    case 'dancing':
+                        let danceCount = 0;
+                        const danceTimer = setInterval(() => {
+                            container.style.transform = `rotate(${Math.sin(danceCount) * 5}deg)`;
+                            if (arms.length >= 2) {
+                                arms[0].style.transform = `rotate(${Math.sin(danceCount) * 30}deg)`;
+                                arms[1].style.transform = `rotate(${Math.cos(danceCount) * 30}deg)`;
+                            }
+                            danceCount += 0.3;
+                            if (danceCount >= 10) {
+                                clearInterval(danceTimer);
+                                container.style.transform = '';
+                                arms.forEach(arm => arm.style.transform = '');
+                            }
+                        }, 200);
+                        break;
+                        
+                    case 'watching TV':
+                        if (leftEye && rightEye) {
+                            let direction = 1;
+                            const watchTimer = setInterval(() => {
+                                leftEye.style.transform = `translateX(${direction * 3}px)`;
+                                rightEye.style.transform = `translateX(${direction * 3}px)`;
+                                direction *= -1;
+                            }, 2000);
+                            setTimeout(() => {
+                                clearInterval(watchTimer);
+                                leftEye.style.transform = '';
+                                rightEye.style.transform = '';
+                            }, 6000);
+                        }
+                        break;
+                        
+                    default:
+                        // Simple head bob for other activities
+                        let bobCount = 0;
+                        const bobTimer = setInterval(() => {
+                            container.style.transform = `translateY(${Math.sin(bobCount) * 2}px)`;
+                            bobCount += 0.2;
+                            if (bobCount >= 4) {
+                                clearInterval(bobTimer);
+                                container.style.transform = '';
+                            }
+                        }, 200);
+                }
+                
+            } catch (error) {
+                console.error("❌ Error in animation:", error);
+            }
+        }
+
+        function doMoodChange() {
+            const moods = ['curious', 'energetic', 'contemplative', 'playful'];
+            const mood = moods[Math.floor(Math.random() * moods.length)];
+            console.log(`🎭 NEXUS mood: ${mood}`);
+            
+            const head = document.querySelector('.robot-head');
+            if (head) {
+                const angle = (Math.random() - 0.5) * 10;
+                head.style.transform = `rotate(${angle}deg)`;
+                setTimeout(() => {
+                    head.style.transform = '';
+                }, 2000);
+            }
+        }
             const now = Date.now();
             // Only fetch new activities every 5 minutes to avoid spam
             if (now - robotPersonality.lastAIActivityFetch < 300000) return;
@@ -2998,18 +3166,9 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 speechSynthesis.getVoices();
             }
 
-            // IMPORTANT: Start robot activities FIRST, before greeting
-            console.log("🤖 Starting autonomous robot activities...");
-            startRobotActivities();
-            
-            // Mark initial interaction time
-            robotPersonality.lastInteraction = Date.now();
-            
-            // Force an initial activity after 5 seconds to test the system
-            setTimeout(() => {
-                console.log("🧪 Testing autonomous system with forced activity...");
-                performIdleActivity();
-            }, 5000);
+            // START THE SIMPLE AUTONOMOUS SYSTEM
+            console.log("🤖 Starting SIMPLE autonomous robot system...");
+            startSimpleAutonomy();
 
             setTimeout(async () => {
                 if (!hasGreeted) {
