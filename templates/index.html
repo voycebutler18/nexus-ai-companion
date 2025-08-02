@@ -1,137 +1,4 @@
-@media (max-width: 768px) {
-            .title { 
-                font-size: 3.5em; 
-                letter-spacing: 8px; 
-            }
-            
-            .subtitle {
-                font-size: 1.2em;
-                letter-spacing: 4px;
-            }
-            
-            .wave-container { 
-                width: 90%; 
-                height: 100px;
-            }
-            
-            .robot-body-container { 
-                width: 250px; 
-                height: 380px; 
-            }
-            
-            .robot-head {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .robot-torso {
-                width: 80px;
-                height: 120px;
-            }
-            
-            .robot-arms {
-                width: 160px;
-                top: 120px;
-            }
-            
-            .robot-arm {
-                height: 60px;
-            }
-            
-            .robot-leg {
-                height: 100px;
-            }
-            
-            .voice-status-ring {
-                width: 280px;
-                height: 280px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .title { 
-                font-size: 2.5em; 
-                letter-spacing: 4px; 
-            }
-            
-            .robot-body-container { 
-                width: 200px; 
-                height: 320px; 
-            }
-            
-            .robot-head {
-                width: 80px;
-                height: 80px;
-            }
-            
-            .robot-torso {
-                width: 65px;
-                height: 100px;
-            }
-            
-            .robot-arms {
-                width: 140px;
-                top: 100px;
-            }
-            
-            .robot-arm {
-                height: 50px;
-                width: 12px;
-            }
-            
-            .robot-leg {
-                height: 80px;
-                width: 16px;
-            }
-            
-            .voice-status-ring {
-                width: 240px;
-                height: 240px;
-            }
-        }
-        
-        /* Enhanced mouth animations for full body */
-        .mouth-indicator-fullbody.listening {
-            background: #00ffff;
-            animation: mouthListening 1s ease-in-out infinite;
-        }
-        
-        .mouth-indicator-fullbody.user-speaking {
-            background: #00aaff;
-            animation: mouthUserSpeaking 0.15s ease-in-out infinite;
-        }
-        
-        .mouth-indicator-fullbody.ai-speaking, .mouth-indicator-fullbody.speaking {
-            background: #d870f0;
-            animation: mouthAISpeaking 0.2s ease-in-out infinite;
-        }
-        
-        .mouth-indicator-fullbody.thinking {
-            background: #8338ec;
-            animation: mouthThinking 0.6s ease-in-out infinite;
-        }
-        
-        /* Enhanced eye states for full body */
-        .robot-eye-fullbody.listening {
-            animation: eyePulse 2s ease-in-out infinite, eyeListening 1s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #00ffff 35%, #0088ff 100%);
-        }
-        
-        .robot-eye-fullbody.thinking {
-            animation: eyeThinking 0.8s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #8338ec 35%, #a370ff 100%);
-        }
-        
-        .robot-eye-fullbody.speaking {
-            animation: eyeSpeaking 0.3s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #d870f0 35%, #ff88cc 100%);
-        }
-        
-        /* Parallax Effect Variables */
-        :root {
-            --mouse-x: 50%;
-            --mouse-y: 50%;
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -363,8 +230,6 @@
             background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.4), #a370ff);
             animation: move-planet-3 90s linear infinite;
         }
-        
-        /* Remove navigation styles */
         
         /* Main Content Container */
         .main-content {
@@ -670,241 +535,6 @@
             transform: scale(0.6);
         }
         
-        /* Enhanced Animations */
-        @keyframes headFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-5px) rotate(2deg); }
-        }
-        
-        @keyframes torsoGlow {
-            0% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1); }
-            100% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), inset 0 0 30px rgba(0, 255, 255, 0.2); }
-        }
-        
-        @keyframes chestLight {
-            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
-            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
-        }
-        
-        @keyframes leftArmMove {
-            0%, 100% { transform: rotate(-10deg); }
-            25% { transform: rotate(15deg); }
-            50% { transform: rotate(-5deg); }
-            75% { transform: rotate(20deg); }
-        }
-        
-        @keyframes rightArmMove {
-            0%, 100% { transform: rotate(10deg); }
-            30% { transform: rotate(-15deg); }
-            60% { transform: rotate(25deg); }
-            90% { transform: rotate(-10deg); }
-        }
-        
-        @keyframes handGlow {
-            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.8); }
-            100% { box-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 255, 255, 0.6); }
-        }
-        
-        @keyframes leftLegWalk {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(15deg); }
-            75% { transform: rotate(-10deg); }
-        }
-        
-        @keyframes rightLegWalk {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-15deg); }
-            75% { transform: rotate(10deg); }
-        }
-        
-        @keyframes activityFloat {
-            0% { opacity: 0; transform: translateX(-50%) translateY(0px); }
-            50% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-40px); }
-        }
-        
-        @keyframes robotWalkAround {
-            0% { 
-                left: -15%; 
-                top: 60%; 
-                transform: scale(0.4) rotate(0deg); 
-            }
-            25% { 
-                left: 25%; 
-                top: 20%; 
-                transform: scale(0.5) rotate(90deg); 
-            }
-            50% { 
-                left: 75%; 
-                top: 70%; 
-                transform: scale(0.6) rotate(180deg); 
-            }
-            75% { 
-                left: 85%; 
-                top: 30%; 
-                transform: scale(0.4) rotate(270deg); 
-            }
-            100% { 
-                left: 115%; 
-                top: 50%; 
-                transform: scale(0.3) rotate(360deg); 
-            }
-        }
-        
-        /* Advanced Robot Eyes with Pupils */
-        .robot-eyes {
-            display: flex;
-            justify-content: space-between;
-            width: 100px;
-            margin: 0 auto 25px;
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .robot-eye {
-            width: 35px;
-            height: 35px;
-            background: radial-gradient(circle, #000 30%, #00ffff 35%, #00aaff 100%);
-            border-radius: 50%;
-            box-shadow: 
-                0 0 20px #00ffff, 
-                inset 0 0 15px rgba(255, 255, 255, 0.3),
-                inset 5px 5px 10px rgba(0, 0, 0, 0.5);
-            animation: eyePulse 2s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .robot-eye::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 8px;
-            height: 8px;
-            background: #000;
-            border-radius: 50%;
-            animation: pupilMove 4s ease-in-out infinite;
-        }
-        
-        .robot-eye::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            animation: pupilMove 4s ease-in-out infinite;
-        }
-        
-        .robot-eye.listening {
-            animation: eyePulse 2s ease-in-out infinite, eyeListening 1s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #00ffff 35%, #0088ff 100%);
-        }
-        
-        .robot-eye.thinking {
-            animation: eyeThinking 0.8s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #8338ec 35%, #a370ff 100%);
-        }
-        
-        .robot-eye.speaking {
-            animation: eyeSpeaking 0.3s ease-in-out infinite;
-            background: radial-gradient(circle, #000 30%, #d870f0 35%, #ff88cc 100%);
-        }
-        
-        /* Robot Ears with Animation */
-        .robot-ears {
-            position: absolute;
-            top: 70px;
-            width: 100%;
-            height: 60px;
-        }
-        
-        .robot-ear {
-            position: absolute;
-            width: 20px;
-            height: 40px;
-            background: linear-gradient(45deg, #333, #00ffff);
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-        }
-        
-        .robot-ear.left {
-            left: 20px;
-            transform: rotate(-15deg);
-        }
-        
-        .robot-ear.right {
-            right: 20px;
-            transform: rotate(15deg);
-        }
-        
-        .robot-ear.listening {
-            animation: earListening 1s ease-in-out infinite;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
-        }
-        
-        /* Enhanced Robot Mouth with Sync */
-        .robot-mouth {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 25px;
-            background: #000;
-            border: 3px solid #00ffff;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-        }
-        
-        .mouth-indicator {
-            width: 100%;
-            height: 100%;
-            background: #00ffff;
-            border-radius: 40px;
-            transform: scaleY(0.2);
-            transition: all 0.05s ease;
-            position: relative;
-        }
-        
-        .mouth-indicator::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 2px;
-        }
-        
-        .mouth-indicator.listening {
-            background: #00ffff;
-            animation: mouthListening 1s ease-in-out infinite;
-        }
-        
-        .mouth-indicator.user-speaking {
-            background: #00aaff;
-            animation: mouthUserSpeaking 0.15s ease-in-out infinite;
-        }
-        
-        .mouth-indicator.ai-speaking {
-            background: #d870f0;
-            animation: mouthAISpeaking 0.2s ease-in-out infinite;
-        }
-        
-        .mouth-indicator.thinking {
-            background: #8338ec;
-            animation: mouthThinking 0.6s ease-in-out infinite;
-        }
-        
         /* Voice Status Ring */
         .voice-status-ring {
             position: absolute;
@@ -1104,7 +734,124 @@
             left: 100%;
         }
         
-        /* Animations */
+        /* Enhanced mouth animations for full body */
+        .mouth-indicator-fullbody.listening {
+            background: #00ffff;
+            animation: mouthListening 1s ease-in-out infinite;
+        }
+        
+        .mouth-indicator-fullbody.user-speaking {
+            background: #00aaff;
+            animation: mouthUserSpeaking 0.15s ease-in-out infinite;
+        }
+        
+        .mouth-indicator-fullbody.ai-speaking, .mouth-indicator-fullbody.speaking {
+            background: #d870f0;
+            animation: mouthAISpeaking 0.2s ease-in-out infinite;
+        }
+        
+        .mouth-indicator-fullbody.thinking {
+            background: #8338ec;
+            animation: mouthThinking 0.6s ease-in-out infinite;
+        }
+        
+        /* Enhanced eye states for full body */
+        .robot-eye-fullbody.listening {
+            animation: eyePulse 2s ease-in-out infinite, eyeListening 1s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #00ffff 35%, #0088ff 100%);
+        }
+        
+        .robot-eye-fullbody.thinking {
+            animation: eyeThinking 0.8s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #8338ec 35%, #a370ff 100%);
+        }
+        
+        .robot-eye-fullbody.speaking {
+            animation: eyeSpeaking 0.3s ease-in-out infinite;
+            background: radial-gradient(circle, #000 30%, #d870f0 35%, #ff88cc 100%);
+        }
+        
+        /* Enhanced Animations */
+        @keyframes headFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(2deg); }
+        }
+        
+        @keyframes torsoGlow {
+            0% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1); }
+            100% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), inset 0 0 30px rgba(0, 255, 255, 0.2); }
+        }
+        
+        @keyframes chestLight {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+        }
+        
+        @keyframes leftArmMove {
+            0%, 100% { transform: rotate(-10deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-5deg); }
+            75% { transform: rotate(20deg); }
+        }
+        
+        @keyframes rightArmMove {
+            0%, 100% { transform: rotate(10deg); }
+            30% { transform: rotate(-15deg); }
+            60% { transform: rotate(25deg); }
+            90% { transform: rotate(-10deg); }
+        }
+        
+        @keyframes handGlow {
+            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 255, 255, 0.6); }
+        }
+        
+        @keyframes leftLegWalk {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-10deg); }
+        }
+        
+        @keyframes rightLegWalk {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(10deg); }
+        }
+        
+        @keyframes activityFloat {
+            0% { opacity: 0; transform: translateX(-50%) translateY(0px); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px); }
+        }
+        
+        @keyframes robotWalkAround {
+            0% { 
+                left: -15%; 
+                top: 60%; 
+                transform: scale(0.4) rotate(0deg); 
+            }
+            25% { 
+                left: 25%; 
+                top: 20%; 
+                transform: scale(0.5) rotate(90deg); 
+            }
+            50% { 
+                left: 75%; 
+                top: 70%; 
+                transform: scale(0.6) rotate(180deg); 
+            }
+            75% { 
+                left: 85%; 
+                top: 30%; 
+                transform: scale(0.4) rotate(270deg); 
+            }
+            100% { 
+                left: 115%; 
+                top: 50%; 
+                transform: scale(0.3) rotate(360deg); 
+            }
+        }
+        
         @keyframes galaxyRotation {
             0% { transform: translate(-10%, -10%) rotate(0deg); }
             100% { transform: translate(-10%, -10%) rotate(360deg); }
@@ -1182,20 +929,6 @@
         @keyframes pulse {
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
-        }
-        
-        @keyframes faceGlow {
-            0% { 
-                box-shadow: 0 0 60px rgba(0, 255, 255, 0.6), inset 0 0 40px rgba(0, 255, 255, 0.1), 0 0 100px rgba(0, 255, 255, 0.3); 
-            }
-            100% { 
-                box-shadow: 0 0 80px rgba(0, 255, 255, 0.9), inset 0 0 50px rgba(0, 255, 255, 0.2), 0 0 120px rgba(0, 255, 255, 0.5); 
-            }
-        }
-        
-        @keyframes faceRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         @keyframes eyePulse {
@@ -1388,8 +1121,8 @@
                 clip-path: polygon(0 55%, 10% 35%, 20% 65%, 30% 30%, 40% 70%, 50% 45%, 60% 55%, 70% 40%, 80% 60%, 90% 35%, 100% 65%); 
             }
         }
-        
-        /* Mobile Responsive */
+
+        /* Mobile Responsive - Updated for Full Body Robot */
         @media (max-width: 768px) {
             .title { 
                 font-size: 3.5em; 
@@ -1406,46 +1139,37 @@
                 height: 100px;
             }
             
-            .robot-face-container { 
-                width: 200px; 
-                height: 200px; 
+            .robot-body-container { 
+                width: 250px; 
+                height: 380px; 
             }
             
-            .robot-face { 
-                width: 160px; 
-                height: 160px; 
+            .robot-head {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .robot-torso {
+                width: 80px;
+                height: 120px;
+            }
+            
+            .robot-arms {
+                width: 160px;
+                top: 120px;
+            }
+            
+            .robot-arm {
+                height: 60px;
+            }
+            
+            .robot-leg {
+                height: 100px;
             }
             
             .voice-status-ring {
-                width: 240px;
-                height: 240px;
-            }
-            
-            .nav-container {
-                top: 20px;
-                padding: 10px 20px;
-                gap: 15px;
-            }
-            
-            .nav-item {
-                font-size: 14px;
-                padding: 8px 15px;
-            }
-            
-            .robot-eyes {
-                width: 70px;
-                top: 35px;
-            }
-            
-            .robot-eye {
-                width: 25px;
-                height: 25px;
-            }
-            
-            .robot-mouth {
-                width: 60px;
-                height: 20px;
-                bottom: 40px;
+                width: 280px;
+                height: 280px;
             }
         }
         
@@ -1455,24 +1179,39 @@
                 letter-spacing: 4px; 
             }
             
-            .robot-face-container { 
-                width: 160px; 
-                height: 160px; 
+            .robot-body-container { 
+                width: 200px; 
+                height: 320px; 
             }
             
-            .robot-face { 
-                width: 130px; 
-                height: 130px; 
+            .robot-head {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .robot-torso {
+                width: 65px;
+                height: 100px;
+            }
+            
+            .robot-arms {
+                width: 140px;
+                top: 100px;
+            }
+            
+            .robot-arm {
+                height: 50px;
+                width: 12px;
+            }
+            
+            .robot-leg {
+                height: 80px;
+                width: 16px;
             }
             
             .voice-status-ring {
-                width: 200px;
-                height: 200px;
-            }
-            
-            .nav-container {
-                flex-direction: column;
-                gap: 10px;
+                width: 240px;
+                height: 240px;
             }
         }
         
@@ -1516,8 +1255,6 @@
         <div class="planet planet-2"></div>
         <div class="planet planet-3"></div>
     </div>
-
-    <!-- Navigation removed as requested -->
 
     <!-- Main Content -->
     <div class="main-content">
@@ -1788,35 +1525,6 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                     
                     constellation.appendChild(line);
                 }
-            }
-        }
-
-        // Enhanced Robot State Management
-        function updateRobotState(state) {
-            // Update eyes
-            leftEye.className = 'robot-eye ' + state;
-            rightEye.className = 'robot-eye ' + state;
-            
-            // Update ears
-            if (state === 'listening') {
-                leftEar.className = 'robot-ear left listening';
-                rightEar.className = 'robot-ear right listening';
-            } else {
-                leftEar.className = 'robot-ear left';
-                rightEar.className = 'robot-ear right';
-            }
-            
-            // Update mouth
-            mouthIndicator.className = 'mouth-indicator ' + state;
-            
-            // Update voice status ring
-            voiceStatusRing.className = 'voice-status-ring ' + state;
-            
-            // Update constellation based on state
-            if (state === 'thinking') {
-                document.getElementById('constellationBg').style.animation = 'faceRotate 4s linear infinite';
-            } else {
-                document.getElementById('constellationBg').style.animation = 'none';
             }
         }
 
