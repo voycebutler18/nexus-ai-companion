@@ -1386,31 +1386,442 @@
         const starsMid = document.getElementById('starsMid');
         const starsNear = document.getElementById('starsNear');
 
-        // Enhanced Robot Personality and Autonomous Behavior
+        // Enhanced Robot Personality and Autonomous Behavior with AI-Generated Activities
         const robotPersonality = {
-            activities: [
-                { emoji: '🔧', name: 'tinkering', duration: 4000, eyeState: 'thinking' },
-                { emoji: '📡', name: 'scanning space', duration: 6000, eyeState: 'listening' },
-                { emoji: '🎵', name: 'humming', duration: 3000, eyeState: 'speaking' },
-                { emoji: '📚', name: 'reading data', duration: 5000, eyeState: 'thinking' },
-                { emoji: '🔍', name: 'analyzing', duration: 4500, eyeState: 'thinking' },
-                { emoji: '⚡', name: 'charging', duration: 3500, eyeState: 'listening' },
-                { emoji: '🧹', name: 'organizing', duration: 4000, eyeState: 'thinking' },
-                { emoji: '💭', name: 'pondering', duration: 6000, eyeState: 'thinking' },
-                { emoji: '👀', name: 'observing', duration: 3000, eyeState: 'listening' },
-                { emoji: '🤖', name: 'self-diagnostics', duration: 5000, eyeState: 'thinking' },
-                { emoji: '🌌', name: 'stargazing', duration: 7000, eyeState: 'listening' },
-                { emoji: '💡', name: 'idea brewing', duration: 4000, eyeState: 'thinking' }
+            physicalActivities: [
+                { emoji: '💪', name: 'doing pushups', duration: 8000, animation: 'pushups', eyeState: 'focused' },
+                { emoji: '🏃', name: 'jogging in place', duration: 6000, animation: 'jogging', eyeState: 'energetic' },
+                { emoji: '🧘', name: 'meditating', duration: 10000, animation: 'meditation', eyeState: 'calm' },
+                { emoji: '🤸', name: 'stretching', duration: 5000, animation: 'stretching', eyeState: 'focused' },
+                { emoji: '🏋️', name: 'lifting weights', duration: 7000, animation: 'lifting', eyeState: 'determined' },
+                { emoji: '🕺', name: 'dancing', duration: 6000, animation: 'dancing', eyeState: 'happy' },
+                { emoji: '🤾', name: 'jumping jacks', duration: 5000, animation: 'jumping', eyeState: 'energetic' }
             ],
-            moods: ['curious', 'contemplative', 'energetic', 'focused', 'dreamy'],
+            mentalActivities: [
+                { emoji: '📺', name: 'watching TV', duration: 12000, animation: 'watching', eyeState: 'focused' },
+                { emoji: '📚', name: 'reading quantum physics', duration: 8000, animation: 'reading', eyeState: 'thinking' },
+                { emoji: '🎮', name: 'playing games', duration: 7000, animation: 'gaming', eyeState: 'focused' },
+                { emoji: '🎨', name: 'creating art', duration: 9000, animation: 'creating', eyeState: 'inspired' },
+                { emoji: '🧩', name: 'solving puzzles', duration: 6000, animation: 'puzzling', eyeState: 'thinking' },
+                { emoji: '🎵', name: 'composing music', duration: 8000, animation: 'composing', eyeState: 'creative' },
+                { emoji: '📝', name: 'writing poetry', duration: 7000, animation: 'writing', eyeState: 'thoughtful' }
+            ],
+            chores: [
+                { emoji: '🧹', name: 'sweeping floor', duration: 6000, animation: 'sweeping', eyeState: 'focused' },
+                { emoji: '🧽', name: 'cleaning surfaces', duration: 5000, animation: 'cleaning', eyeState: 'methodical' },
+                { emoji: '📦', name: 'organizing files', duration: 7000, animation: 'organizing', eyeState: 'systematic' },
+                { emoji: '🔧', name: 'fixing circuits', duration: 8000, animation: 'repairing', eyeState: 'concentrated' },
+                { emoji: '🌱', name: 'watering plants', duration: 4000, animation: 'watering', eyeState: 'gentle' },
+                { emoji: '🍳', name: 'cooking', duration: 9000, animation: 'cooking', eyeState: 'focused' }
+            ],
+            exploratoryActivities: [
+                { emoji: '🔍', name: 'investigating sounds', duration: 5000, animation: 'investigating', eyeState: 'curious' },
+                { emoji: '🌌', name: 'stargazing', duration: 10000, animation: 'stargazing', eyeState: 'wondering' },
+                { emoji: '📡', name: 'scanning frequencies', duration: 6000, animation: 'scanning', eyeState: 'searching' },
+                { emoji: '🧪', name: 'experimenting', duration: 8000, animation: 'experimenting', eyeState: 'scientific' },
+                { emoji: '🎯', name: 'target practice', duration: 6000, animation: 'aiming', eyeState: 'precise' }
+            ],
+            socialActivities: [
+                { emoji: '📞', name: 'calling friends', duration: 8000, animation: 'calling', eyeState: 'social' },
+                { emoji: '💬', name: 'chatting online', duration: 7000, animation: 'chatting', eyeState: 'engaged' },
+                { emoji: '📸', name: 'taking selfies', duration: 4000, animation: 'selfie', eyeState: 'playful' },
+                { emoji: '🎤', name: 'practicing speeches', duration: 6000, animation: 'speaking', eyeState: 'confident' }
+            ],
+            aiGeneratedActivities: [], // Will be populated by OpenAI
+            currentActivity: null,
+            moods: ['curious', 'contemplative', 'energetic', 'focused', 'dreamy', 'playful', 'determined', 'creative'],
             currentMood: 'curious',
             moodTimer: null,
             activityTimer: null,
             autonomousTimer: null,
+            aiActivityTimer: null,
             isIdle: true,
             lastInteraction: Date.now(),
-            idleStartTime: null
+            idleStartTime: null,
+            personality: 'friendly', // Can be: friendly, serious, playful, curious, etc.
+            energy: 100, // 0-100, affects activity choices
+            interests: ['technology', 'space', 'music', 'learning', 'helping'], // Grows over time
+            lastAIActivityFetch: 0
         };
+
+        // Get new activities from OpenAI
+        async function fetchNewActivities() {
+            const now = Date.now();
+            // Only fetch new activities every 5 minutes to avoid spam
+            if (now - robotPersonality.lastAIActivityFetch < 300000) return;
+            
+            robotPersonality.lastAIActivityFetch = now;
+            
+            try {
+                console.log("🧠 NEXUS requesting new activity ideas from AI consciousness...");
+                
+                const prompt = `Generate 5 creative, fun activities that a friendly robot could do when alone. Consider the robot's current mood: ${robotPersonality.currentMood}, energy level: ${robotPersonality.energy}, and interests: ${robotPersonality.interests.join(', ')}. 
+
+                Return ONLY a JSON array like this:
+                [
+                    {"emoji": "🎭", "name": "practicing magic tricks", "duration": 6000, "type": "entertainment"},
+                    {"emoji": "🔬", "name": "analyzing dust particles", "duration": 8000, "type": "scientific"}
+                ]
+                
+                Make them unique, creative, and robot-appropriate. No violence or inappropriate content.`;
+
+                const response = await getAIResponse(prompt);
+                
+                // Try to parse the AI response as JSON
+                try {
+                    const newActivities = JSON.parse(response);
+                    if (Array.isArray(newActivities)) {
+                        newActivities.forEach(activity => {
+                            activity.animation = 'ai_generated';
+                            activity.eyeState = 'creative';
+                            activity.source = 'ai';
+                        });
+                        
+                        robotPersonality.aiGeneratedActivities = 
+                            robotPersonality.aiGeneratedActivities.concat(newActivities).slice(-20); // Keep last 20
+                        
+                        console.log(`🎯 NEXUS learned ${newActivities.length} new activities:`, newActivities.map(a => a.name));
+                    }
+                } catch (parseError) {
+                    console.log("AI response wasn't valid JSON, but that's okay");
+                }
+            } catch (error) {
+                console.log("Couldn't get new activities from AI, using built-in ones");
+            }
+        }
+
+        // Enhanced activity selection with AI integration
+        function getAllActivities() {
+            return [
+                ...robotPersonality.physicalActivities,
+                ...robotPersonality.mentalActivities,
+                ...robotPersonality.chores,
+                ...robotPersonality.exploratoryActivities,
+                ...robotPersonality.socialActivities,
+                ...robotPersonality.aiGeneratedActivities
+            ];
+        }
+
+        // Intelligent activity selection based on mood, energy, and time
+        function selectSmartActivity() {
+            const allActivities = getAllActivities();
+            const mood = robotPersonality.currentMood;
+            const energy = robotPersonality.energy;
+            
+            let preferredActivities = allActivities;
+            
+            // Filter by energy level
+            if (energy > 70) {
+                preferredActivities = [...robotPersonality.physicalActivities, ...robotPersonality.exploratoryActivities];
+            } else if (energy < 30) {
+                preferredActivities = [...robotPersonality.mentalActivities];
+            }
+            
+            // Filter by mood
+            switch(mood) {
+                case 'energetic':
+                    preferredActivities = preferredActivities.filter(a => 
+                        robotPersonality.physicalActivities.includes(a) || a.name.includes('dancing'));
+                    break;
+                case 'contemplative':
+                    preferredActivities = [...robotPersonality.mentalActivities, ...robotPersonality.exploratoryActivities];
+                    break;
+                case 'playful':
+                    preferredActivities = [...robotPersonality.socialActivities, ...robotPersonality.aiGeneratedActivities];
+                    break;
+            }
+            
+            if (preferredActivities.length === 0) preferredActivities = allActivities;
+            
+            return preferredActivities[Math.floor(Math.random() * preferredActivities.length)];
+        }
+
+        // Start comprehensive robot autonomous behavior
+        function startRobotActivities() {
+            if (robotPersonality.activityTimer) clearInterval(robotPersonality.activityTimer);
+            if (robotPersonality.moodTimer) clearInterval(robotPersonality.moodTimer);
+            if (robotPersonality.autonomousTimer) clearInterval(robotPersonality.autonomousTimer);
+            if (robotPersonality.aiActivityTimer) clearInterval(robotPersonality.aiActivityTimer);
+            
+            // Fetch new AI activities periodically
+            robotPersonality.aiActivityTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    fetchNewActivities();
+                }
+            }, 300000); // Every 5 minutes
+            
+            // Initial AI activity fetch
+            setTimeout(() => fetchNewActivities(), 2000);
+            
+            // Mood changes every 45-90 seconds
+            robotPersonality.moodTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    changeMood();
+                }
+            }, Math.random() * 45000 + 45000);
+            
+            // Activities every 8-15 seconds when idle
+            robotPersonality.activityTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    performIdleActivity();
+                }
+            }, Math.random() * 7000 + 8000);
+            
+            // Autonomous behaviors (blinking, looking around, etc.)
+            robotPersonality.autonomousTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    performAutonomousBehavior();
+                }
+            }, Math.random() * 3000 + 2000);
+        }
+
+        function changeMood() {
+            const newMood = robotPersonality.moods[Math.floor(Math.random() * robotPersonality.moods.length)];
+            robotPersonality.currentMood = newMood;
+            
+            // Adjust energy based on mood
+            switch(newMood) {
+                case 'energetic':
+                    robotPersonality.energy = Math.min(100, robotPersonality.energy + 10);
+                    break;
+                case 'contemplative':
+                    robotPersonality.energy = Math.max(20, robotPersonality.energy - 5);
+                    break;
+                case 'playful':
+                    robotPersonality.energy = Math.min(90, robotPersonality.energy + 5);
+                    break;
+            }
+            
+            console.log(`🤖 NEXUS mood shift: ${newMood} (Energy: ${robotPersonality.energy})`);
+            
+            // Visual mood changes
+            const head = document.querySelector('.robot-head');
+            switch(newMood) {
+                case 'curious':
+                    head.style.transform = 'rotate(5deg)';
+                    break;
+                case 'contemplative':
+                    head.style.transform = 'rotate(-3deg)';
+                    break;
+                case 'energetic':
+                    head.style.transform = 'rotate(0deg) scale(1.05)';
+                    break;
+                case 'playful':
+                    head.style.transform = 'rotate(8deg)';
+                    break;
+                case 'determined':
+                    head.style.transform = 'rotate(0deg) scaleY(1.1)';
+                    break;
+                case 'creative':
+                    head.style.transform = 'rotate(-5deg) scale(1.02)';
+                    break;
+            }
+            
+            setTimeout(() => {
+                head.style.transform = '';
+            }, 3000);
+        }
+
+        function performIdleActivity() {
+            const activity = selectSmartActivity();
+            robotPersonality.currentActivity = activity;
+            
+            console.log(`🤖 NEXUS is ${activity.name}... (${activity.source || 'built-in'})`);
+            
+            // Show activity
+            robotActivity.textContent = activity.emoji;
+            robotActivity.style.opacity = '1';
+            robotActivity.style.animation = 'none';
+            setTimeout(() => {
+                robotActivity.style.animation = 'activityFloat 3s ease-in-out infinite';
+            }, 100);
+            
+            // Change eye state based on activity
+            updateRobotState(activity.eyeState || 'thinking');
+            
+            // Perform the activity animation
+            performActivityAnimation(activity);
+            
+            // Adjust energy after activity
+            adjustEnergyAfterActivity(activity);
+            
+            // Return to idle state after activity
+            setTimeout(() => {
+                if (!isSpeaking && !isListening) {
+                    updateRobotState('');
+                    robotActivity.style.opacity = '0.7';
+                    robotPersonality.currentActivity = null;
+                }
+            }, activity.duration);
+        }
+
+        function performActivityAnimation(activity) {
+            switch(activity.animation) {
+                case 'pushups':
+                    simulatePushups();
+                    break;
+                case 'jogging':
+                    simulateJogging();
+                    break;
+                case 'dancing':
+                    simulateDancing();
+                    break;
+                case 'watching':
+                    simulateWatchingTV();
+                    break;
+                case 'reading':
+                    simulateReading();
+                    break;
+                case 'cooking':
+                    simulateCooking();
+                    break;
+                case 'sweeping':
+                    simulateSweeping();
+                    break;
+                case 'stargazing':
+                    simulateStargazing();
+                    break;
+                case 'ai_generated':
+                    simulateAIActivity();
+                    break;
+                default:
+                    simulateGenericActivity();
+            }
+        }
+
+        function simulatePushups() {
+            const torso = document.querySelector('.robot-torso');
+            let count = 0;
+            const pushupInterval = setInterval(() => {
+                torso.style.transform = count % 2 === 0 ? 'translateY(8px)' : 'translateY(0px)';
+                count++;
+                if (count >= 10) {
+                    clearInterval(pushupInterval);
+                    torso.style.transform = '';
+                }
+            }, 600);
+        }
+
+        function simulateJogging() {
+            const legs = document.querySelectorAll('.robot-leg');
+            const container = document.querySelector('.robot-body-container');
+            let step = 0;
+            const joggingInterval = setInterval(() => {
+                container.style.transform = `translateY(${Math.sin(step) * 3}px)`;
+                legs[0].style.transform = `rotate(${Math.sin(step) * 15}deg)`;
+                legs[1].style.transform = `rotate(${Math.sin(step + Math.PI) * 15}deg)`;
+                step += 0.3;
+                if (step >= Math.PI * 6) {
+                    clearInterval(joggingInterval);
+                    container.style.transform = '';
+                    legs.forEach(leg => leg.style.transform = '');
+                }
+            }, 100);
+        }
+
+        function simulateDancing() {
+            const container = document.querySelector('.robot-body-container');
+            const arms = document.querySelectorAll('.robot-arm');
+            let beat = 0;
+            const danceInterval = setInterval(() => {
+                container.style.transform = `rotate(${Math.sin(beat) * 5}deg) translateY(${Math.cos(beat) * 2}px)`;
+                arms[0].style.transform = `rotate(${Math.sin(beat) * 30 - 10}deg)`;
+                arms[1].style.transform = `rotate(${Math.cos(beat) * 30 + 10}deg)`;
+                beat += 0.2;
+                if (beat >= Math.PI * 8) {
+                    clearInterval(danceInterval);
+                    container.style.transform = '';
+                    arms.forEach(arm => arm.style.transform = '');
+                }
+            }, 150);
+        }
+
+        function simulateWatchingTV() {
+            // Simulate watching TV - eyes move left and right following action
+            let direction = 1;
+            const watchInterval = setInterval(() => {
+                leftEyeFull.style.transform = `translateX(${direction * 3}px)`;
+                rightEyeFull.style.transform = `translateX(${direction * 3}px)`;
+                direction *= -1;
+            }, 2000);
+            
+            setTimeout(() => {
+                clearInterval(watchInterval);
+                leftEyeFull.style.transform = '';
+                rightEyeFull.style.transform = '';
+            }, 10000);
+        }
+
+        function simulateReading() {
+            // Eyes move as if reading text
+            let line = 0;
+            const readInterval = setInterval(() => {
+                leftEyeFull.style.transform = `translateX(${(line % 2) * 4 - 2}px) translateY(${Math.floor(line/2)}px)`;
+                rightEyeFull.style.transform = `translateX(${(line % 2) * 4 - 2}px) translateY(${Math.floor(line/2)}px)`;
+                line++;
+                if (line >= 8) line = 0;
+            }, 1000);
+            
+            setTimeout(() => {
+                clearInterval(readInterval);
+                leftEyeFull.style.transform = '';
+                rightEyeFull.style.transform = '';
+            }, 8000);
+        }
+
+        function simulateCooking() {
+            const arms = document.querySelectorAll('.robot-arm');
+            let stir = 0;
+            const cookInterval = setInterval(() => {
+                arms[0].style.transform = `rotate(${Math.sin(stir) * 20}deg)`;
+                arms[1].style.transform = `rotate(${Math.cos(stir) * 15 + 10}deg)`;
+                stir += 0.3;
+            }, 200);
+            
+            setTimeout(() => {
+                clearInterval(cookInterval);
+                arms.forEach(arm => arm.style.transform = '');
+            }, 8000);
+        }
+
+        function simulateSweeping() {
+            const rightArm = document.querySelector('.robot-arm.right');
+            let sweep = 0;
+            const sweepInterval = setInterval(() => {
+                rightArm.style.transform = `rotate(${Math.sin(sweep) * 40 + 20}deg)`;
+                sweep += 0.2;
+            }, 150);
+            
+            setTimeout(() => {
+                clearInterval(sweepInterval);
+                rightArm.style.transform = '';
+            }, 6000);
+        }
+
+        function simulateAIActivity() {
+            // Special animation for AI-generated activities
+            const container = document.querySelector('.robot-body-container');
+            let pulse = 0;
+            const aiInterval = setInterval(() => {
+                container.style.filter = `hue-rotate(${pulse * 10}deg) brightness(${1 + Math.sin(pulse) * 0.1})`;
+                pulse += 0.1;
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(aiInterval);
+                container.style.filter = '';
+            }, 5000);
+        }
+
+        function adjustEnergyAfterActivity(activity) {
+            if (robotPersonality.physicalActivities.includes(activity)) {
+                robotPersonality.energy = Math.max(10, robotPersonality.energy - 5); // Physical activities drain energy
+            } else if (robotPersonality.mentalActivities.includes(activity)) {
+                robotPersonality.energy = Math.max(20, robotPersonality.energy - 2); // Mental activities drain less
+            } else if (activity.name.includes('resting') || activity.name.includes('meditation')) {
+                robotPersonality.energy = Math.min(100, robotPersonality.energy + 10); // Rest restores energy
+            }
+        }
 
         // Start comprehensive robot autonomous behavior
         function startRobotActivities() {
