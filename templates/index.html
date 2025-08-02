@@ -914,14 +914,19 @@ function setupSpeechRecognition() {
             updateStatusIndicator('🧠 Processing...', 'thinking', true);
             updateRobotState('thinking');
 
-            // Skip camera initialization for speed on mobile
+            // ALWAYS try to capture image for vision functionality
             let imageData = null;
             if (cameraActive) {
                 imageData = captureImage();
-            } else if (!hasAttemptedCameraInit && !isIOS && !isAndroid) {
+                console.log("📷 Captured image for vision analysis");
+            } else if (!hasAttemptedCameraInit) {
+                console.log("📷 Attempting camera initialization for vision...");
                 hasAttemptedCameraInit = true;
                 await initializeCamera();
-                imageData = cameraActive ? captureImage() : null;
+                if (cameraActive) {
+                    imageData = captureImage();
+                    console.log("📷 Camera initialized and image captured");
+                }
             }
 
             try {
