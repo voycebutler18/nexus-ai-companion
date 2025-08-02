@@ -2778,9 +2778,10 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                 canListen = false;
                 stopListening();
                 
-                updateWaveVisualizer('ai-speaking');
-                updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
-                updateRobotState('speaking');
+                // DON'T update robot state to speaking yet - keep it in thinking mode
+                updateWaveVisualizer('thinking');
+                updateStatusIndicator('🧠 Generating voice...', 'thinking', true);
+                updateRobotState('thinking'); // Keep thinking, don't switch to speaking yet
 
                 try {
                     const response = await fetch('/api/nova-speech', {
@@ -2801,6 +2802,14 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
                             audio.preload = 'metadata';
                             audio.volume = 0.9;
                         }
+                        
+                        // ONLY when audio actually starts playing, switch to speaking mode
+                        audio.onplay = () => {
+                            console.log("🔊 Audio started playing - NOW switching to speaking mode");
+                            updateWaveVisualizer('ai-speaking');
+                            updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                            updateRobotState('speaking'); // NOW switch to speaking with mouth animation
+                        };
                         
                         audio.oncanplaythrough = () => {
                             console.log("Cosmic voice ready, transmitting...");
@@ -2901,6 +2910,14 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
             utterance.rate = isIOS ? 0.85 : isAndroid ? 0.82 : 0.88;
             utterance.pitch = 1.1; // Slightly higher for cosmic feel
             utterance.volume = 1.0;
+
+            // ONLY start mouth animation when speech actually starts
+            utterance.onstart = () => {
+                console.log("🔊 Backup speech started - NOW switching to speaking mode");
+                updateWaveVisualizer('ai-speaking');
+                updateStatusIndicator('🤖 NEXUS is speaking', 'ai-speaking', true);
+                updateRobotState('speaking'); // NOW switch to speaking with mouth animation
+            };
 
             utterance.onend = () => {
                 console.log("🔊 Backup cosmic voice transmission complete");
