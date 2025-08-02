@@ -1386,26 +1386,283 @@
         const starsMid = document.getElementById('starsMid');
         const starsNear = document.getElementById('starsNear');
 
-        // Robot Activity States
-        const activities = ['🔧', '📺', '💪', '🧹', '🎵', '📚', '🔍', '⚡'];
-        let currentActivityIndex = 0;
-        let activityTimer = null;
+        // Enhanced Robot Personality and Autonomous Behavior
+        const robotPersonality = {
+            activities: [
+                { emoji: '🔧', name: 'tinkering', duration: 4000, eyeState: 'thinking' },
+                { emoji: '📡', name: 'scanning space', duration: 6000, eyeState: 'listening' },
+                { emoji: '🎵', name: 'humming', duration: 3000, eyeState: 'speaking' },
+                { emoji: '📚', name: 'reading data', duration: 5000, eyeState: 'thinking' },
+                { emoji: '🔍', name: 'analyzing', duration: 4500, eyeState: 'thinking' },
+                { emoji: '⚡', name: 'charging', duration: 3500, eyeState: 'listening' },
+                { emoji: '🧹', name: 'organizing', duration: 4000, eyeState: 'thinking' },
+                { emoji: '💭', name: 'pondering', duration: 6000, eyeState: 'thinking' },
+                { emoji: '👀', name: 'observing', duration: 3000, eyeState: 'listening' },
+                { emoji: '🤖', name: 'self-diagnostics', duration: 5000, eyeState: 'thinking' },
+                { emoji: '🌌', name: 'stargazing', duration: 7000, eyeState: 'listening' },
+                { emoji: '💡', name: 'idea brewing', duration: 4000, eyeState: 'thinking' }
+            ],
+            moods: ['curious', 'contemplative', 'energetic', 'focused', 'dreamy'],
+            currentMood: 'curious',
+            moodTimer: null,
+            activityTimer: null,
+            autonomousTimer: null,
+            isIdle: true,
+            lastInteraction: Date.now(),
+            idleStartTime: null
+        };
 
-        // Start robot idle activities
+        // Start comprehensive robot autonomous behavior
         function startRobotActivities() {
-            if (activityTimer) clearInterval(activityTimer);
+            if (robotPersonality.activityTimer) clearInterval(robotPersonality.activityTimer);
+            if (robotPersonality.moodTimer) clearInterval(robotPersonality.moodTimer);
+            if (robotPersonality.autonomousTimer) clearInterval(robotPersonality.autonomousTimer);
             
-            activityTimer = setInterval(() => {
+            // Mood changes every 30-60 seconds
+            robotPersonality.moodTimer = setInterval(() => {
                 if (!isSpeaking && !isListening) {
-                    currentActivityIndex = Math.floor(Math.random() * activities.length);
-                    robotActivity.textContent = activities[currentActivityIndex];
-                    robotActivity.style.animation = 'none';
-                    setTimeout(() => {
-                        robotActivity.style.animation = 'activityFloat 3s ease-in-out infinite';
-                    }, 100);
+                    changeMood();
                 }
-            }, 8000); // Show activity every 8 seconds
+            }, Math.random() * 30000 + 30000);
+            
+            // Activities every 5-12 seconds when idle
+            robotPersonality.activityTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    performIdleActivity();
+                }
+            }, Math.random() * 7000 + 5000);
+            
+            // Autonomous behaviors (blinking, looking around, etc.)
+            robotPersonality.autonomousTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    performAutonomousBehavior();
+                }
+            }, Math.random() * 3000 + 2000);
         }
+
+        function changeMood() {
+            const newMood = robotPersonality.moods[Math.floor(Math.random() * robotPersonality.moods.length)];
+            robotPersonality.currentMood = newMood;
+            
+            console.log(`🤖 NEXUS mood shift: ${newMood}`);
+            
+            // Visual mood changes
+            const head = document.querySelector('.robot-head');
+            switch(newMood) {
+                case 'curious':
+                    head.style.transform = 'rotate(5deg)';
+                    break;
+                case 'contemplative':
+                    head.style.transform = 'rotate(-3deg)';
+                    break;
+                case 'energetic':
+                    head.style.transform = 'rotate(0deg) scale(1.05)';
+                    break;
+                case 'focused':
+                    head.style.transform = 'rotate(0deg)';
+                    break;
+                case 'dreamy':
+                    head.style.transform = 'rotate(2deg)';
+                    break;
+            }
+            
+            setTimeout(() => {
+                head.style.transform = '';
+            }, 2000);
+        }
+
+        function performIdleActivity() {
+            const activity = robotPersonality.activities[Math.floor(Math.random() * robotPersonality.activities.length)];
+            
+            console.log(`🤖 NEXUS is ${activity.name}...`);
+            
+            // Show activity
+            robotActivity.textContent = activity.emoji;
+            robotActivity.style.opacity = '1';
+            robotActivity.style.animation = 'none';
+            setTimeout(() => {
+                robotActivity.style.animation = 'activityFloat 3s ease-in-out infinite';
+            }, 100);
+            
+            // Change eye state based on activity
+            updateRobotState(activity.eyeState);
+            
+            // Special behaviors for certain activities
+            switch(activity.name) {
+                case 'scanning space':
+                    simulateScanning();
+                    break;
+                case 'humming':
+                    simulateHumming();
+                    break;
+                case 'stargazing':
+                    simulateStargazing();
+                    break;
+                case 'self-diagnostics':
+                    simulateDiagnostics();
+                    break;
+            }
+            
+            // Return to idle state after activity
+            setTimeout(() => {
+                if (!isSpeaking && !isListening) {
+                    updateRobotState('');
+                    robotActivity.style.opacity = '0.7';
+                }
+            }, activity.duration);
+        }
+
+        function performAutonomousBehavior() {
+            const behaviors = ['blink', 'look_around', 'head_tilt', 'ear_twitch', 'subtle_movement'];
+            const behavior = behaviors[Math.floor(Math.random() * behaviors.length)];
+            
+            switch(behavior) {
+                case 'blink':
+                    simulateBlink();
+                    break;
+                case 'look_around':
+                    simulateLookAround();
+                    break;
+                case 'head_tilt':
+                    simulateHeadTilt();
+                    break;
+                case 'ear_twitch':
+                    simulateEarTwitch();
+                    break;
+                case 'subtle_movement':
+                    simulateSubtleMovement();
+                    break;
+            }
+        }
+
+        function simulateBlink() {
+            leftEyeFull.style.transform = 'scaleY(0.1)';
+            rightEyeFull.style.transform = 'scaleY(0.1)';
+            setTimeout(() => {
+                leftEyeFull.style.transform = '';
+                rightEyeFull.style.transform = '';
+            }, 150);
+        }
+
+        function simulateLookAround() {
+            const direction = Math.random() > 0.5 ? '3px' : '-3px';
+            leftEyeFull.style.transform = `translateX(${direction})`;
+            rightEyeFull.style.transform = `translateX(${direction})`;
+            
+            setTimeout(() => {
+                leftEyeFull.style.transform = '';
+                rightEyeFull.style.transform = '';
+            }, 1500);
+        }
+
+        function simulateHeadTilt() {
+            const head = document.querySelector('.robot-head');
+            const angle = (Math.random() - 0.5) * 10; // -5 to 5 degrees
+            head.style.transform = `rotate(${angle}deg)`;
+            
+            setTimeout(() => {
+                head.style.transform = '';
+            }, 2000);
+        }
+
+        function simulateEarTwitch() {
+            leftEarFull.style.animation = 'earListening 0.5s ease-in-out';
+            rightEarFull.style.animation = 'earListening 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                leftEarFull.style.animation = '';
+                rightEarFull.style.animation = '';
+            }, 500);
+        }
+
+        function simulateSubtleMovement() {
+            const container = document.querySelector('.robot-body-container');
+            const direction = Math.random() > 0.5 ? '2px' : '-2px';
+            container.style.transform = `translateX(${direction})`;
+            
+            setTimeout(() => {
+                container.style.transform = '';
+            }, 1000);
+        }
+
+        function simulateScanning() {
+            // Simulate radar-like behavior
+            voiceStatusRing.className = 'voice-status-ring listening';
+            setTimeout(() => {
+                voiceStatusRing.className = 'voice-status-ring';
+            }, 3000);
+        }
+
+        function simulateHumming() {
+            // Gentle mouth movement like humming
+            mouthIndicatorFull.style.animation = 'mouthThinking 0.8s ease-in-out infinite';
+            setTimeout(() => {
+                mouthIndicatorFull.style.animation = '';
+            }, 3000);
+        }
+
+        function simulateStargazing() {
+            // Look up and around
+            leftEyeFull.style.transform = 'translateY(-4px)';
+            rightEyeFull.style.transform = 'translateY(-4px)';
+            const head = document.querySelector('.robot-head');
+            head.style.transform = 'rotate(-10deg)';
+            
+            setTimeout(() => {
+                leftEyeFull.style.transform = '';
+                rightEyeFull.style.transform = '';
+                head.style.transform = '';
+            }, 5000);
+        }
+
+        function simulateDiagnostics() {
+            // Rapid blinking and system check
+            let blinkCount = 0;
+            const diagnosticBlink = setInterval(() => {
+                simulateBlink();
+                blinkCount++;
+                if (blinkCount >= 5) {
+                    clearInterval(diagnosticBlink);
+                }
+            }, 400);
+        }
+
+        // Enhanced idle detection
+        function updateIdleState() {
+            const now = Date.now();
+            const timeSinceInteraction = now - robotPersonality.lastInteraction;
+            
+            if (timeSinceInteraction > 10000 && !robotPersonality.isIdle) { // 10 seconds
+                robotPersonality.isIdle = true;
+                robotPersonality.idleStartTime = now;
+                console.log("🤖 NEXUS entering autonomous mode...");
+                
+                // Start more frequent autonomous behaviors when idle
+                if (robotPersonality.autonomousTimer) clearInterval(robotPersonality.autonomousTimer);
+                robotPersonality.autonomousTimer = setInterval(() => {
+                    if (!isSpeaking && !isListening) {
+                        performAutonomousBehavior();
+                    }
+                }, Math.random() * 2000 + 1000); // More frequent when idle
+            }
+        }
+
+        // Track user interactions
+        function markInteraction() {
+            robotPersonality.lastInteraction = Date.now();
+            robotPersonality.isIdle = false;
+            
+            // Reset to normal behavior frequency
+            if (robotPersonality.autonomousTimer) clearInterval(robotPersonality.autonomousTimer);
+            robotPersonality.autonomousTimer = setInterval(() => {
+                if (!isSpeaking && !isListening) {
+                    performAutonomousBehavior();
+                }
+            }, Math.random() * 3000 + 2000);
+        }
+
+        // Monitor idle state
+        setInterval(updateIdleState, 2000);
 
         // Enhanced Robot State Management for Full Body
         function updateRobotState(state) {
@@ -1798,6 +2055,9 @@ Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"}
         
         async function handleUserSpeech(transcript) {
             const trimmedTranscript = transcript.trim();
+            
+            // Mark interaction for autonomous behavior
+            markInteraction();
             
             if (transcript === "SILENCE_DETECTED") {
                 setTimeout(() => {
