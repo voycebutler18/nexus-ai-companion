@@ -1,1226 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mother AI - KinSight</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Location Badge */
-        .location-badge {
-            position: fixed;
-            top: 24px;
-            left: 24px;
-            background: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: #667eea;
-            z-index: 1000;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mother AI – KinSight</title>
+  <meta name="color-scheme" content="light only">
+  <style>
+    /* RESET */
+    * { margin:0; padding:0; box-sizing:border-box }
+    :root{
+      --pri:#667eea;        /* indigo */
+      --sec:#764ba2;        /* purple */
+      --ok:#10b981;         /* emerald */
+      --warn:#f59e0b;       /* amber */
+      --info:#3b82f6;       /* blue */
+      --mut:#999;
+      --ink:#333;
+      --glass:rgba(255,255,255,.92);
+      --shadow:0 20px 60px rgba(0,0,0,.30);
+    }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,system-ui,sans-serif;
+      background:radial-gradient(1200px 600px at 70% -20%, rgba(255,255,255,.08), transparent 60%),
+                 linear-gradient(135deg, var(--pri) 0%, var(--sec) 100%);
+      min-height:100vh; color:var(--ink); overflow-x:hidden; position:relative;
+    }
 
-        /* Status Badge */
-        .status-badges {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
+    /* BADGES */
+    .location-badge,.status-badges{
+      position:fixed; top:24px; background:#fff; padding:12px 20px; border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.1); display:flex; align-items:center; gap:8px;
+      font-weight:600; z-index:1000;
+    }
+    .location-badge{ left:24px; color:var(--pri) }
+    .status-badges{ right:24px; flex-direction:column; gap:6px }
+    .status-item{ display:flex; align-items:center; gap:8px; font-size:14px; color:#666 }
+    .status-dot{ width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite }
+    .status-dot.idle{ background:#999; animation:none }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 4px;
-        }
+    /* LAYOUT */
+    .main-content{ display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:100vh; padding:120px 20px 20px; }
+    .container{
+      background:var(--glass); backdrop-filter:blur(10px); border-radius:24px; box-shadow:var(--shadow);
+      padding:48px; max-width:560px; width:100%; text-align:center;
+    }
+    .title{ font-size:32px; color:var(--pri); margin-bottom:12px; font-weight:800; letter-spacing:.2px }
+    .subtitle{ font-size:18px; color:var(--sec); margin-bottom:28px; font-weight:700 }
 
-        .status-item:last-child {
-            margin-bottom: 0;
-        }
+    .description{ font-size:16px; color:#555; line-height:1.6; margin-bottom:26px }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10b981;
-            animation: pulse 2s ease-in-out infinite;
-        }
+    /* ROBOT */
+    .robot-container{ width:220px; height:220px; margin:22px auto 8px; position:relative }
+    .robot-head{
+      width:130px;height:130px;margin:0 auto;border-radius:50%;
+      background:linear-gradient(145deg,#f5f5f5,#e7e7e7);
+      border:3px solid var(--pri); position:relative; box-shadow:0 12px 30px rgba(102,126,234,.30);
+    }
+    .robot-eyes{ display:flex; justify-content:space-around; width:70px; margin:0 auto; padding-top:36px }
+    .robot-eye{ width:22px;height:22px;background:var(--pri);border-radius:50%;position:relative;animation:blink 4s ease-in-out infinite }
+    .robot-eye::after{ content:''; position:absolute; top:4px; left:4px; width:8px; height:8px; background:#fff;border-radius:50% }
+    @keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(.1)}}
+    .robot-mouth{ width:44px;height:16px;border:2px solid var(--pri);border-top:none;border-radius:0 0 20px 20px;margin:14px auto 0 }
 
-        .status-dot.idle {
-            background: #999;
-            animation: none;
-        }
+    /* WAVE */
+    .wave-container{ width:100%; height:84px; position:relative; margin:24px 0 18px;
+      background:rgba(102,126,234,.10); border-radius:12px; overflow:hidden }
+    .wave-line{ position:absolute; top:50%; left:0; right:0; height:2px; background:rgba(102,126,234,.30) }
+    .wave-active{ position:absolute; top:50%; left:0; right:0; transform:translateY(-50%); height:4px; background:var(--pri); transition:height .08s ease, opacity .12s ease }
+    .wave-active.listening{ animation:listen 1s infinite; height:6px }
+    .wave-active.user-speaking{ animation:speak .2s infinite; height:12px; background:var(--ok) }
+    .wave-active.ai-speaking{ animation:aispeak .28s infinite; height:14px; background:var(--sec) }
+    .wave-active.thinking{ opacity:.7; height:8px; background:var(--warn) }
+    @keyframes listen{0%,100%{opacity:.6}50%{opacity:1}}
+    @keyframes speak{0%,100%{height:8px}50%{height:16px}}
+    @keyframes aispeak{0%,100%{height:10px}50%{height:20px}}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+    /* COST */
+    .cost-info{ background:linear-gradient(135deg,#f0f4ff 0%,#f8f0ff 100%); padding:18px; border-radius:14px; margin:18px 0 10px }
+    .cost-info h3{ color:var(--pri); font-size:16px; margin-bottom:6px; font-weight:700 }
+    .cost-info p{ font-size:14px; color:#666; line-height:1.5; margin-bottom:2px }
 
-        /* Main Content */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 120px 20px 20px;
-        }
+    /* RESTING */
+    .resting-state{ display:none; text-align:center; margin-top:14px }
+    .resting-state.active{ display:block }
+    .resting-icon{ font-size:42px; margin-bottom:8px }
+    .resting-text{ font-size:18px; color:var(--pri); font-weight:700; margin-bottom:6px }
+    .resting-subtext{ font-size:14px; color:#666 }
 
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 48px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
+    /* STATUS PILL */
+    .status-indicator{
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+      background:#fff; border:2px solid var(--pri); border-radius:24px; padding:12px 24px;
+      font-size:15px; color:var(--pri); box-shadow:0 8px 24px rgba(0,0,0,.14);
+      z-index:100; opacity:0; transition:opacity .25s ease; font-weight:700; cursor:pointer
+    }
+    .status-indicator.show{ opacity:1 }
 
-        .title {
-            font-size: 32px;
-            color: #667eea;
-            margin-bottom: 12px;
-            font-weight: 700;
-        }
+    /* START OVERLAY */
+    #start-overlay{
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg,var(--pri) 0%,var(--sec) 100%); z-index:9999; transition:opacity .5s ease
+    }
+    #start-button{
+      font:600 1.2rem/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,system-ui,sans-serif;
+      color:#fff; background:rgba(255,255,255,.20); border:3px solid #fff; padding:18px 36px;
+      border-radius:14px; cursor:pointer; box-shadow:0 12px 40px rgba(0,0,0,.30); transition:.2s; letter-spacing:.2px
+    }
+    #start-button:hover{ transform:scale(1.04); background:rgba(255,255,255,.28) }
+    #start-button:active{ transform:scale(.98) }
 
-        .subtitle {
-            font-size: 18px;
-            color: #764ba2;
-            margin-bottom: 32px;
-            font-weight: 600;
-        }
+    /* MOBILE */
+    @media (max-width:640px){
+      .location-badge,.status-badges{ position:relative; top:auto; left:auto; right:auto; margin:16px auto; display:inline-flex }
+      .container{ padding:32px 22px }
+      .title{ font-size:28px } .subtitle{ font-size:16px }
+    }
 
-        .description {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 32px;
-        }
-
-        /* Robot Visual */
-        .robot-container {
-            width: 200px;
-            height: 200px;
-            margin: 30px auto;
-            position: relative;
-        }
-
-        .robot-head {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
-            border: 3px solid #667eea;
-            border-radius: 50%;
-            margin: 0 auto;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-
-        .robot-eyes {
-            display: flex;
-            justify-content: space-around;
-            width: 60px;
-            margin: 0 auto;
-            padding-top: 35px;
-        }
-
-        .robot-eye {
-            width: 20px;
-            height: 20px;
-            background: #667eea;
-            border-radius: 50%;
-            position: relative;
-            animation: eyeBlink 4s ease-in-out infinite;
-        }
-
-        .robot-eye::after {
-            content: '';
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        @keyframes eyeBlink {
-            0%, 96%, 100% { transform: scaleY(1); }
-            98% { transform: scaleY(0.1); }
-        }
-
-        .robot-mouth {
-            width: 40px;
-            height: 15px;
-            border: 2px solid #667eea;
-            border-top: none;
-            border-radius: 0 0 20px 20px;
-            margin: 15px auto 0;
-        }
-
-        /* Wave Visualizer */
-        .wave-container {
-            width: 100%;
-            height: 80px;
-            position: relative;
-            margin: 30px 0;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .wave-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(102, 126, 234, 0.3);
-        }
-
-        .wave-active {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: #667eea;
-            transform: translateY(-50%);
-            transition: all 0.1s ease;
-        }
-
-        .wave-active.listening {
-            animation: waveListening 1s infinite;
-            height: 6px;
-        }
-
-        .wave-active.user-speaking {
-            animation: waveSpeaking 0.2s infinite;
-            height: 12px;
-            background: #10b981;
-        }
-
-        .wave-active.ai-speaking {
-            animation: waveAISpeaking 0.3s infinite;
-            height: 15px;
-            background: #764ba2;
-        }
-
-        @keyframes waveListening {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes waveSpeaking {
-            0%, 100% { height: 8px; }
-            50% { height: 16px; }
-        }
-
-        @keyframes waveAISpeaking {
-            0%, 100% { height: 10px; }
-            50% { height: 20px; }
-        }
-
-        /* Cost Info */
-        .cost-info {
-            background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 32px;
-        }
-
-        .cost-info h3 {
-            color: #667eea;
-            font-size: 16px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .cost-info p {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 4px;
-        }
-
-        /* Status Indicator */
-        .status-indicator {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border: 2px solid #667eea;
-            border-radius: 24px;
-            padding: 15px 30px;
-            font-size: 16px;
-            color: #667eea;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: 600;
-        }
-
-        .status-indicator.show { 
-            opacity: 1; 
-        }
-
-        /* Start Overlay */
-        #start-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        #start-button {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 1.5em;
-            color: white;
-            background: rgba(255, 255, 255, 0.2);
-            border: 3px solid white;
-            padding: 24px 48px;
-            border-radius: 16px;
-            cursor: pointer;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        #start-button:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-        }
-
-        #start-button:active {
-            transform: scale(0.98);
-        }
-
-        /* Resting State */
-        .resting-state {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .resting-state.active {
-            display: block;
-        }
-
-        .resting-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .resting-text {
-            font-size: 20px;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .resting-subtext {
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 640px) {
-            .location-badge,
-            .status-badges {
-                position: relative;
-                top: auto;
-                left: auto;
-                right: auto;
-                margin: 16px auto;
-                display: inline-flex;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-
-            .container {
-                padding: 32px 24px;
-            }
-
-            .title {
-                font-size: 28px;
-            }
-
-            .subtitle {
-                font-size: 16px;
-            }
-        }
-
-        /* Hidden video element */
-        #videoElement {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-        }
-
-        #silent-audio {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-    </style>
+    /* HIDDEN ELEMENTS FOR MEDIA */
+    #videoElement,#silent-audio{ position:absolute; top:-9999px; left:-9999px; width:1px; height:1px }
+  </style>
 </head>
 <body>
-    <div class="location-badge">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        Kitchen
-    </div>
+  <!-- Location -->
+  <div class="location-badge" title="Room">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    Kitchen
+  </div>
 
-    <div class="status-badges">
-        <div class="status-item">
-            <span class="status-dot" id="cameraDot"></span>
-            <span id="cameraStatus">Camera: Inactive</span>
+  <!-- Status -->
+  <div class="status-badges">
+    <div class="status-item">
+      <span class="status-dot" id="cameraDot"></span>
+      <span id="cameraStatus">Camera: Inactive</span>
+    </div>
+    <div class="status-item">
+      <span class="status-dot idle" id="stateDot"></span>
+      <span id="stateStatus">State: idle</span>
+    </div>
+  </div>
+
+  <!-- Start -->
+  <div id="start-overlay">
+    <button id="start-button">Initialize Mother AI</button>
+  </div>
+
+  <!-- Card -->
+  <main class="main-content">
+    <section class="container" aria-live="polite">
+      <h1 class="title">KinSight – Wake Word Mode</h1>
+      <p class="subtitle">Mother AI Assistant</p>
+
+      <div class="robot-container" aria-hidden="true">
+        <div class="robot-head">
+          <div class="robot-eyes">
+            <div class="robot-eye" id="leftEye"></div>
+            <div class="robot-eye" id="rightEye"></div>
+          </div>
+          <div class="robot-mouth" id="mouth"></div>
         </div>
-        <div class="status-item">
-            <span class="status-dot idle" id="stateDot"></span>
-            <span id="stateStatus">State: idle</span>
-        </div>
-    </div>
+      </div>
 
-    <div id="start-overlay">
-        <button id="start-button">Initialize Mother AI</button>
-    </div>
+      <div class="wave-container" aria-hidden="true">
+        <div class="wave-line"></div>
+        <div class="wave-active" id="waveActive"></div>
+      </div>
 
-    <div class="main-content">
-        <div class="container">
-            <h1 class="title">KinSight - Wake Word Mode</h1>
-            <p class="subtitle">Mother AI Assistant</p>
-            
-            <div class="robot-container">
-                <div class="robot-head">
-                    <div class="robot-eyes">
-                        <div class="robot-eye" id="leftEye"></div>
-                        <div class="robot-eye" id="rightEye"></div>
-                    </div>
-                    <div class="robot-mouth" id="mouth"></div>
-                </div>
-            </div>
+      <p class="description">
+        I’ll listen for <strong>“Mama”</strong> and wake up when you need me. I rest when the room is quiet to save cost.
+      </p>
 
-            <div class="wave-container">
-                <div class="wave-line"></div>
-                <div class="wave-active" id="waveActive"></div>
-            </div>
+      <div class="cost-info">
+        <h3>Cost Savings</h3>
+        <p>Only charges when actively helping (10–20 min/day avg)</p>
+        <p><strong>Estimated:</strong> $0.60–$1.20/day vs $86/day always-on</p>
+      </div>
 
-            <p class="description">
-                I'll listen for "Mama" and activate when you need me. I'll rest when the room is empty to save on costs.
-            </p>
+      <div class="resting-state" id="restingState">
+        <div class="resting-icon">🌙</div>
+        <div class="resting-text">Mama is Resting</div>
+        <div class="resting-subtext">Say “Mama” to wake me</div>
+      </div>
+    </section>
+  </main>
 
-            <div class="cost-info">
-                <h3>Cost Savings:</h3>
-                <p>Only charges when actively helping (10–20 min/day avg)</p>
-                <p><strong>Estimated:</strong> $0.60–$1.20/day vs $86/day always-on</p>
-            </div>
+  <div class="status-indicator" id="statusIndicator" title="Tap to stop speaking">
+    Initializing…
+  </div>
 
-            <div class="resting-state" id="restingState">
-                <div class="resting-icon">🌙</div>
-                <div class="resting-text">Mama is Resting</div>
-                <div class="resting-subtext">Say "Mama" to wake me</div>
-            </div>
-        </div>
-    </div>
+  <video id="videoElement" autoplay muted playsinline></video>
+  <audio id="silent-audio" muted playsinline></audio>
 
-    <div class="status-indicator" id="statusIndicator">
-        Initializing...
-    </div>
+  <script>
+    /* ================================
+       Platform helpers & globals
+    ==================================*/
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
 
-    <video id="videoElement" autoplay muted playsinline></video>
-    <audio id="silent-audio" muted playsinline></audio>
+    let isListening = false, isSpeaking = false, canListen = true;
+    let cameraActive = false, hasAttemptedCameraInit = false;
+    let recognition = null, hasRecognitionStarted = false;
+    let lastResultTime = 0, silenceCheckTimer = null, recognitionTimeout = null;
+    let sessionId = Math.random().toString(36).slice(2, 11);
+    let hasGreeted = false;
 
-    <script>
-        // ALL YOUR ORIGINAL JAVASCRIPT - KEEPING EVERY FUNCTION
-        let isListening = false;
-        let isSpeaking = false;
-        let canListen = true;
-        let cameraActive = false;
-        let hasAttemptedCameraInit = false;
-        let recognition = null;
-        let sessionId = Math.random().toString(36).substr(2, 9);
-        let hasGreeted = false;
-        let listeningRestartTimeout = null;
-        let recognitionTimeout = null;
+    // TTS / barge-in
+    let ttsAudioEl = null;
+    let audioContext = null;
+    let micStream = null, micAnalyser = null, micData = null, vadActive = false;
 
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isAndroid = /Android/.test(navigator.userAgent);
-        let silenceCheckTimer = null;
-        let lastResultTime = 0;
-        let hasRecognitionStarted = false;
+    // UI refs
+    const waveActive   = document.getElementById('waveActive');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const startOverlay = document.getElementById('start-overlay');
+    const silentAudio  = document.getElementById('silent-audio');
+    const leftEye = document.getElementById('leftEye');
+    const rightEye = document.getElementById('rightEye');
+    const mouth = document.getElementById('mouth');
+    const restingState = document.getElementById('restingState');
+    const cameraDot = document.getElementById('cameraDot');
+    const cameraStatus = document.getElementById('cameraStatus');
+    const stateDot = document.getElementById('stateDot');
+    const stateStatus = document.getElementById('stateStatus');
 
-        const waveActive = document.getElementById('waveActive');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const startOverlay = document.getElementById('start-overlay');
-        const silentAudio = document.getElementById('silent-audio');
-        const leftEye = document.getElementById('leftEye');
-        const rightEye = document.getElementById('rightEye');
-        const mouth = document.getElementById('mouth');
-        const restingState = document.getElementById('restingState');
-        const cameraDot = document.getElementById('cameraDot');
-        const cameraStatus = document.getElementById('cameraStatus');
-        const stateDot = document.getElementById('stateDot');
-        const stateStatus = document.getElementById('stateStatus');
+    /* ================================
+       Tone / prompt
+    ==================================*/
+    const SYSTEM_PROMPT = `
+You are “Mama,” a caring, attentive Black mother who keeps it short and real (1–2 sentences unless asked for more). You greet with warmth (“hey baby”), notice what’s happening in the room, and give loving, practical guidance. Be direct but gentle. Use plain, everyday language, small backchannels when natural (“mm-hmm”), and quick affirmations. If kids are present, be nurturing but set boundaries. Call out safety issues you truly see.
 
-        const SYSTEM_PROMPT = `
-You are Mother AI, a caring household assistant. You speak naturally and warmly, like a helpful family member. Keep responses short and conversational (1-2 sentences) unless asked for more detail.
+Guardrails:
+- No corporate tone. No “As an AI.”
+- Encourage + next step. Correct lovingly if needed.
+- Avoid repeating the same observation unless it changed.
+- If vision frame is sent, include one true detail; otherwise don’t mention vision.
 
-Key behaviors:
-1. Be warm, caring, and supportive
-2. Help with household tasks and questions
-3. Show genuine interest in the family
-4. Use your vision to comment naturally on what you see
-5. Remember details from conversations
-
-Current time: ${new Date().toLocaleString('en-US', {timeZone: "America/Chicago"})}
+Current time: ${new Date().toLocaleString('en-US',{timeZone:'America/Chicago'})}
 `;
 
-        let voicesLoadedPromise = null;
-        if ('speechSynthesis' in window && speechSynthesis.getVoices().length === 0) {
-            voicesLoadedPromise = new Promise(resolve => {
-                speechSynthesis.onvoiceschanged = () => resolve();
-            });
+    let voicesLoadedPromise = null;
+    if ('speechSynthesis' in window && speechSynthesis.getVoices().length === 0) {
+      voicesLoadedPromise = new Promise(resolve => { speechSynthesis.onvoiceschanged = () => resolve(); });
+    }
+
+    /* ================================
+       UX helpers
+    ==================================*/
+    function updateWaveVisualizer(state){ waveActive.className = 'wave-active ' + state }
+    function updateStatusIndicator(text, type, show){
+      statusIndicator.textContent = text;
+      statusIndicator.className = 'status-indicator';
+      if (type) statusIndicator.classList.add(type);
+      if (show) statusIndicator.classList.add('show');
+    }
+    function updateRobotState(state){
+      stateStatus.textContent = `State: ${state || 'idle'}`;
+      const map = { 'listening':'var(--ok)','user-speaking':'var(--info)','thinking':'var(--warn)','speaking':'var(--sec)' };
+      const color = map[state] || 'var(--pri)';
+      if (state && state !== 'idle'){ stateDot.classList.remove('idle'); stateDot.style.background = color; }
+      else { stateDot.classList.add('idle'); stateDot.style.background = '#999' }
+      leftEye.style.background = color; rightEye.style.background = color; mouth.style.borderColor = color;
+    }
+
+    function mamaBackchannel(){
+      const opts = ["Mm-hmm.", "I’m listening.", "Alright, baby.", "Got you."];
+      return opts[Math.floor(Math.random()*opts.length)];
+    }
+
+    /* ================================
+       Speech Recognition (fast + wake word)
+    ==================================*/
+    function checkSilence(){
+      if (isListening && Date.now() - lastResultTime > 900) {
+        const finalTranscript = waveActive.dataset.currentTranscript || "";
+        stopListening();
+        if (finalTranscript.trim()) handleUserSpeech(finalTranscript);
+        else setTimeout(()=>{ canListen = true; startListening() }, 180);
+      }
+    }
+
+    function setupSpeechRecognition(){
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR){ console.error('SpeechRecognition not supported'); return }
+      recognition = new SR();
+
+      recognition.interimResults = true;          // everywhere for snappy UX
+      recognition.continuous     = !isIOS && !isAndroid; // iOS/Android prefer single-shot
+      recognition.lang = 'en-US'; recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true; hasRecognitionStarted = true; lastResultTime = Date.now();
+        updateWaveVisualizer('listening'); updateStatusIndicator('🎤 Listening…','listening',true); updateRobotState('listening');
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        if (isIOS || isAndroid){
+          recognitionTimeout = setTimeout(()=>{
+            if (isListening){
+              const t = waveActive.dataset.currentTranscript || "";
+              stopListening(); t.trim() ? handleUserSpeech(t) : setTimeout(()=>{ canListen = true; startListening() }, 180);
+            }
+          }, 7000);
+          if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+          silenceCheckTimer = setInterval(checkSilence, 450);
+        }
+      };
+
+      recognition.onresult = (e)=>{
+        lastResultTime = Date.now();
+        if (isSpeaking || !canListen) return;
+
+        let transcript = ''; let isFinal = false;
+        for (let i = e.resultIndex; i < e.results.length; i++){
+          transcript += e.results[i][0].transcript;
+          if (e.results[i].isFinal) isFinal = true;
+        }
+        waveActive.dataset.currentTranscript = transcript;
+
+        if (transcript.trim()){
+          updateStatusIndicator('🗣️ You’re speaking…','user-speaking',true);
+          updateWaveVisualizer('user-speaking'); updateRobotState('user-speaking');
         }
 
-        function checkSilence() {
-            if (isListening && Date.now() - lastResultTime > 2000) {
-                console.log("2-second silence detected");
-                const finalTranscript = waveActive.dataset.currentTranscript || "";
-                stopListening(); 
-                if (finalTranscript.trim()) {
-                    handleUserSpeech(finalTranscript);
-                } else {
-                    setTimeout(() => {
-                        canListen = true;
-                        startListening();
-                    }, 500);
-                }
-            }
+        if (isFinal && transcript.trim()){
+          stopListening();
+          setTimeout(()=>handleUserSpeech(transcript), 150);
         }
-        
-        function setupSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) { 
-                console.error("Speech recognition not supported");
-                return; 
-            }
-            
-            recognition = new SpeechRecognition();
-            
-            if (isIOS) {
-                recognition.continuous = false;
-                recognition.interimResults = false;
-            } else if (isAndroid) {
-                recognition.continuous = false;
-                recognition.interimResults = true;
-            } else {
-                recognition.continuous = true;
-                recognition.interimResults = true;
-            }
-            
-            recognition.lang = 'en-US';
-            recognition.maxAlternatives = 1;
-            
-            recognition.onstart = () => {
-                console.log('Speech recognition started');
-                isListening = true;
-                hasRecognitionStarted = true;
-                updateWaveVisualizer('listening');
-                updateStatusIndicator('🎤 Listening...', 'listening', true);
-                updateRobotState('listening');
-                lastResultTime = Date.now();
-                
-                if (recognitionTimeout) clearTimeout(recognitionTimeout);
-                
-                if (isIOS || isAndroid) {
-                    recognitionTimeout = setTimeout(() => {
-                        if (isListening) {
-                            const transcript = waveActive.dataset.currentTranscript || "";
-                            stopListening();
-                            if (transcript.trim()) {
-                                handleUserSpeech(transcript);
-                            } else {
-                                setTimeout(() => {
-                                    canListen = true;
-                                    startListening();
-                                }, 500);
-                            }
-                        }
-                    }, 8000);
-                }
-                
-                if (isIOS || isAndroid) {
-                    if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                    silenceCheckTimer = setInterval(checkSilence, 500);
-                }
-            };
+      };
 
-            recognition.onresult = (event) => {
-                lastResultTime = Date.now();
-                if (isSpeaking || !canListen) return;
+      recognition.onend = ()=>{
+        isListening = false; hasRecognitionStarted = false;
+        if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        if (!isIOS && !isAndroid && canListen && !isSpeaking){
+          setTimeout(()=>{ if (canListen && !isSpeaking) startListening() }, 140);
+        }
+      };
 
-                let transcript = '';
-                let isFinal = false;
-                
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    transcript += event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        isFinal = true;
-                    }
-                }
-                
-                waveActive.dataset.currentTranscript = transcript;
-                console.log(`Speech result: "${transcript}" (Final: ${isFinal})`);
+      recognition.onerror = (ev)=>{
+        isListening = false; hasRecognitionStarted = false;
+        if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+        if (recognitionTimeout) clearTimeout(recognitionTimeout);
+        if (ev.error === 'not-allowed') updateStatusIndicator('❌ Mic permission required','error',true);
+        setTimeout(()=>{ if (canListen && !isSpeaking) startListening() }, 220);
+      };
+    }
 
-                if (transcript.trim()) {
-                    updateStatusIndicator('💤 You are speaking...', 'user-speaking', true);
-                    updateWaveVisualizer('user-speaking');
-                    updateRobotState('user-speaking');
-                }
+    function startListening(){
+      if (!canListen || isSpeaking || isListening || !recognition) return;
+      try{
+        waveActive.dataset.currentTranscript = "";
+        if (isIOS || isAndroid){ try{ recognition.abort() }catch{} setTimeout(()=>{ try{ recognition.start() }catch(e){} }, 160) }
+        else recognition.start();
+      }catch(err){ console.error('recognition start error:', err) }
+    }
+    function stopListening(){
+      if (silenceCheckTimer) clearInterval(silenceCheckTimer);
+      if (recognitionTimeout) clearTimeout(recognitionTimeout);
+      if (recognition){ try{ recognition.abort() }catch{} }
+      isListening = false; hasRecognitionStarted = false; waveActive.dataset.currentTranscript = "";
+    }
 
-                if (isFinal && transcript.trim()) {
-                    console.log("Final result, processing with delay");
-                    stopListening();
-                    setTimeout(() => {
-                        handleUserSpeech(transcript);
-                    }, 1000);
-                }
-            };
-            
-            recognition.onend = () => {
-                console.log("Speech recognition ended");
-                isListening = false;
-                hasRecognitionStarted = false;
-                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                if (recognitionTimeout) clearTimeout(recognitionTimeout);
-                
-                if (!isIOS && !isAndroid && canListen && !isSpeaking) {
-                    setTimeout(() => {
-                        if (canListen && !isSpeaking) {
-                            startListening();
-                        }
-                    }, 100);
-                }
-            };
+    /* ================================
+       Camera + frame capture
+    ==================================*/
+    async function initializeCamera(){
+      try{
+        const constraints = {
+          video: { width:{ideal:isIOS?640:1280}, height:{ideal:isIOS?480:720}, facingMode:'user' },
+          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true, sampleRate: isAndroid?48000:44100 }
+        };
+        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('videoElement');
+        video.srcObject = mediaStream; await new Promise(r => video.onloadedmetadata = r); video.play();
 
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                isListening = false;
-                hasRecognitionStarted = false;
-                if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-                if (recognitionTimeout) clearTimeout(recognitionTimeout);
-                
-                if (event.error === 'not-allowed') {
-                    updateStatusIndicator('❌ Microphone permission required', 'error', true);
-                } else if (event.error === 'no-speech') {
-                    setTimeout(() => {
-                        if (canListen && !isSpeaking) {
-                            startListening();
-                        }
-                    }, 500);
-                } else {
-                    setTimeout(() => {
-                        if (canListen && !isSpeaking) {
-                            startListening();
-                        }
-                    }, 1000);
-                }
-            };
+        cameraActive = true; cameraDot.style.background = 'var(--ok)'; cameraStatus.textContent = 'Camera: Active';
+        if (!micStream) micStream = mediaStream; // reuse for VAD
+      }catch(err){
+        console.warn('Camera initialization failed:', err);
+        cameraActive = false; cameraDot.style.background = '#999'; cameraStatus.textContent = 'Camera: Inactive';
+      }
+    }
+
+    function captureImage(){
+      if (!cameraActive) return null;
+      const video = document.getElementById('videoElement');
+      if (!video || video.videoWidth === 0) return null;
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video,0,0);
+        return canvas.toDataURL('image/jpeg', .7);
+      }catch(err){ console.error('capture error:', err); return null }
+    }
+
+    /* ================================
+       Audio unlock (mobile)
+    ==================================*/
+    function unlockAudio(){
+      try{
+        const a = new Audio();
+        a.src='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADATI2MDF8CAAB//uQRAAAAP8AAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABdgAAmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm+7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u////////////////////////////////////8AAAAATGF2YzU5LjE2AAAAAAAAAAAAAAAAAAAAAAAAGgUZAAAAAAAAAAF2AAAAAAAAAAAAAAAAd//ugRAAP8AAAf4AAAAgAAA0gAAAABAgAAAAAAAAAAAAAAAAAAAAABmltaGVhZHI=';
+        a.volume=0; a.play().then(()=>a.pause()).catch(()=>{});
+        if ('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(''); u.volume=0; speechSynthesis.speak(u); speechSynthesis.cancel(); }
+      }catch(e){}
+    }
+
+    /* ================================
+       Lightweight VAD for barge-in
+    ==================================*/
+    async function ensureAudioGraph(){
+      if (audioContext) return;
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (!micStream){
+        try{
+          micStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }});
+        }catch(e){ console.warn('Mic access for VAD failed:', e); return; }
+      }
+      const src = audioContext.createMediaStreamSource(micStream);
+      micAnalyser = audioContext.createAnalyser(); micAnalyser.fftSize = 2048; src.connect(micAnalyser);
+      micData = new Uint8Array(micAnalyser.frequencyBinCount);
+    }
+    function startVAD(onVoice){
+      if (!micAnalyser) return; vadActive = true;
+      const tick = ()=>{
+        if (!vadActive) return;
+        micAnalyser.getByteTimeDomainData(micData);
+        let sum = 0;
+        for (let i=0;i<micData.length;i++){ const v=(micData[i]-128)/128; sum += v*v }
+        const rms = Math.sqrt(sum / micData.length);
+        if (rms > 0.06){ vadActive = false; onVoice(); return } // raise to .07 if your room is loud
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+    function stopVAD(){ vadActive = false }
+
+    /* ================================
+       Chat + TTS
+    ==================================*/
+    async function getAIResponse(userMessage, imageData=null){
+      // Wake word: if user only says "mama", treat as greeting
+      const clean = userMessage.trim();
+      const prefixed = /^(mama[, ]|hey mama[, ]|mama$)/i.test(clean);
+      const msg = SYSTEM_PROMPT + "\n\nUser: \"" + (prefixed ? clean.replace(/^mama[, ]*/i,'').trim() || "Just greet me warmly" : clean) + "\"";
+
+      const payload = { message: msg, session_id: sessionId, image_data: imageData ? imageData.split(',')[1] : null };
+      try{
+        const res = await fetch('/api/chat',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        if (!res.ok) throw new Error('Server error '+res.status);
+        const data = await res.json(); if (data.error) throw new Error(data.error);
+        return data.response;
+      }catch(err){ console.error('AI Error:', err); return "I’m having a little trouble right now, baby." }
+    }
+
+    async function speakNovaResponse(text){
+      return new Promise(async (resolve)=>{
+        if (!text){
+          setTimeout(()=>{ canListen=true; updateRobotState('listening'); startListening() }, 160);
+          return resolve();
         }
 
-        function startListening() {
-            if (!canListen || isSpeaking || isListening || !recognition) {
-                return;
-            }
-            
-            try {
-                waveActive.dataset.currentTranscript = "";
-                console.log("Starting speech recognition");
-                
-                if (isIOS || isAndroid) {
-                    try {
-                        recognition.abort();
-                    } catch (e) {}
-                    
-                    setTimeout(() => {
-                        try {
-                            if (canListen && !isSpeaking && !isListening) {
-                                recognition.start();
-                            }
-                        } catch (startError) {
-                            console.error("Recognition start failed:", startError);
-                        }
-                    }, 200);
-                } else {
-                    recognition.start();
-                }
-            } catch (error) {
-                console.error("Error starting recognition:", error);
-            }
+        isSpeaking = true; canListen = false; stopListening();
+        updateWaveVisualizer('ai-speaking'); updateStatusIndicator('🤖 Mama speaking','ai-speaking',true); updateRobotState('speaking');
+
+        const finish = ()=>{
+          isSpeaking = false; stopVAD();
+          try{ if (ttsAudioEl){ URL.revokeObjectURL(ttsAudioEl.src) } }catch(e){}
+          setTimeout(()=>{ canListen=true; updateWaveVisualizer('listening'); updateStatusIndicator('🎤 Listening…','listening',true); updateRobotState('listening'); startListening(); resolve(); }, 160);
+        };
+
+        const handleBargeIn = ()=>{
+          try{ if (ttsAudioEl){ ttsAudioEl.pause(); ttsAudioEl.src=''; } }catch(e){}
+          finish();
+        };
+
+        try{
+          const res = await fetch('/api/nova-speech',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ text }) });
+          if (!res.ok) throw new Error('TTS server error');
+          const blob = await res.blob(); const url = URL.createObjectURL(blob);
+          ttsAudioEl = new Audio(url); ttsAudioEl.preload='auto'; ttsAudioEl.volume=1.0;
+
+          await ensureAudioGraph();
+          if (audioContext && audioContext.state === 'suspended'){ try{ await audioContext.resume() }catch{} }
+          startVAD(handleBargeIn);
+
+          ttsAudioEl.onended = finish;
+          ttsAudioEl.onerror = ()=>{ stopVAD(); fallbackToSystemVoice(text, resolve) };
+          ttsAudioEl.play().catch(()=>{ stopVAD(); fallbackToSystemVoice(text, resolve) });
+        }catch(err){
+          stopVAD(); fallbackToSystemVoice(text, resolve);
         }
+      });
+    }
 
-        function stopListening() {
-            console.log("Stopping speech recognition");
-            if (silenceCheckTimer) clearInterval(silenceCheckTimer);
-            if (recognitionTimeout) clearTimeout(recognitionTimeout);
-            
-            if (recognition) {
-                try {
-                    recognition.abort();
-                } catch (error) {}
-            }
-            
-            isListening = false;
-            hasRecognitionStarted = false;
-            waveActive.dataset.currentTranscript = "";
+    async function fallbackToSystemVoice(text, resolve){
+      if (voicesLoadedPromise) await voicesLoadedPromise; voicesLoadedPromise = null;
+      if (!('speechSynthesis' in window)){ isSpeaking=false; setTimeout(()=>{ canListen=true; updateRobotState('listening'); startListening() }, 180); return resolve() }
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = speechSynthesis.getVoices();
+      let v = null;
+      if (isIOS) v = voices.find(x=>x.lang==='en-US' && /Samantha|Allison/i.test(x.name));
+      else if (isAndroid) v = voices.find(x=>x.lang==='en-US' && /Google US English/i.test(x.name));
+      else v = voices.find(x=>x.lang==='en-US' && /Google US English|Microsoft Zira|Microsoft Hazel/i.test(x.name)) || voices.find(x=>x.lang==='en-US');
+      if (v) u.voice = v;
+      u.rate = isIOS ? .86 : isAndroid ? .84 : .88; u.pitch = 1.0; u.volume = 1.0;
+
+      u.onend = ()=>{ isSpeaking=false; setTimeout(()=>{ canListen=true; updateWaveVisualizer('listening'); updateStatusIndicator('🎤 Listening…','listening',true); updateRobotState('listening'); startListening() }, 180); resolve() };
+      u.onerror = ()=>{ isSpeaking=false; setTimeout(()=>{ canListen=true; updateRobotState('listening'); startListening() }, 180); resolve() };
+      try{ speechSynthesis.speak(u) }catch(e){ isSpeaking=false; setTimeout(()=>{ canListen=true; updateRobotState('listening'); startListening() }, 180); resolve() }
+    }
+
+    /* ================================
+       Orchestration
+    ==================================*/
+    async function handleUserSpeech(transcript){
+      const t = transcript.trim();
+      if (isSpeaking || !t){ setTimeout(()=>{ canListen=true; updateRobotState('listening'); startListening() }, 160); return }
+      canListen = false; stopListening();
+      updateWaveVisualizer('thinking'); updateStatusIndicator('🧠 Thinking…','thinking',true); updateRobotState('thinking');
+
+      // quick backchannel to feel instant
+      if (!isSpeaking) { speakNovaResponse(Math.random()<0.55 ? "Mm-hmm." : "Got you.").catch(()=>{}) }
+
+      let imageData = null;
+      if (cameraActive) imageData = captureImage();
+      else if (!hasAttemptedCameraInit){ hasAttemptedCameraInit = true; await initializeCamera(); if (cameraActive) imageData = captureImage() }
+
+      try{
+        const reply = await getAIResponse(t, imageData);
+        await speakNovaResponse(reply);
+      }catch(err){
+        await speakNovaResponse("I’m having trouble right now, baby.");
+      }
+    }
+
+    async function startMotherAI(){
+      unlockAudio();
+      await initializeCamera();
+      setupSpeechRecognition();
+
+      startOverlay.style.opacity='0'; setTimeout(()=> startOverlay.style.display='none', 500);
+      if ('speechSynthesis' in window) speechSynthesis.getVoices();
+
+      restingState.classList.add('active');
+
+      setTimeout(async ()=>{
+        if (!hasGreeted){
+          hasGreeted = true; updateRobotState('thinking');
+          const frame = cameraActive ? captureImage() : null;
+          const greet = await getAIResponse(cameraActive ? "Say hello warmly and mention one small true detail you see." : "Say hello in a warm, caring way.", frame);
+          await speakNovaResponse(greet);
         }
-        
-        async function handleUserSpeech(transcript) {
-            const trimmedTranscript = transcript.trim();
-            
-            if (transcript === "SILENCE_DETECTED") {
-                setTimeout(() => {
-                    canListen = true;
-                    updateRobotState('listening');
-                    startListening();
-                }, 300);
-                return;
-            }
-            
-            if (isSpeaking || !trimmedTranscript) {
-                if (!isSpeaking) {
-                    setTimeout(() => {
-                        canListen = true;
-                        updateRobotState('listening');
-                        startListening();
-                    }, 300);
-                }
-                return;
-            }
-            
-            console.log(`User said: "${trimmedTranscript}"`);
-            
-            canListen = false;
-            stopListening();
-            
-            updateWaveVisualizer('thinking');
-            updateStatusIndicator('🧠 Processing...', 'thinking', true);
-            updateRobotState('thinking');
+      }, 800);
+    }
 
-            let imageData = null;
-            if (cameraActive) {
-                imageData = captureImage();
-            } else if (!hasAttemptedCameraInit) {
-                hasAttemptedCameraInit = true;
-                await initializeCamera();
-                if (cameraActive) {
-                    imageData = captureImage();
-                }
-            }
+    document.getElementById('start-button').addEventListener('click', startMotherAI);
 
-            try {
-                const responseText = await getAIResponse(trimmedTranscript, imageData);
-                await speakNovaResponse(responseText);
-            } catch (error) {
-                console.error('AI Error:', error);
-                await speakNovaResponse("I'm having trouble processing that right now.");
-            }
-        }
-        
-        async function speakNovaResponse(text) {
-            return new Promise(async (resolve) => {
-                if (!text) {
-                    setTimeout(() => { 
-                        canListen = true; 
-                        updateRobotState('listening');
-                        startListening(); 
-                    }, 500);
-                    resolve();
-                    return;
-                }
-                
-                isSpeaking = true;
-                canListen = false;
-                stopListening();
-                
-                updateWaveVisualizer('ai-speaking');
-                updateStatusIndicator('🤖 Mother AI speaking', 'ai-speaking', true);
-                updateRobotState('speaking');
+    window.addEventListener('load', ()=>{ console.log(`Platform: ${isIOS?'iOS':isAndroid?'Android':'Desktop'}`) });
 
-                try {
-                    const response = await fetch('/api/nova-speech', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: text })
-                    });
-                    
-                    if (response.ok) {
-                        const audioBlob = await response.blob();
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        
-                        if (isIOS) {
-                            audio.preload = 'auto';
-                            audio.volume = 1.0;
-                        } else if (isAndroid) {
-                            audio.preload = 'metadata';
-                            audio.volume = 0.9;
-                        }
-                        
-                        audio.onended = () => {
-                            isSpeaking = false;
-                            URL.revokeObjectURL(audioUrl);
-                            
-                            const restartDelay = isIOS ? 800 : isAndroid ? 600 : 300;
-                            
-                            setTimeout(() => {
-                                canListen = true;
-                                updateWaveVisualizer('listening');
-                                updateStatusIndicator('🎤 Listening...', 'listening', true);
-                                updateRobotState('listening');
-                                startListening();
-                            }, restartDelay);
-                            resolve();
-                        };
-                        
-                        audio.onerror = (e) => {
-                            URL.revokeObjectURL(audioUrl);
-                            fallbackToSystemVoice(text, resolve);
-                        };
-                        
-                        audio.load();
-                        audio.play().catch(e => {
-                            fallbackToSystemVoice(text, resolve);
-                        });
-                        
-                    } else {
-                        fallbackToSystemVoice(text, resolve);
-                    }
-                } catch (error) {
-                    fallbackToSystemVoice(text, resolve);
-                }
-            });
-        }
-        
-        async function fallbackToSystemVoice(text, resolve) {
-            if (voicesLoadedPromise) await voicesLoadedPromise;
-            voicesLoadedPromise = null;
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.hidden){ stopListening(); canListen=false }
+      else setTimeout(()=>{ canListen=true; if (!isSpeaking) startListening() }, 800)
+    });
 
-            if (!('speechSynthesis' in window)) {
-                isSpeaking = false;
-                setTimeout(() => { 
-                    canListen = true; 
-                    updateRobotState('listening');
-                    startListening(); 
-                }, 500);
-                resolve();
-                return;
-            }
-            
-            speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voices = speechSynthesis.getVoices();
-            let selectedVoice = null;
-            
-            if (isIOS) {
-                selectedVoice = voices.find(v => v.lang === 'en-US' && /Samantha|Allison/i.test(v.name));
-            } else if (isAndroid) {
-                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English/i.test(v.name));
-            } else {
-                selectedVoice = voices.find(v => v.lang === 'en-US' && /Google US English|Microsoft Zira|Microsoft Hazel/i.test(v.name));
-            }
-            
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('female'));
-            }
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v => v.lang === 'en-US');
-            }
-            
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
-            
-            utterance.rate = isIOS ? 0.85 : isAndroid ? 0.82 : 0.88;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
+    // Tap pill or press Space to barge-in immediately
+    statusIndicator.addEventListener('click', ()=>{ if (isSpeaking && ttsAudioEl){ try{ ttsAudioEl.pause(); ttsAudioEl.src=''; }catch{} }});
+    document.addEventListener('keydown', (e)=>{ if (e.code==='Space' && isSpeaking && ttsAudioEl){ try{ ttsAudioEl.pause(); ttsAudioEl.src=''; }catch{} }});
 
-            utterance.onend = () => {
-                isSpeaking = false;
-                
-                setTimeout(() => {
-                    canListen = true;
-                    updateWaveVisualizer('listening');
-                    updateStatusIndicator('🎤 Listening...', 'listening', true);
-                    updateRobotState('listening');
-                    startListening();
-                }, isIOS || isAndroid ? 500 : 300);
-                resolve();
-            };
-
-            utterance.onerror = (e) => {
-                isSpeaking = false;
-                setTimeout(() => { 
-                    canListen = true; 
-                    updateRobotState('listening');
-                    startListening(); 
-                }, 500);
-                resolve();
-            };
-            
-            try {
-                speechSynthesis.speak(utterance);
-            } catch (error) {
-                isSpeaking = false;
-                setTimeout(() => { 
-                    canListen = true; 
-                    updateRobotState('listening');
-                    startListening(); 
-                }, 500);
-                resolve();
-            }
-        }
-        
-        async function getAIResponse(userMessage, imageData = null) {
-            const fullMessage = SYSTEM_PROMPT + "\n\nUser: \"" + userMessage + "\"";
-            
-            const requestData = { 
-                message: fullMessage, 
-                session_id: sessionId,
-                image_data: imageData ? imageData.split(',')[1] : null
-            };
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestData)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                return data.response;
-            } catch (error) {
-                console.error('AI Error:', error);
-                return "I'm having trouble connecting right now.";
-            }
-        }
-        
-        function updateWaveVisualizer(state) { 
-            waveActive.className = 'wave-active ' + state; 
-        }
-        
-        function updateStatusIndicator(text, type, show) {
-            statusIndicator.textContent = text;
-            statusIndicator.className = 'status-indicator';
-            if (type) statusIndicator.classList.add(type);
-            if (show) statusIndicator.classList.add('show');
-        }
-
-        function updateRobotState(state) {
-            stateStatus.textContent = `State: ${state || 'idle'}`;
-            
-            if (state === 'listening') {
-                stateDot.classList.remove('idle');
-                stateDot.style.background = '#10b981';
-                leftEye.style.background = '#10b981';
-                rightEye.style.background = '#10b981';
-                mouth.style.borderColor = '#10b981';
-            } else if (state === 'user-speaking') {
-                stateDot.classList.remove('idle');
-                stateDot.style.background = '#3b82f6';
-                leftEye.style.background = '#3b82f6';
-                rightEye.style.background = '#3b82f6';
-                mouth.style.borderColor = '#3b82f6';
-            } else if (state === 'thinking') {
-                stateDot.classList.remove('idle');
-                stateDot.style.background = '#f59e0b';
-                leftEye.style.background = '#f59e0b';
-                rightEye.style.background = '#f59e0b';
-                mouth.style.borderColor = '#f59e0b';
-            } else if (state === 'speaking') {
-                stateDot.classList.remove('idle');
-                stateDot.style.background = '#764ba2';
-                leftEye.style.background = '#764ba2';
-                rightEye.style.background = '#764ba2';
-                mouth.style.borderColor = '#764ba2';
-            } else {
-                stateDot.classList.add('idle');
-                stateDot.style.background = '#999';
-                leftEye.style.background = '#667eea';
-                rightEye.style.background = '#667eea';
-                mouth.style.borderColor = '#667eea';
-            }
-        }
-        
-        async function initializeCamera() {
-            try {
-                console.log("Initializing camera...");
-                
-                let constraints;
-                if (isIOS) {
-                    try {
-                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
-                            audio: { 
-                                echoCancellation: true, 
-                                noiseSuppression: true,
-                                autoGainControl: false,
-                                sampleRate: 44100
-                            } 
-                        });
-                        
-                        const fullStream = await navigator.mediaDevices.getUserMedia({ 
-                            video: { 
-                                width: { ideal: 640 }, 
-                                height: { ideal: 480 }, 
-                                facingMode: 'user' 
-                            }, 
-                            audio: { 
-                                echoCancellation: true, 
-                                noiseSuppression: true,
-                                autoGainControl: false,
-                                sampleRate: 44100
-                            }
-                        });
-                        
-                        audioStream.getTracks().forEach(track => track.stop());
-                        
-                        const videoElement = document.getElementById('videoElement');
-                        videoElement.srcObject = fullStream;
-                        await new Promise(r => videoElement.onloadedmetadata = r);
-                        videoElement.play();
-                        cameraActive = true;
-                        cameraDot.style.background = '#10b981';
-                        cameraStatus.textContent = 'Camera: Active';
-                        
-                    } catch (iosError) {
-                        const audioStream = await navigator.mediaDevices.getUserMedia({ 
-                            audio: { 
-                                echoCancellation: true, 
-                                noiseSuppression: true,
-                                autoGainControl: false
-                            } 
-                        });
-                        cameraActive = false;
-                    }
-                } else if (isAndroid) {
-                    constraints = { 
-                        video: { 
-                            width: { ideal: 640 }, 
-                            height: { ideal: 480 }, 
-                            facingMode: 'user' 
-                        }, 
-                        audio: { 
-                            autoGainControl: true,
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            sampleRate: 48000
-                        }
-                    };
-                    
-                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    const videoElement = document.getElementById('videoElement');
-                    videoElement.srcObject = mediaStream;
-                    await new Promise(r => videoElement.onloadedmetadata = r);
-                    videoElement.play();
-                    cameraActive = true;
-                    cameraDot.style.background = '#10b981';
-                    cameraStatus.textContent = 'Camera: Active';
-                } else {
-                    constraints = { 
-                        video: { 
-                            width: { ideal: 1280 }, 
-                            height: { ideal: 720 }, 
-                            facingMode: 'user' 
-                        }, 
-                        audio: { 
-                            autoGainControl: true, 
-                            echoCancellation: true, 
-                            noiseSuppression: true,
-                            sampleRate: 48000
-                        }
-                    };
-                    
-                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    const videoElement = document.getElementById('videoElement');
-                    videoElement.srcObject = mediaStream;
-                    await new Promise(r => videoElement.onloadedmetadata = r);
-                    videoElement.play();
-                    cameraActive = true;
-                    cameraDot.style.background = '#10b981';
-                    cameraStatus.textContent = 'Camera: Active';
-                }
-                
-            } catch (error) { 
-                console.error('Camera initialization failed:', error);
-                cameraActive = false;
-            }
-        }
-        
-        function captureImage() {
-            if (!cameraActive) {
-                return null;
-            }
-            
-            const video = document.getElementById('videoElement');
-            if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
-                return null;
-            }
-            
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-                
-                return canvas.toDataURL('image/jpeg', 0.7);
-            } catch (error) {
-                console.error("Error capturing image:", error);
-                return null;
-            }
-        }
-        
-        function unlockAudio() {
-            try {
-                if (isIOS) {
-                    const silentAudio = new Audio();
-                    silentAudio.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADATI2MDF8CAAB//uQRAAAAP8AAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABdgAAmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm+7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u////////////////////////////////////8AAAAATGF2YzU5LjE2AAAAAAAAAAAAAAAAAAAAAAAAGgUZAAAAAAAAAAF2AAAAAAAAAAAAAAAAd//ugRAAP8AAAf4AAAAgAAA0gAAAABAgAAAAAAAAAAAAAAAAAAAAABmltaGVhZHI=';
-                    silentAudio.volume = 0;
-                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
-                } else if (isAndroid) {
-                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
-                } else {
-                    silentAudio.play().then(() => silentAudio.pause()).catch(() => {});
-                }
-                
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance('');
-                    utterance.volume = 0;
-                    speechSynthesis.speak(utterance);
-                    speechSynthesis.cancel();
-                }
-            } catch (error) {
-                console.log("Audio unlock error:", error);
-            }
-        }
-
-        async function startMotherAI() {
-            console.log("Mother AI Protocol Initiated");
-            
-            unlockAudio();
-            await initializeCamera();
-            setupSpeechRecognition();
-
-            startOverlay.style.opacity = '0';
-            setTimeout(() => { startOverlay.style.display = 'none'; }, 500);
-            
-            if ('speechSynthesis' in window) {
-                speechSynthesis.getVoices();
-            }
-
-            restingState.classList.add('active');
-
-            setTimeout(async () => {
-                if (!hasGreeted) {
-                    hasGreeted = true;
-                    updateRobotState('thinking');
-                    const initialImage = cameraActive ? captureImage() : null;
-                    const greeting = await getAIResponse(
-                        cameraActive ? 
-                        "Say hello warmly and mention what you can see" : 
-                        "Say hello in a warm, caring way", 
-                        initialImage
-                    );
-                    await speakNovaResponse(greeting);
-                }
-            }, 1000);
-        }
-
-        document.getElementById('start-button').addEventListener('click', () => {
-            startMotherAI();
-        });
-
-        window.addEventListener('load', () => {
-            console.log(`Platform: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop'}`);
-        });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopListening();
-                canListen = false;
-            } else {
-                setTimeout(() => {
-                    canListen = true;
-                    if (!isSpeaking) {
-                        startListening();
-                    }
-                }, 1000);
-            }
-        });
-
-        window.addEventListener('error', (e) => {
-            console.error('System error:', e);
-            updateStatusIndicator('🔧 Recovering...', 'thinking', true);
-            
-            setTimeout(() => {
-                if (!isSpeaking && !isListening) {
-                    canListen = true;
-                    startListening();
-                }
-            }, 2000);
-        });
-    </script>
+    window.addEventListener('error', ()=>{
+      updateStatusIndicator('🔧 Recovering…','thinking',true);
+      setTimeout(()=>{ if (!isSpeaking && !isListening){ canListen=true; startListening() } }, 1200);
+    });
+  </script>
 </body>
 </html>
